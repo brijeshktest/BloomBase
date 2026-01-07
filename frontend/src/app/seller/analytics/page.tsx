@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { analyticsApi } from '@/lib/api';
-import { BarChart3, TrendingUp, Eye, ShoppingCart, CheckCircle, AlertCircle, Package, Clock, Users } from 'lucide-react';
+import { BarChart3, TrendingUp, Eye, ShoppingCart, CheckCircle, AlertCircle, Package, Clock, Users, Phone, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface AnalyticsOverview {
@@ -32,6 +32,16 @@ interface DailyActivity {
   checkouts: number;
 }
 
+interface Visitor {
+  _id: string;
+  visitorName: string;
+  visitorPhone: string;
+  sessionId: string;
+  timestamp: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('7d');
@@ -39,6 +49,7 @@ export default function AnalyticsPage() {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [dailyActivity, setDailyActivity] = useState<DailyActivity[]>([]);
   const [hourlyActivity, setHourlyActivity] = useState<Array<{ _id: number; count: number }>>([]);
+  const [visitors, setVisitors] = useState<Visitor[]>([]);
 
   useEffect(() => {
     fetchAnalytics();
@@ -47,11 +58,15 @@ export default function AnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await analyticsApi.getOverview(period);
-      setOverview(response.data.overview);
-      setTopProducts(response.data.topProducts || []);
-      setDailyActivity(response.data.dailyActivity || []);
-      setHourlyActivity(response.data.hourlyActivity || []);
+      const [overviewResponse, visitorsResponse] = await Promise.all([
+        analyticsApi.getOverview(period),
+        analyticsApi.getVisitors(period, 50)
+      ]);
+      setOverview(overviewResponse.data.overview);
+      setTopProducts(overviewResponse.data.topProducts || []);
+      setDailyActivity(overviewResponse.data.dailyActivity || []);
+      setHourlyActivity(overviewResponse.data.hourlyActivity || []);
+      setVisitors(visitorsResponse.data.visitors || []);
     } catch (error) {
       console.error(error);
       toast.error('Failed to load analytics');
@@ -284,6 +299,49 @@ export default function AnalyticsPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Visitor Registrations */}
+      {visitors.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-zinc-100 p-6">
+          <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center gap-2">
+            <Users className="text-purple-600" size={24} />
+            Visitor Registrations ({visitors.length})
+          </h2>
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {visitors.map((visitor) => (
+              <div key={visitor._id} className="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <User className="text-purple-600" size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-zinc-900">{visitor.visitorName}</h3>
+                      <div className="flex items-center gap-2 text-sm text-zinc-600">
+                        <Phone size={14} />
+                        <span>{visitor.visitorPhone}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-xs text-zinc-500">
+                    {new Date(visitor.timestamp).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+                {visitor.ipAddress && (
+                  <div className="text-xs text-zinc-500 mt-2">
+                    IP: {visitor.ipAddress}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}

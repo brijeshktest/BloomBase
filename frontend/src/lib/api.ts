@@ -218,6 +218,8 @@ export const analyticsApi = {
     productId?: string;
     page?: string;
     metadata?: Record<string, unknown>;
+    visitorName?: string;
+    visitorPhone?: string;
   }) => api.post('/analytics/track', data),
   
   getOverview: (period?: string) => 
@@ -225,6 +227,9 @@ export const analyticsApi = {
   
   getProductAnalytics: (productId: string, period?: string) =>
     api.get(`/analytics/products/${productId}`, { params: { period } }),
+  
+  getVisitors: (period?: string, limit?: number) =>
+    api.get('/analytics/visitors', { params: { period, limit } }),
 };
 
 export default api;

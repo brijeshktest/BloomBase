@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { getTheme, ThemeKey } from '@/lib/themes';
 import { trackEvent } from '@/utils/analytics';
+import VisitorRegistrationModal from '@/components/VisitorRegistrationModal';
 import toast from 'react-hot-toast';
 import {
   ArrowLeft,
@@ -63,10 +64,32 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
     }
   };
   const [showCart, setShowCart] = useState(false);
+  const [showVisitorModal, setShowVisitorModal] = useState(false);
+  const [visitorRegistered, setVisitorRegistered] = useState(false);
+  const [siteBlocked, setSiteBlocked] = useState(false); // Start unblocked, block when modal appears
 
   const theme = store ? getTheme((store.theme as ThemeKey) || 'minimal') : getTheme('minimal');
 
   useEffect(() => {
+    // Check if visitor already registered in this session
+    const isRegistered = sessionStorage.getItem('bloombase_visitor_registered') === 'true';
+    setVisitorRegistered(isRegistered);
+    
+    if (!isRegistered) {
+      // Show modal after 5 seconds, then block site
+      const timer = setTimeout(() => {
+        setShowVisitorModal(true);
+        setSiteBlocked(true); // Block site when modal appears
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setSiteBlocked(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Always fetch product
     fetchProduct();
   }, [alias, slug]);
   
@@ -86,6 +109,13 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
       fetchCart();
     }
   }, [isAuthenticated, alias]);
+
+  const handleVisitorRegistrationComplete = () => {
+    setShowVisitorModal(false);
+    setVisitorRegistered(true);
+    setSiteBlocked(false);
+    fetchProduct();
+  };
 
   const fetchProduct = async () => {
     try {
@@ -307,6 +337,21 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
 
   return (
     <div className="min-h-screen" style={{ background: theme.background }}>
+      {/* Visitor Registration Modal */}
+      {showVisitorModal && (
+        <VisitorRegistrationModal
+          sellerAlias={alias}
+          onComplete={handleVisitorRegistrationComplete}
+          theme={theme}
+        />
+      )}
+
+      {/* Block site content until visitor registers */}
+      {siteBlocked && (
+        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
+      )}
+      
+      <div style={{ pointerEvents: siteBlocked ? 'none' : 'auto', opacity: siteBlocked ? 0.5 : 1 }}>
       {/* Header */}
       <header style={{ backgroundColor: theme.headerBg }} className="text-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -775,6 +820,7 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

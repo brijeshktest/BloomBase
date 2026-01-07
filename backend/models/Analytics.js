@@ -9,7 +9,7 @@ const analyticsSchema = new mongoose.Schema({
   },
   eventType: {
     type: String,
-    enum: ['page_view', 'product_view', 'add_to_cart', 'remove_from_cart', 'checkout_initiated', 'checkout_completed'],
+    enum: ['page_view', 'product_view', 'add_to_cart', 'remove_from_cart', 'checkout_initiated', 'checkout_completed', 'visitor_registration'],
     required: true,
     index: true
   },
@@ -32,6 +32,14 @@ const analyticsSchema = new mongoose.Schema({
   },
   metadata: {
     type: mongoose.Schema.Types.Mixed
+  },
+  visitorName: {
+    type: String,
+    trim: true
+  },
+  visitorPhone: {
+    type: String,
+    trim: true
   },
   userAgent: String,
   ipAddress: String,

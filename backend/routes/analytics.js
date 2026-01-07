@@ -9,7 +9,7 @@ const router = express.Router();
 // Track analytics event (public endpoint)
 router.post('/track', async (req, res) => {
   try {
-    const { sellerAlias, eventType, sessionId, buyerId, productId, page, metadata } = req.body;
+    const { sellerAlias, eventType, sessionId, buyerId, productId, page, metadata, visitorName, visitorPhone } = req.body;
 
     if (!sellerAlias || !eventType) {
       return res.status(400).json({ message: 'Seller alias and event type are required' });
@@ -34,6 +34,8 @@ router.post('/track', async (req, res) => {
       product: productId || null,
       page: page || null,
       metadata: metadata || {},
+      visitorName: visitorName || null,
+      visitorPhone: visitorPhone || null,
       userAgent,
       ipAddress,
       referrer,
@@ -240,6 +242,53 @@ router.get('/overview', protect, sellerOnly, checkTrial, async (req, res) => {
     });
   } catch (error) {
     console.error('Analytics overview error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get visitor registrations for seller
+router.get('/visitors', protect, sellerOnly, checkTrial, async (req, res) => {
+  try {
+    const { period = '7d', limit = 50 } = req.query;
+    const sellerId = req.user._id;
+
+    // Calculate date range
+    const now = new Date();
+    let startDate = new Date();
+    
+    switch (period) {
+      case '24h':
+        startDate.setHours(now.getHours() - 24);
+        break;
+      case '7d':
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case '30d':
+        startDate.setDate(now.getDate() - 30);
+        break;
+      case '90d':
+        startDate.setDate(now.getDate() - 90);
+        break;
+      default:
+        startDate.setDate(now.getDate() - 7);
+    }
+
+    // Get visitor registrations
+    const visitors = await Analytics.find({
+      seller: sellerId,
+      eventType: 'visitor_registration',
+      timestamp: { $gte: startDate },
+      visitorName: { $exists: true, $ne: null },
+      visitorPhone: { $exists: true, $ne: null }
+    })
+    .sort({ timestamp: -1 })
+    .limit(parseInt(limit))
+    .select('visitorName visitorPhone sessionId timestamp ipAddress userAgent metadata')
+    .lean();
+
+    res.json({ visitors });
+  } catch (error) {
+    console.error('Get visitors error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

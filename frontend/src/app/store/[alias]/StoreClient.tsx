@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { getTheme, ThemeKey } from '@/lib/themes';
 import { trackEvent } from '@/utils/analytics';
+import VisitorRegistrationModal from '@/components/VisitorRegistrationModal';
 import toast from 'react-hot-toast';
 import {
   Search,
@@ -58,6 +59,9 @@ function StoreContent({ alias }: { alias: string }) {
     name: '',
     phone: '+91',
   });
+  const [showVisitorModal, setShowVisitorModal] = useState(false);
+  const [visitorRegistered, setVisitorRegistered] = useState(false);
+  const [siteBlocked, setSiteBlocked] = useState(false); // Start unblocked, block when modal appears
 
   const handlePhoneChange = (value: string) => {
     // Remove all non-digit characters except +
@@ -84,9 +88,28 @@ function StoreContent({ alias }: { alias: string }) {
   const theme = store ? getTheme((store.theme as ThemeKey) || 'minimal') : getTheme('minimal');
 
   useEffect(() => {
+    // Check if visitor already registered in this session
+    const isRegistered = sessionStorage.getItem('bloombase_visitor_registered') === 'true';
+    setVisitorRegistered(isRegistered);
+    
+    if (!isRegistered) {
+      // Show modal after 5 seconds, then block site
+      const timer = setTimeout(() => {
+        setShowVisitorModal(true);
+        setSiteBlocked(true); // Block site when modal appears
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setSiteBlocked(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Always fetch products, but only track if registered or not blocked
     fetchProducts();
-    // Track page view
-    if (alias) {
+    // Track page view only if visitor is registered
+    if (alias && (visitorRegistered || !siteBlocked)) {
       trackEvent(alias, 'page_view', { page: 'store_home' });
     }
   }, [alias, search, category, sort, onSale]);
@@ -96,6 +119,16 @@ function StoreContent({ alias }: { alias: string }) {
       fetchCart();
     }
   }, [isAuthenticated, alias]);
+
+  const handleVisitorRegistrationComplete = () => {
+    setShowVisitorModal(false);
+    setVisitorRegistered(true);
+    setSiteBlocked(false);
+    fetchProducts();
+    if (alias) {
+      trackEvent(alias, 'page_view', { page: 'store_home' });
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -296,6 +329,21 @@ function StoreContent({ alias }: { alias: string }) {
 
   return (
     <div className="min-h-screen" style={{ background: theme.background }}>
+      {/* Visitor Registration Modal */}
+      {showVisitorModal && (
+        <VisitorRegistrationModal
+          sellerAlias={alias}
+          onComplete={handleVisitorRegistrationComplete}
+          theme={theme}
+        />
+      )}
+
+      {/* Block site content until visitor registers */}
+      {siteBlocked && (
+        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
+      )}
+      
+      <div style={{ pointerEvents: siteBlocked ? 'none' : 'auto', opacity: siteBlocked ? 0.5 : 1 }}>
       {/* Header */}
       <header style={{ backgroundColor: theme.headerBg }} className="text-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -823,6 +871,7 @@ function StoreContent({ alias }: { alias: string }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

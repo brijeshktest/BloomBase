@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Store, Smartphone, TrendingUp, Zap, Shield, Heart, Download, AppWindow } from 'lucide-react';
+import { Store, Smartphone, TrendingUp, Zap, Shield, Heart, Download, AppWindow, Search } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -114,6 +114,12 @@ export default function Home() {
                   title: 'Add to Mobile App',
                   description: 'Your customers can add your microsite as a mobile app on their phones! Works like a native app with offline support.',
                   color: 'bg-rose-500',
+                },
+                {
+                  icon: Search,
+                  title: 'SEO Optimization with Guidance',
+                  description: 'We help you optimize your microsite for search engines. Our settings guide you on what to input in each field, so your store appears when customers search for products in your area.',
+                  color: 'bg-purple-500',
                 },
                 {
                   icon: Heart,
@@ -335,8 +341,21 @@ export default function Home() {
                 <li><strong>Free Microsite:</strong> Get your own personalized microsite with a unique URL. Choose from beautiful themes to match your brand identity.</li>
                 <li><strong>No Technical Skills Required:</strong> You don't need coding knowledge or technical expertise. Our platform is designed for everyone, from beginners to experienced sellers.</li>
                 <li><strong>PWA - Mobile App Experience:</strong> Customers can add your microsite as a mobile app on their phone! It installs directly to their home screen and works like a native app with offline support - no app store needed!</li>
-                <li><strong>SEO Optimized:</strong> Your microsite is automatically optimized for search engines, helping customers in your area find your products when they search online.</li>
+                <li><strong>SEO Optimization with Step-by-Step Guidance:</strong> We help you optimize your microsite for search engines! In your store settings, you'll find SEO fields with helpful suggestions on what to input in each field. We guide you on how to fill meta titles, descriptions, keywords, and local area information so your store appears when customers search for products near your location. No technical knowledge needed - just follow our suggestions!</li>
               </ul>
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 p-6 rounded-r-lg mt-6">
+                <h4 className="font-bold text-purple-900 mb-3 flex items-center gap-2">
+                  <Search size={20} className="text-purple-600" />
+                  How Our SEO Guidance Works:
+                </h4>
+                <ul className="space-y-2 text-purple-800 text-sm">
+                  <li>✓ <strong>Clear Instructions:</strong> Each SEO field in settings includes helpful text explaining what to enter</li>
+                  <li>✓ <strong>Examples Provided:</strong> We show you example entries so you know exactly what to write</li>
+                  <li>✓ <strong>Character Counters:</strong> We guide you on optimal length for titles and descriptions</li>
+                  <li>✓ <strong>Keyword Tips:</strong> Learn which keywords help customers find your products in local searches</li>
+                  <li>✓ <strong>Location Optimization:</strong> We explain how adding your area name helps local customers find you</li>
+                </ul>
+              </div>
               <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
                 How to Start Listing Products and Connecting with Buyers
               </h3>
