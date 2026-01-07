@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="arrowGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#15803d"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(60,60)" filter="url(#softShadow)">
+    <!-- growth arrow swoosh -->
+    <path d="M40 420 C 160 470, 340 460, 470 370 C 580 295, 655 250, 710 250"
+          fill="none" stroke="url(#arrowGreen)" stroke-width="48" stroke-linecap="round"/>
+    <path d="M690 228 L770 250 L700 292"
+          fill="none" stroke="url(#arrowGreen)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- back house -->
+    <path d="M140 300 L270 210 L400 300 Z" fill="#16a34a" opacity="0.85"/>
+    <rect x="175" y="300" width="190" height="170" rx="14" fill="#14532d" opacity="0.85"/>
+
+    <!-- front shop -->
+    <path d="M255 300 L410 185 L565 300 Z" fill="#f97316"/>
+    <rect x="295" y="300" width="230" height="190" rx="16" fill="#b45309"/>
+
+    <!-- awning -->
+    <rect x="315" y="295" width="190" height="52" rx="10" fill="#fdba74"/>
+    <g opacity="0.7">
+      <rect x="315" y="295" width="32" height="52" fill="#ffffff"/>
+      <rect x="379" y="295" width="32" height="52" fill="#ffffff"/>
+      <rect x="443" y="295" width="32" height="52" fill="#ffffff"/>
+    </g>
+
+    <!-- shopping bag -->
+    <rect x="385" y="368" width="76" height="92" rx="12" fill="#ffffff"/>
+    <path d="M402 384 C 402 364, 416 351, 435 351 C 454 351, 468 364, 468 384"
+          fill="none" stroke="#9a3412" stroke-width="9" stroke-linecap="round"/>
+
+    <!-- plant -->
+    <rect x="180" y="435" width="76" height="60" rx="12" fill="#7c2d12"/>
+    <path d="M196 435 C 198 404, 218 380, 240 380 C 228 411, 214 425, 196 435 Z" fill="#16a34a"/>
+    <path d="M238 435 C 236 404, 258 382, 282 382 C 273 411, 262 427, 238 435 Z" fill="#22c55e"/>
+
+    <!-- parcel -->
+    <rect x="270" y="445" width="105" height="66" rx="12" fill="#f59e0b"/>
+    <rect x="315" y="445" width="24" height="66" fill="#fde68a" opacity="0.95"/>
+
+    <!-- wifi -->
+    <path d="M390 150 C 415 132, 455 132, 480 150" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round"/>
+    <path d="M409 182 C 421 172, 449 172, 461 182" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="435" cy="212" r="9" fill="#16a34a"/>
+
+    <!-- sparkles -->
+    <g transform="translate(590,250)">
+      <path d="M28 0 L36 18 L54 26 L36 34 L28 52 L20 34 L2 26 L20 18 Z" fill="#f97316"/>
+      <path d="M82 18 L88 30 L100 36 L88 42 L82 54 L76 42 L64 36 L76 30 Z" fill="#fb923c"/>
+      <path d="M62 70 L66 78 L74 82 L66 86 L62 94 L58 86 L50 82 L58 78 Z" fill="#fdba74"/>
+    </g>
+  </g>
+</svg>
+
+
