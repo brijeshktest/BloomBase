@@ -82,6 +82,11 @@ const userSchema = new mongoose.Schema({
   trialEndsAt: {
     type: Date
   },
+  // Track if account is suspended due to expired trial
+  isSuspended: {
+    type: Boolean,
+    default: false
+  },
   // Buyer specific - which seller's site they registered on
   registeredOnSeller: {
     type: mongoose.Schema.Types.ObjectId,
@@ -112,6 +117,39 @@ userSchema.pre('save', function(next) {
   }
   next();
 });
+
+// Method to check and auto-suspend if trial expired
+userSchema.methods.checkAndSuspendIfExpired = async function() {
+  if (this.role === 'seller' && this.trialEndsAt && new Date() > this.trialEndsAt) {
+    if (!this.isSuspended) {
+      this.isSuspended = true;
+      this.isActive = false; // Also deactivate
+      await this.save();
+      return true; // Was suspended
+    }
+    return true; // Already suspended
+  }
+  return false; // Not suspended
+};
+
+// Static method to auto-suspend all expired sellers
+userSchema.statics.autoSuspendExpiredSellers = async function() {
+  const now = new Date();
+  const result = await this.updateMany(
+    {
+      role: 'seller',
+      trialEndsAt: { $lt: now },
+      isSuspended: false
+    },
+    {
+      $set: {
+        isSuspended: true,
+        isActive: false
+      }
+    }
+  );
+  return result.modifiedCount;
+};
 
 module.exports = mongoose.model('User', userSchema);
 

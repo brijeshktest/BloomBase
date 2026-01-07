@@ -14,6 +14,7 @@ export interface User {
   businessBanner?: string;
   isApproved?: boolean;
   isActive?: boolean;
+  isSuspended?: boolean;
   trialEndsAt?: string;
   address?: {
     street?: string;

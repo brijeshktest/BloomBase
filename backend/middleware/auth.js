@@ -21,7 +21,17 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ message: 'User not found' });
     }
     
+    // Auto-suspend if trial expired (for sellers)
+    if (user.role === 'seller') {
+      await user.checkAndSuspendIfExpired();
+      // Refresh user data after potential suspension
+      await user.populate();
+    }
+    
     if (!user.isActive) {
+      if (user.isSuspended) {
+        return res.status(403).json({ message: 'Your account has been suspended due to expired trial. Please contact admin to extend your subscription.' });
+      }
       return res.status(401).json({ message: 'Account has been deactivated' });
     }
     
@@ -54,10 +64,12 @@ const sellerOnly = (req, res, next) => {
 };
 
 // Check if seller trial is valid
-const checkTrial = (req, res, next) => {
+const checkTrial = async (req, res, next) => {
   if (req.user && req.user.role === 'seller') {
-    if (req.user.trialEndsAt && new Date() > req.user.trialEndsAt) {
-      return res.status(403).json({ message: 'Your trial period has expired' });
+    // Auto-suspend if expired
+    const wasSuspended = await req.user.checkAndSuspendIfExpired();
+    if (wasSuspended || req.user.isSuspended) {
+      return res.status(403).json({ message: 'Your account has been suspended due to expired trial. Please contact admin to extend your subscription.' });
     }
   }
   next();

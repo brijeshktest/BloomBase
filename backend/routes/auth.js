@@ -4,6 +4,7 @@ const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const { createSlug } = require('../utils/slugify');
 const { protect } = require('../middleware/auth');
+const { normalizeIndianPhone } = require('../utils/phone');
 
 const router = express.Router();
 
@@ -23,6 +24,12 @@ router.post('/register/seller', [
     }
 
     const { email, password, name, phone, businessName, theme, businessDescription, address } = req.body;
+    let normalizedPhone;
+    try {
+      normalizedPhone = normalizeIndianPhone(phone);
+    } catch (err) {
+      return res.status(400).json({ message: err.message || 'Invalid phone number' });
+    }
 
     // Check if email exists
     const existingUser = await User.findOne({ email });
@@ -42,7 +49,7 @@ router.post('/register/seller', [
       email,
       password,
       name,
-      phone,
+      phone: normalizedPhone,
       role: 'seller',
       businessName,
       alias,
@@ -135,7 +142,7 @@ router.post('/register/buyer', [
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    const buyer = await User.create({
+    const buyerData = {
       email,
       password,
       name,
@@ -144,7 +151,18 @@ router.post('/register/buyer', [
       registeredOnSeller: seller._id,
       isApproved: true,
       isActive: true
-    });
+    };
+
+    // Normalize phone if provided
+    if (phone) {
+      try {
+        buyerData.phone = normalizeIndianPhone(phone);
+      } catch (err) {
+        return res.status(400).json({ message: err.message || 'Invalid phone number' });
+      }
+    }
+
+    const buyer = await User.create(buyerData);
 
     const token = generateToken(buyer._id);
 
@@ -235,9 +253,21 @@ router.put('/profile', protect, async (req, res) => {
 
     // If seller changes phone, require re-verification
     if (req.user.role === 'seller' && updates.phone && updates.phone !== req.user.phone) {
+      try {
+        updates.phone = normalizeIndianPhone(updates.phone);
+      } catch (err) {
+        return res.status(400).json({ message: err.message || 'Invalid phone number' });
+      }
       updates.phoneVerified = false;
       updates.phoneVerificationToken = undefined;
       updates.phoneVerificationExpiresAt = undefined;
+    } else if (updates.phone) {
+      // For non-sellers / buyer phone updates, still normalize
+      try {
+        updates.phone = normalizeIndianPhone(updates.phone);
+      } catch (err) {
+        return res.status(400).json({ message: err.message || 'Invalid phone number' });
+      }
     }
 
     const user = await User.findByIdAndUpdate(req.user._id, updates, {

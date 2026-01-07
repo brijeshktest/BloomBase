@@ -21,7 +21,9 @@ import {
   Calendar,
   MessageCircle,
   ShieldCheck,
-  Send
+  Send,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -38,6 +40,7 @@ export default function AdminPage() {
     totalSellers: 0,
     pendingSellers: 0,
     activeSellers: 0,
+    suspendedSellers: 0,
     totalBuyers: 0,
     totalProducts: 0,
     trialExpiringSoon: 0,
@@ -45,6 +48,9 @@ export default function AdminPage() {
   const [sellers, setSellers] = useState<SellerWithStats[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
+  const [selectedSeller, setSelectedSeller] = useState<SellerWithStats | null>(null);
+  const [extensionMonths, setExtensionMonths] = useState(1);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -96,7 +102,6 @@ export default function AdminPage() {
       const response = await adminApi.approveSeller(seller._id || seller.id);
       toast.success('Seller approved');
       
-      // Open WhatsApp notification in new tab
       if (response.data.notificationUrl) {
         window.open(response.data.notificationUrl, '_blank');
       }
@@ -133,17 +138,32 @@ export default function AdminPage() {
     }
   };
 
-  const handleExtendTrial = async (seller: SellerWithStats) => {
-    const days = prompt('Extend trial by how many days?', '30');
-    if (!days) return;
+  const openExtensionModal = (seller: SellerWithStats) => {
+    setSelectedSeller(seller);
+    setExtensionMonths(1);
+    setShowExtensionModal(true);
+  };
+
+  const handleExtendValidity = async () => {
+    if (!selectedSeller || extensionMonths < 1) {
+      toast.error('Please select valid number of months');
+      return;
+    }
 
     try {
-      await adminApi.extendTrial(seller._id || seller.id, parseInt(days));
-      toast.success(`Trial extended by ${days} days`);
-      fetchSellers();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to extend trial');
+      const response = await adminApi.extendValidity(selectedSeller._id || selectedSeller.id, extensionMonths);
+      toast.success(`Account extended by ${extensionMonths} month${extensionMonths > 1 ? 's' : ''}`);
+      
+      if (response.data.notificationUrl) {
+        window.open(response.data.notificationUrl, '_blank');
+      }
+      
+      setShowExtensionModal(false);
+      setSelectedSeller(null);
+      fetchData();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to extend validity');
     }
   };
 
@@ -201,11 +221,12 @@ export default function AdminPage() {
 
       <main className="max-w-7xl mx-auto p-6 space-y-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
           {[
             { label: 'Total Sellers', value: stats.totalSellers, icon: Users, color: 'bg-cyan-500' },
             { label: 'Pending', value: stats.pendingSellers, icon: Clock, color: 'bg-amber-500' },
             { label: 'Active', value: stats.activeSellers, icon: CheckCircle, color: 'bg-emerald-500' },
+            { label: 'Suspended', value: stats.suspendedSellers, icon: AlertTriangle, color: 'bg-red-500' },
             { label: 'Total Buyers', value: stats.totalBuyers, icon: Users, color: 'bg-violet-500' },
             { label: 'Products', value: stats.totalProducts, icon: Package, color: 'bg-rose-500' },
             { label: 'Trials Ending', value: stats.trialExpiringSoon, icon: Calendar, color: 'bg-orange-500' },
@@ -250,6 +271,7 @@ export default function AdminPage() {
               <option value="pending">Pending Approval</option>
               <option value="approved">Approved</option>
               <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
               <option value="inactive">Inactive</option>
             </select>
           </div>
@@ -273,122 +295,215 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {sellers.map((seller) => (
-                    <tr key={seller._id || seller.id} className="hover:bg-zinc-50">
-                      <td className="px-6 py-4">
-                        <div>
-                          <p className="font-medium text-zinc-900">{seller.name}</p>
-                          <p className="text-sm text-zinc-500">{seller.email}</p>
-                          <a
-                            href={`https://wa.me/${seller.phone?.replace(/\+/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-emerald-600 hover:underline flex items-center gap-1"
-                          >
-                            <MessageCircle size={14} />
-                            {seller.phone}
-                          </a>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div>
-                          <p className="font-medium text-zinc-900">{seller.businessName}</p>
-                          {seller.alias && (
-                            <Link
-                              href={`/store/${seller.alias}`}
+                  {sellers.map((seller) => {
+                    const isSuspended = seller.isSuspended || false;
+                    return (
+                      <tr 
+                        key={seller._id || seller.id} 
+                        className={`hover:bg-zinc-50 ${isSuspended ? 'bg-red-50/50 border-l-4 border-red-500' : ''}`}
+                      >
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-medium text-zinc-900">{seller.name}</p>
+                            <p className="text-sm text-zinc-500">{seller.email}</p>
+                            <a
+                              href={`https://wa.me/${seller.phone?.replace(/\+/g, '')}`}
                               target="_blank"
-                              className="text-sm text-cyan-600 hover:underline flex items-center gap-1"
+                              rel="noopener noreferrer"
+                              className="text-sm text-emerald-600 hover:underline flex items-center gap-1"
                             >
-                              <ExternalLink size={14} />
-                              {seller.alias}
-                            </Link>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 hidden md:table-cell">
-                        <span className="text-zinc-900">{seller.activeProductCount || 0}</span>
-                        <span className="text-zinc-400"> / {seller.productCount || 0}</span>
-                      </td>
-                      <td className="px-6 py-4 hidden lg:table-cell text-sm text-zinc-600">
-                        {formatDate(seller.trialEndsAt)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1">
-                          {!seller.isApproved ? (
-                            <span className="badge badge-warning">Pending</span>
-                          ) : seller.isActive ? (
-                            <span className="badge badge-success">Active</span>
-                          ) : (
-                            <span className="badge badge-danger">Inactive</span>
-                          )}
-                          <span className={`badge ${seller.phoneVerified ? 'badge-success' : 'badge-warning'}`}>
-                            <span className="inline-flex items-center gap-1">
-                              <ShieldCheck size={12} />
-                              {seller.phoneVerified ? 'Phone verified' : 'Phone not verified'}
+                              <MessageCircle size={14} />
+                              {seller.phone}
+                            </a>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-medium text-zinc-900">{seller.businessName}</p>
+                            {seller.alias && (
+                              <Link
+                                href={`/store/${seller.alias}`}
+                                target="_blank"
+                                className="text-sm text-cyan-600 hover:underline flex items-center gap-1"
+                              >
+                                <ExternalLink size={14} />
+                                {seller.alias}
+                              </Link>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell">
+                          <span className="text-zinc-900">{seller.activeProductCount || 0}</span>
+                          <span className="text-zinc-400"> / {seller.productCount || 0}</span>
+                        </td>
+                        <td className="px-6 py-4 hidden lg:table-cell text-sm text-zinc-600">
+                          {formatDate(seller.trialEndsAt)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1">
+                            {isSuspended ? (
+                              <span className="badge badge-danger">Suspended</span>
+                            ) : !seller.isApproved ? (
+                              <span className="badge badge-warning">Pending</span>
+                            ) : seller.isActive ? (
+                              <span className="badge badge-success">Active</span>
+                            ) : (
+                              <span className="badge badge-danger">Inactive</span>
+                            )}
+                            <span className={`badge ${seller.phoneVerified ? 'badge-success' : 'badge-warning'}`}>
+                              <span className="inline-flex items-center gap-1">
+                                <ShieldCheck size={12} />
+                                {seller.phoneVerified ? 'Phone verified' : 'Phone not verified'}
+                              </span>
                             </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          {!seller.isApproved && (
-                            <>
-                              {!seller.phoneVerified && (
-                                <button
-                                  onClick={() => handleSendVerification(seller)}
-                                  className="p-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200"
-                                  title="Send WhatsApp verification link"
-                                >
-                                  <Send size={18} />
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleApprove(seller)}
-                                disabled={!seller.phoneVerified}
-                                className={`p-2 rounded-lg ${
-                                  seller.phoneVerified
-                                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                                    : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
-                                }`}
-                                title={seller.phoneVerified ? 'Approve' : 'Requires phone verification'}
-                              >
-                                <CheckCircle size={18} />
-                              </button>
-                            </>
-                          )}
-                          {seller.isApproved && (
-                            <>
-                              <button
-                                onClick={() => handleToggle(seller)}
-                                className="p-2 rounded-lg hover:bg-zinc-100"
-                                title={seller.isActive ? 'Deactivate' : 'Activate'}
-                              >
-                                {seller.isActive ? (
-                                  <ToggleRight size={22} className="text-emerald-600" />
-                                ) : (
-                                  <ToggleLeft size={22} className="text-zinc-400" />
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            {!seller.isApproved && (
+                              <>
+                                {!seller.phoneVerified && (
+                                  <button
+                                    onClick={() => handleSendVerification(seller)}
+                                    className="p-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200"
+                                    title="Send WhatsApp verification link"
+                                  >
+                                    <Send size={18} />
+                                  </button>
                                 )}
-                              </button>
-                              <button
-                                onClick={() => handleExtendTrial(seller)}
-                                className="p-2 rounded-lg hover:bg-zinc-100"
-                                title="Extend Trial"
-                              >
-                                <Calendar size={18} className="text-zinc-600" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                                <button
+                                  onClick={() => handleApprove(seller)}
+                                  disabled={!seller.phoneVerified}
+                                  className={`p-2 rounded-lg ${
+                                    seller.phoneVerified
+                                      ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                      : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+                                  }`}
+                                  title={seller.phoneVerified ? 'Approve' : 'Requires phone verification'}
+                                >
+                                  <CheckCircle size={18} />
+                                </button>
+                              </>
+                            )}
+                            {seller.isApproved && (
+                              <>
+                                {isSuspended ? (
+                                  <button
+                                    onClick={() => openExtensionModal(seller)}
+                                    className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"
+                                    title="Extend Validity"
+                                  >
+                                    <Calendar size={18} />
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => handleToggle(seller)}
+                                      className="p-2 rounded-lg hover:bg-zinc-100"
+                                      title={seller.isActive ? 'Deactivate' : 'Activate'}
+                                    >
+                                      {seller.isActive ? (
+                                        <ToggleRight size={22} className="text-emerald-600" />
+                                      ) : (
+                                        <ToggleLeft size={22} className="text-zinc-400" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={() => openExtensionModal(seller)}
+                                      className="p-2 rounded-lg hover:bg-zinc-100"
+                                      title="Extend Validity"
+                                    >
+                                      <Calendar size={18} className="text-zinc-600" />
+                                    </button>
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
         </div>
       </main>
+
+      {/* Extension Modal */}
+      {showExtensionModal && selectedSeller && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
+              <h2 className="text-xl font-bold">Extend Seller Validity</h2>
+              <button
+                onClick={() => {
+                  setShowExtensionModal(false);
+                  setSelectedSeller(null);
+                }}
+                className="p-2 hover:bg-zinc-100 rounded-lg"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <p className="text-sm text-zinc-600 mb-1">Seller</p>
+                <p className="font-semibold">{selectedSeller.name}</p>
+                <p className="text-sm text-zinc-500">{selectedSeller.businessName}</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-zinc-600 mb-1">Current Trial End Date</p>
+                <p className="font-medium">{formatDate(selectedSeller.trialEndsAt)}</p>
+              </div>
+
+              <div>
+                <label className="form-label">Extend by (Months)</label>
+                <select
+                  className="form-input"
+                  value={extensionMonths}
+                  onChange={(e) => setExtensionMonths(parseInt(e.target.value))}
+                >
+                  {[1, 2, 3, 6, 12].map((months) => (
+                    <option key={months} value={months}>
+                      {months} {months === 1 ? 'Month' : 'Months'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedSeller.isSuspended && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <p className="text-sm text-amber-800">
+                    <strong>Note:</strong> This seller's account is currently suspended. Extending validity will automatically reactivate the account.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-zinc-100 flex gap-4">
+              <button
+                onClick={() => {
+                  setShowExtensionModal(false);
+                  setSelectedSeller(null);
+                }}
+                className="flex-1 btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExtendValidity}
+                className="flex-1 btn btn-primary"
+              >
+                Extend Validity
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

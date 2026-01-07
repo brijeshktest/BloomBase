@@ -152,8 +152,8 @@ export const adminApi = {
   toggleSeller: (id: string) => 
     api.patch(`/admin/sellers/${id}/toggle`),
   
-  extendTrial: (id: string, days: number) => 
-    api.patch(`/admin/sellers/${id}/extend-trial`, { days }),
+  extendValidity: (id: string, months: number) => 
+    api.patch(`/admin/sellers/${id}/extend-validity`, { months }),
 };
 
 // Upload APIs

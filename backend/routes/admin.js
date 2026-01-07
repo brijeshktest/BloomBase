@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Product = require('../models/Product');
 const { protect, adminOnly } = require('../middleware/auth');
 const crypto = require('crypto');
+const { normalizeIndianPhone } = require('../utils/phone');
 
 const router = express.Router();
 
@@ -18,8 +19,10 @@ router.get('/sellers', protect, adminOnly, async (req, res) => {
     if (status === 'active') {
       query.isApproved = true;
       query.isActive = true;
+      query.isSuspended = false;
     }
     if (status === 'inactive') query.isActive = false;
+    if (status === 'suspended') query.isSuspended = true;
 
     if (search) {
       query.$or = [
@@ -69,9 +72,13 @@ router.get('/sellers', protect, adminOnly, async (req, res) => {
 // Get dashboard stats
 router.get('/stats', protect, adminOnly, async (req, res) => {
   try {
+    // Auto-suspend expired sellers first
+    await User.autoSuspendExpiredSellers();
+
     const totalSellers = await User.countDocuments({ role: 'seller' });
     const pendingSellers = await User.countDocuments({ role: 'seller', isApproved: false });
-    const activeSellers = await User.countDocuments({ role: 'seller', isApproved: true, isActive: true });
+    const activeSellers = await User.countDocuments({ role: 'seller', isApproved: true, isActive: true, isSuspended: false });
+    const suspendedSellers = await User.countDocuments({ role: 'seller', isSuspended: true });
     const totalBuyers = await User.countDocuments({ role: 'buyer' });
     const totalProducts = await Product.countDocuments();
 
@@ -81,13 +88,15 @@ router.get('/stats', protect, adminOnly, async (req, res) => {
     
     const trialExpiringSoon = await User.countDocuments({
       role: 'seller',
-      trialEndsAt: { $lte: sevenDaysFromNow, $gte: new Date() }
+      trialEndsAt: { $lte: sevenDaysFromNow, $gte: new Date() },
+      isSuspended: false
     });
 
     res.json({
       totalSellers,
       pendingSellers,
       activeSellers,
+      suspendedSellers,
       totalBuyers,
       totalProducts,
       trialExpiringSoon
@@ -158,6 +167,14 @@ router.post('/sellers/:id/send-phone-verification', protect, adminOnly, async (r
     seller.phoneVerificationExpiresAt = expiresAt;
     await seller.save();
 
+    // Ensure stored phone is normalized
+    try {
+      seller.phone = normalizeIndianPhone(seller.phone);
+      await seller.save();
+    } catch (err) {
+      return res.status(400).json({ message: err.message || 'Invalid seller phone number' });
+    }
+
     const sellerPhone = seller.phone.replace(/\+/g, '').replace(/\s/g, '');
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const verifyUrl = `${frontendUrl}/verify-phone?token=${token}`;
@@ -202,10 +219,14 @@ router.patch('/sellers/:id/toggle', protect, adminOnly, async (req, res) => {
   }
 });
 
-// Extend seller trial
-router.patch('/sellers/:id/extend-trial', protect, adminOnly, async (req, res) => {
+// Extend seller validity by months
+router.patch('/sellers/:id/extend-validity', protect, adminOnly, async (req, res) => {
   try {
-    const { days } = req.body;
+    const { months } = req.body;
+    
+    if (!months || months < 1) {
+      return res.status(400).json({ message: 'Please provide valid number of months (minimum 1)' });
+    }
     
     const seller = await User.findOne({ _id: req.params.id, role: 'seller' });
     
@@ -213,16 +234,28 @@ router.patch('/sellers/:id/extend-trial', protect, adminOnly, async (req, res) =
       return res.status(404).json({ message: 'Seller not found' });
     }
 
-    const currentEndDate = seller.trialEndsAt || new Date();
-    const newEndDate = new Date(currentEndDate);
-    newEndDate.setDate(newEndDate.getDate() + (days || 30));
+    // If suspended, extend from now, otherwise extend from current end date
+    const baseDate = seller.isSuspended ? new Date() : (seller.trialEndsAt || new Date());
+    const newEndDate = new Date(baseDate);
+    newEndDate.setMonth(newEndDate.getMonth() + months);
     
     seller.trialEndsAt = newEndDate;
+    seller.isSuspended = false; // Unsuspend
+    seller.isActive = true; // Reactivate
+    
     await seller.save();
 
+    // Send WhatsApp notification
+    const sellerPhone = seller.phone.replace(/\+/g, '').replace(/\s/g, '');
+    const message = encodeURIComponent(
+      `✅ Account Extended!\n\nHi ${seller.name},\n\nYour BloomBase seller account has been extended by ${months} month${months > 1 ? 's' : ''}.\n\nYour account is now active until ${newEndDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}.\n\nYou can now login and continue selling! 🚀`
+    );
+    const whatsappUrl = `https://wa.me/${sellerPhone}?text=${message}`;
+
     res.json({ 
-      message: `Trial extended by ${days || 30} days`,
-      trialEndsAt: seller.trialEndsAt
+      message: `Account extended by ${months} month${months > 1 ? 's' : ''}`,
+      trialEndsAt: seller.trialEndsAt,
+      notificationUrl: whatsappUrl
     });
   } catch (error) {
     console.error(error);

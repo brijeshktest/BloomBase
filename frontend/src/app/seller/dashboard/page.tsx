@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { productApi } from '@/lib/api';
 import { Product } from '@/types';
-import { Package, Eye, TrendingUp, Clock, Plus, ExternalLink } from 'lucide-react';
+import { Package, Eye, TrendingUp, Clock, Plus, ExternalLink, Copy, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function SellerDashboard() {
@@ -59,6 +59,25 @@ export default function SellerDashboard() {
   };
 
   const trialDays = daysUntilTrialEnds();
+  const [copied, setCopied] = useState(false);
+
+  const storeUrl = user?.alias 
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/store/${user.alias}`
+    : '';
+
+  const handleCopyLink = async () => {
+    if (!storeUrl) return;
+    
+    try {
+      await navigator.clipboard.writeText(storeUrl);
+      setCopied(true);
+      toast.success('Store link copied to clipboard!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      toast.error('Failed to copy link');
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -133,19 +152,38 @@ export default function SellerDashboard() {
       {user?.alias && (
         <div className="bg-gradient-to-r from-cyan-600 to-teal-600 rounded-2xl p-6 text-white">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
+            <div className="flex-grow">
               <h3 className="text-lg font-semibold">Your Store is Live!</h3>
               <p className="text-cyan-100 mt-1">
                 Share this link with your customers
               </p>
-              <p className="mt-2 font-mono bg-white/20 px-3 py-1 rounded-lg inline-block text-sm">
-                {typeof window !== 'undefined' ? window.location.origin : ''}/store/{user.alias}
-              </p>
+              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                <p className="font-mono bg-white/20 px-3 py-1 rounded-lg text-sm">
+                  {storeUrl}
+                </p>
+                <button
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm font-medium"
+                  title="Copy store link"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={16} />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             <Link
               href={`/store/${user.alias}`}
               target="_blank"
-              className="btn bg-white text-cyan-700 hover:bg-cyan-50"
+              className="btn bg-white text-cyan-700 hover:bg-cyan-50 flex-shrink-0"
             >
               <ExternalLink size={20} />
               Visit Store
