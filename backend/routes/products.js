@@ -13,12 +13,21 @@ const router = express.Router();
 router.get('/store/:alias', async (req, res) => {
   try {
     const { alias } = req.params;
-    const { search, sort, category, page = 1, limit = 20 } = req.query;
+    const { search, sort, category, page = 1, limit = 20, onSale } = req.query;
 
     const seller = await User.findOne({ alias, role: 'seller', isActive: true, isApproved: true });
     if (!seller) {
       return res.status(404).json({ message: 'Store not found' });
     }
+
+    // Get active promotions first (used for sale banner + optional filtering)
+    const now = new Date();
+    const promotions = await Promotion.find({
+      seller: seller._id,
+      isActive: true,
+      startDate: { $lte: now },
+      endDate: { $gte: now }
+    });
 
     let query = { seller: seller._id, isActive: true };
 
@@ -30,6 +39,72 @@ router.get('/store/:alias', async (req, res) => {
     // Category filter
     if (category) {
       query.category = category;
+    }
+
+    // Filter only products on sale (have an active promotion)
+    const onSaleEnabled = onSale === '1' || onSale === 'true';
+    if (onSaleEnabled) {
+      if (!promotions || promotions.length === 0) {
+        // No active promotions => no sale items
+        return res.json({
+          products: [],
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total: 0,
+            pages: 0
+          },
+          categories: [],
+          store: {
+            businessName: seller.businessName,
+            businessDescription: seller.businessDescription,
+            theme: seller.theme,
+            logo: seller.businessLogo,
+            banner: seller.businessBanner
+          },
+          activePromotions: []
+        });
+      }
+
+      const appliesToAll = promotions.some((p) => p.applyToAll);
+      if (!appliesToAll) {
+        const promotedIds = [
+          ...new Set(
+            promotions
+              .flatMap((p) => (p.products || []).map((id) => id.toString()))
+              .filter(Boolean)
+          )
+        ];
+
+        if (promotedIds.length === 0) {
+          return res.json({
+            products: [],
+            pagination: {
+              page: parseInt(page),
+              limit: parseInt(limit),
+              total: 0,
+              pages: 0
+            },
+            categories: [],
+            store: {
+              businessName: seller.businessName,
+              businessDescription: seller.businessDescription,
+              theme: seller.theme,
+              logo: seller.businessLogo,
+              banner: seller.businessBanner
+            },
+            activePromotions: promotions.map((p) => ({
+              _id: p._id,
+              name: p.name,
+              discountType: p.discountType,
+              discountValue: p.discountValue,
+              applyToAll: p.applyToAll
+            }))
+          });
+        }
+
+        query._id = { $in: promotedIds };
+      }
     }
 
     // Sorting
@@ -48,15 +123,6 @@ router.get('/store/:alias', async (req, res) => {
       .limit(parseInt(limit));
 
     const total = await Product.countDocuments(query);
-
-    // Get active promotions
-    const now = new Date();
-    const promotions = await Promotion.find({
-      seller: seller._id,
-      isActive: true,
-      startDate: { $lte: now },
-      endDate: { $gte: now }
-    });
 
     // Apply promotions to products
     const productsWithDiscounts = products.map(product => {
@@ -96,7 +162,14 @@ router.get('/store/:alias', async (req, res) => {
         theme: seller.theme,
         logo: seller.businessLogo,
         banner: seller.businessBanner
-      }
+      },
+      activePromotions: promotions.map((p) => ({
+        _id: p._id,
+        name: p.name,
+        discountType: p.discountType,
+        discountValue: p.discountValue,
+        applyToAll: p.applyToAll
+      }))
     });
   } catch (error) {
     console.error(error);

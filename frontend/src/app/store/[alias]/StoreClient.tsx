@@ -21,7 +21,9 @@ import {
   Minus,
   ChevronDown,
   AlertCircle,
-  Bell
+  Bell,
+  Tag,
+  ArrowRight
 } from 'lucide-react';
 
 function StoreContent({ alias }: { alias: string }) {
@@ -33,9 +35,17 @@ function StoreContent({ alias }: { alias: string }) {
   const [store, setStore] = useState<StoreType | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [activePromotions, setActivePromotions] = useState<Array<{
+    _id: string;
+    name: string;
+    discountType: 'percentage' | 'absolute';
+    discountValue: number;
+    applyToAll: boolean;
+  }>>([]);
   const [search, setSearch] = useState(searchParams?.get('search') || '');
   const [category, setCategory] = useState(searchParams?.get('category') || '');
   const [sort, setSort] = useState('newest');
+  const [onSale, setOnSale] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -74,7 +84,7 @@ function StoreContent({ alias }: { alias: string }) {
 
   useEffect(() => {
     fetchProducts();
-  }, [alias, search, category, sort]);
+  }, [alias, search, category, sort, onSale]);
 
   useEffect(() => {
     if (isAuthenticated && user?.role === 'buyer') {
@@ -88,16 +98,27 @@ function StoreContent({ alias }: { alias: string }) {
       if (search) params.search = search;
       if (category) params.category = category;
       if (sort) params.sort = sort;
+      if (onSale) params.onSale = '1';
 
       const response = await productApi.getStoreProducts(alias, params);
       setProducts(response.data.products);
       setCategories(response.data.categories);
       setStore(response.data.store);
+      setActivePromotions(response.data.activePromotions || []);
     } catch (error) {
       console.error(error);
       toast.error('Failed to load store');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePromotionBannerClick = () => {
+    setOnSale(!onSale);
+    // Clear other filters when toggling sale filter
+    if (!onSale) {
+      setSearch('');
+      setCategory('');
     }
   };
 
@@ -306,6 +327,76 @@ function StoreContent({ alias }: { alias: string }) {
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        </div>
+      )}
+
+      {/* Promotion Banner */}
+      {activePromotions.length > 0 && !onSale && (
+        <div className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 py-4 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto">
+            <button
+              onClick={handlePromotionBannerClick}
+              className="w-full flex items-center justify-between gap-4 text-white hover:opacity-90 transition-opacity"
+            >
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="bg-white/20 p-2 sm:p-3 rounded-full">
+                  <Tag size={24} className="sm:w-6 sm:h-6" />
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                  <span className="text-lg sm:text-xl font-bold">SALE LIVE NOW!</span>
+                  {activePromotions.map((promo, idx) => (
+                    <span key={promo._id} className="text-sm sm:text-base font-semibold">
+                      {idx > 0 && ' • '}
+                      {promo.name}
+                      {promo.discountType === 'percentage' ? (
+                        <span className="ml-1 bg-white/30 px-2 py-0.5 rounded-md">
+                          {promo.discountValue}% OFF
+                        </span>
+                      ) : (
+                        <span className="ml-1 bg-white/30 px-2 py-0.5 rounded-md">
+                          ₹{promo.discountValue} OFF
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm sm:text-base font-semibold">
+                <span>View Sale Products</span>
+                <ArrowRight size={20} className="sm:w-5 sm:h-5" />
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Active Sale Filter Indicator */}
+      {onSale && activePromotions.length > 0 && (
+        <div className="w-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 py-3 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3 text-white flex-wrap">
+              <Tag size={20} />
+              <span className="font-semibold">Showing Sale Products</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                {activePromotions.map((promo) => (
+                  <span key={promo._id} className="text-sm bg-white/20 px-2 py-0.5 rounded-md">
+                    {promo.name}
+                    {promo.discountType === 'percentage' ? (
+                      <span className="ml-1 font-bold">{promo.discountValue}% OFF</span>
+                    ) : (
+                      <span className="ml-1 font-bold">₹{promo.discountValue} OFF</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => setOnSale(false)}
+              className="text-white hover:bg-white/20 px-4 py-1.5 rounded-lg transition-colors font-medium text-sm sm:text-base whitespace-nowrap"
+            >
+              View All Products
+            </button>
+          </div>
         </div>
       )}
 
