@@ -62,6 +62,52 @@ export default function StructuredData() {
     },
   };
 
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': `${baseUrl}#business`,
+    name: 'BloomBase - Wholesale Marketplace',
+    description: 'Wholesale marketplace platform for sellers in Sadar Bazar Delhi and across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at best rates. Bulk supply, cash on delivery available.',
+    url: baseUrl,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Delhi',
+      addressRegion: 'Delhi',
+      addressCountry: 'IN',
+      streetAddress: 'Sadar Bazar Area'
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '28.6619',
+      longitude: '77.2273'
+    },
+    areaServed: [
+      {
+        '@type': 'City',
+        name: 'Delhi'
+      },
+      {
+        '@type': 'Country',
+        name: 'India'
+      }
+    ],
+    priceRange: '$$',
+    openingHours: 'Mo-Su 00:00-23:59',
+    serviceArea: {
+      '@type': 'GeoCircle',
+      geoMidpoint: {
+        '@type': 'GeoCoordinates',
+        latitude: '28.6619',
+        longitude: '77.2273'
+      },
+      geoRadius: {
+        '@type': 'Distance',
+        value: '50',
+        unitCode: 'KIL'
+      }
+    }
+  };
+
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -98,6 +144,38 @@ export default function StructuredData() {
           text: 'No coding required! BloomBase provides a simple interface where you can create your store, add products, choose themes, and start selling - all without any technical knowledge.',
         },
       },
+      {
+        '@type': 'Question',
+        name: 'Can I sell wholesale products on BloomBase?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes! BloomBase is perfect for wholesale sellers. You can set minimum order quantities, offer volume-based pricing for bulk supply, and list products at best rates. Perfect for sellers in Sadar Bazar Delhi and other wholesale markets.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Do you support cash on delivery (COD)?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes! BloomBase integrates with WhatsApp checkout, allowing you to handle cash on delivery orders directly. Customers checkout via WhatsApp and you can arrange COD delivery as per your terms.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What products can I list on BloomBase?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'You can list any products including toys, gift items, school supplies, home decor, kitchen items, beddings, and more. Perfect for wholesale sellers offering bulk supply at cheapest rates.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How do customers find my store when searching for wholesale products?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'BloomBase stores are SEO optimized. When customers search for terms like "sadar bazar delhi wholesale toy market", "wholesale beddings cheapest rate", "bulk supply kitchen items", or similar keywords, your store can appear in search results based on your location and product categories.',
+        },
+      },
     ],
   };
 
@@ -118,6 +196,10 @@ export default function StructuredData() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
       />
     </>
   );

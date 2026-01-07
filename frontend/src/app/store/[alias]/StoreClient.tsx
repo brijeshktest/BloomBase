@@ -8,6 +8,7 @@ import { Product, Store as StoreType } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { getTheme, ThemeKey } from '@/lib/themes';
+import { trackEvent } from '@/utils/analytics';
 import toast from 'react-hot-toast';
 import {
   Search,
@@ -84,6 +85,10 @@ function StoreContent({ alias }: { alias: string }) {
 
   useEffect(() => {
     fetchProducts();
+    // Track page view
+    if (alias) {
+      trackEvent(alias, 'page_view', { page: 'store_home' });
+    }
   }, [alias, search, category, sort, onSale]);
 
   useEffect(() => {
@@ -185,6 +190,12 @@ function StoreContent({ alias }: { alias: string }) {
         quantity: product.minimumOrderQuantity,
         sellerAlias: alias,
       });
+      // Track add to cart event
+      trackEvent(alias, 'add_to_cart', {
+        productId: product._id,
+        buyerId: user?._id || user?.id,
+        metadata: { quantity: product.minimumOrderQuantity, productName: product.name }
+      });
       toast.success('Added to cart');
       fetchCart();
     } catch (error: unknown) {
@@ -227,8 +238,29 @@ function StoreContent({ alias }: { alias: string }) {
 
   const handleCheckout = async () => {
     try {
+      // Track checkout initiated
+      trackEvent(alias, 'checkout_initiated', {
+        buyerId: user?._id || user?.id,
+        metadata: { 
+          cartItems: items.length, 
+          cartTotal: cartTotal,
+          items: items.map(i => ({ productId: i.product._id, quantity: i.quantity }))
+        }
+      });
+      
       const response = await cartApi.checkout(alias);
       window.open(response.data.whatsappUrl, '_blank');
+      
+      // Track checkout completed
+      trackEvent(alias, 'checkout_completed', {
+        buyerId: user?._id || user?.id,
+        metadata: { 
+          cartItems: items.length, 
+          cartTotal: cartTotal,
+          whatsappUrl: response.data.whatsappUrl
+        }
+      });
+      
       setCart([], 0, alias);
       setShowCart(false);
       toast.success('Order sent to WhatsApp!');
@@ -486,7 +518,16 @@ function StoreContent({ alias }: { alias: string }) {
                 className="rounded-xl overflow-hidden shadow-md transition-transform hover:scale-[1.02]"
                 style={{ backgroundColor: theme.cardBg }}
               >
-                <Link href={`/store/${alias}/product/${product.slug}`}>
+                <Link 
+                  href={`/store/${alias}/product/${product.slug}`}
+                  onClick={() => {
+                    trackEvent(alias, 'product_view', {
+                      productId: product._id,
+                      buyerId: user?._id || user?.id,
+                      page: 'store_listing'
+                    });
+                  }}
+                >
                   <div className="aspect-square relative bg-zinc-100">
                     {product.images[0] ? (
                       <img
@@ -521,7 +562,16 @@ function StoreContent({ alias }: { alias: string }) {
                 </Link>
                 
                 <div className="p-3">
-                  <Link href={`/store/${alias}/product/${product.slug}`}>
+                  <Link 
+                    href={`/store/${alias}/product/${product.slug}`}
+                    onClick={() => {
+                      trackEvent(alias, 'product_view', {
+                        productId: product._id,
+                        buyerId: user?._id || user?.id,
+                        page: 'store_listing'
+                      });
+                    }}
+                  >
                     <h3 className="font-semibold text-sm truncate" style={{ color: theme.textPrimary }}>
                       {product.name}
                     </h3>

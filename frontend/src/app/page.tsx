@@ -26,15 +26,15 @@ export default function Home() {
                 />
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-tight animate-fade-in">
-                Online Platform to
+                Wholesale Marketplace for
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-green-300">
-                  List Your Products
+                  Best Rates & Bulk Supply
                 </span>
-                <span className="block">Connect with Buyers on WhatsApp</span>
+                <span className="block text-2xl sm:text-3xl lg:text-4xl mt-4">Sadar Bazar Delhi • Cash on Delivery</span>
               </h1>
               
               <p className="mt-6 text-lg sm:text-xl text-cyan-100 max-w-2xl mx-auto animate-fade-in stagger-1">
-                BloomBase helps you create a beautiful online store in minutes. List your products, connect with buyers via WhatsApp checkout, and grow your home-based business. No coding required.
+                List toys, gift items, school supplies, home decor, kitchen items, beddings at cheapest rates. Perfect for wholesale sellers in Sadar Bazar Delhi. Bulk supply, COD, best rates - all with WhatsApp checkout!
               </p>
               
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in stagger-2">
@@ -357,14 +357,146 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Wholesale & Product Categories SEO Section */}
+        <section className="py-24 bg-gradient-to-br from-zinc-50 to-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-4">
+                Wholesale Marketplace for <span className="text-cyan-600">Best Rates & Bulk Supply</span>
+              </h2>
+              <p className="text-lg text-zinc-600 max-w-3xl mx-auto">
+                BloomBase is the perfect platform for wholesale sellers in Sadar Bazar Delhi and across India to list their products and reach customers looking for bulk supply at cheapest rates with cash on delivery options.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {[
+                { category: 'Toys', keywords: 'wholesale toy market, toys, toy supplier' },
+                { category: 'Gift Items', keywords: 'gift items, wholesale gifts, gift supplier' },
+                { category: 'School Supplies', keywords: 'school supplies, stationery, educational products' },
+                { category: 'Home Decor', keywords: 'home decor, home decoration, decorative items' },
+                { category: 'Kitchen Items', keywords: 'kitchen items, kitchenware, kitchen products' },
+                { category: 'Beddings', keywords: 'beddings, bedding, bed sheets, blankets' },
+              ].map((item) => (
+                <div key={item.category} className="bg-white rounded-xl p-6 shadow-sm border border-zinc-100 hover:shadow-md transition-shadow">
+                  <h3 className="text-xl font-bold text-zinc-900 mb-2">{item.category}</h3>
+                  <p className="text-sm text-zinc-600 mb-4">
+                    List {item.category.toLowerCase()} at best wholesale rates. Offer bulk supply and cash on delivery to attract more buyers.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {item.keywords.split(', ').map((keyword) => (
+                      <span key={keyword} className="px-2 py-1 bg-zinc-100 rounded text-xs text-zinc-600">
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-gradient-to-r from-cyan-600 to-teal-600 rounded-2xl p-8 text-white">
+              <h3 className="text-2xl font-black mb-4">Why Choose BloomBase for Wholesale Business?</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-lg mb-2">💰 Best Rates & Cheapest Prices</h4>
+                  <p className="text-cyan-100">
+                    Showcase your products at the cheapest rates. Volume-based pricing helps you offer better deals for bulk orders, attracting more wholesale buyers.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg mb-2">📦 Bulk Supply Made Easy</h4>
+                  <p className="text-cyan-100">
+                    Set minimum order quantities and volume discounts. Perfect for wholesale sellers who want to sell in bulk at competitive rates.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg mb-2">🚚 Cash on Delivery (COD)</h4>
+                  <p className="text-cyan-100">
+                    With WhatsApp checkout, you can handle cash on delivery orders directly. Customers checkout via WhatsApp and you can arrange COD delivery.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg mb-2">📍 Perfect for Sadar Bazar Delhi Sellers</h4>
+                  <p className="text-cyan-100">
+                    If you're selling in Sadar Bazar Delhi or any wholesale market, BloomBase helps you create an online presence. Customers searching for "sadar bazar delhi wholesale" or "wholesale toy market" can find your store.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Location-Based SEO Section */}
+        <section className="py-24 bg-white">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-8 text-center">
+              Wholesale Sellers in <span className="text-cyan-600">Sadar Bazar Delhi</span> - List Your Products Online
+            </h2>
+            <div className="prose prose-lg max-w-none">
+              <p className="text-lg text-zinc-700 mb-6">
+                Are you a wholesale seller in <strong>Sadar Bazar Delhi</strong> looking to expand your reach? BloomBase helps you create an online store where customers can discover your products, compare rates, and place bulk orders. Whether you sell toys, gift items, school supplies, home decor, kitchen items, beddings, or any other products, BloomBase makes it easy to go digital.
+              </p>
+              <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
+                Features for Wholesale Sellers
+              </h3>
+              <ul className="list-disc list-inside space-y-3 text-zinc-700 mb-6">
+                <li><strong>Best Rates & Cheapest Prices:</strong> Display your wholesale rates clearly. Use volume pricing to offer better rates for bulk purchases, making your store the go-to place for cheapest rates.</li>
+                <li><strong>Bulk Supply:</strong> Set minimum order quantities and offer discounts for bulk orders. Perfect for wholesale buyers looking for bulk supply deals.</li>
+                <li><strong>Cash on Delivery:</strong> WhatsApp checkout allows you to handle COD orders. Customers checkout via WhatsApp and you can arrange cash on delivery as per your terms.</li>
+                <li><strong>Product Categories:</strong> List toys, gift items, school supplies, home decor, kitchen items, beddings, and more. Organize products by category for easy discovery.</li>
+                <li><strong>Location-Based SEO:</strong> When customers search for "sadar bazar delhi wholesale toy market" or "wholesale beddings delhi cheapest rate", your store can appear in search results if you're located in that area.</li>
+              </ul>
+              <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
+                Why Wholesale Buyers Choose BloomBase Sellers
+              </h3>
+              <ul className="list-disc list-inside space-y-3 text-zinc-700 mb-6">
+                <li>Compare rates from multiple sellers easily</li>
+                <li>Find bulk suppliers at cheapest rates</li>
+                <li>View product images and details before ordering</li>
+                <li>Check minimum order quantities for bulk supply</li>
+                <li>Contact sellers directly via WhatsApp</li>
+                <li>Cash on delivery options available</li>
+                <li>Search by location (e.g., "sadar bazar delhi") to find local sellers</li>
+              </ul>
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg mt-8">
+                <p className="text-zinc-800 font-semibold mb-2">🎯 Target Keywords:</p>
+                <p className="text-zinc-700 text-sm mb-3">
+                  BloomBase is optimized to appear in search results when customers search for:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    'sadar bazar delhi',
+                    'wholesale toy market',
+                    'wholesale',
+                    'cheapest rate',
+                    'toy',
+                    'gift items',
+                    'school supplies',
+                    'home decor',
+                    'kitchen items',
+                    'beddings',
+                    'best rates',
+                    'cash on delivery',
+                    'bulk supply'
+                  ].map((keyword) => (
+                    <span key={keyword} className="px-3 py-1 bg-white rounded-full text-xs font-medium text-zinc-700 border border-amber-200">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-24 bg-gradient-to-r from-cyan-600 to-teal-600 text-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-5xl font-black mb-6">
-              Ready to List Your Products Online?
+              Start Your Wholesale Business Online Today
             </h2>
             <p className="text-xl text-cyan-100 mb-10">
-              Start using BloomBase today - the best online platform to list products and connect with buyers on WhatsApp. Join thousands of successful sellers and grow your business.
+              Whether you're in Sadar Bazar Delhi or anywhere in India, list your wholesale products at best rates. Offer bulk supply, cash on delivery (COD), and reach more customers. Join thousands of sellers offering toys, gift items, school supplies, home decor, kitchen items, beddings at cheapest rates.
             </p>
             <Link
               href="/register"

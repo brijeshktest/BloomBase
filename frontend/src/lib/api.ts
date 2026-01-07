@@ -208,5 +208,24 @@ export const bulkUploadApi = {
   },
 };
 
+// Analytics APIs
+export const analyticsApi = {
+  track: (data: {
+    sellerAlias: string;
+    eventType: string;
+    sessionId?: string;
+    buyerId?: string;
+    productId?: string;
+    page?: string;
+    metadata?: Record<string, unknown>;
+  }) => api.post('/analytics/track', data),
+  
+  getOverview: (period?: string) => 
+    api.get('/analytics/overview', { params: { period } }),
+  
+  getProductAnalytics: (productId: string, period?: string) =>
+    api.get(`/analytics/products/${productId}`, { params: { period } }),
+};
+
 export default api;
 

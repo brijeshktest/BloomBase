@@ -42,6 +42,10 @@ export default function SettingsPage() {
           state: user.address?.state || '',
           pincode: user.address?.pincode || '',
         },
+        seoMetaTitle: user.seoMetaTitle || '',
+        seoMetaDescription: user.seoMetaDescription || '',
+        seoKeywords: user.seoKeywords || [],
+        seoLocalArea: user.seoLocalArea || '',
       });
     }
   }, [user]);
@@ -306,6 +310,154 @@ export default function SettingsPage() {
                 value={formData.address.pincode}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, pincode: e.target.value } })}
               />
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Optimization Settings */}
+        <div className="bg-white rounded-2xl shadow-sm border border-zinc-100 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+              <Search size={20} className="text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold">SEO Optimization</h2>
+              <p className="text-sm text-zinc-600 mt-1">
+                Optimize your microsite for search engines to help customers find your products
+              </p>
+            </div>
+            <div className="relative group">
+              <HelpCircle size={20} className="text-zinc-400 cursor-help" />
+              <div className="absolute right-0 top-8 w-80 p-4 bg-zinc-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                <p className="mb-2 font-semibold">💡 SEO Tips:</p>
+                <ul className="space-y-1 list-disc list-inside text-zinc-300">
+                  <li>Include your business name and main product in meta title</li>
+                  <li>Add your location (city/pincode) to appear in local searches</li>
+                  <li>Use keywords customers would search for</li>
+                  <li>Be specific and descriptive</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <Info className="text-purple-600 flex-shrink-0 mt-0.5" size={18} />
+              <div className="text-sm text-purple-900">
+                <p className="font-semibold mb-1">How SEO Settings Work:</p>
+                <p className="text-purple-800 mb-2">
+                  These settings help your store appear in search results when customers search for products in your area. 
+                  For example, if someone searches for "toys in Delhi" or "gift items near [your pincode]", your store can appear in the results.
+                </p>
+                <p className="text-purple-800">
+                  <strong>Pro Tip:</strong> Always include your location (city, pincode, or local area name) and main product categories in your keywords. 
+                  This helps local customers find you easily!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="form-label flex items-center gap-2">
+                Meta Title
+                <span className="text-xs text-zinc-400 font-normal">(Max 100 characters)</span>
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="e.g., Handmade Toys & Gifts by [Your Business Name] - Delhi"
+                value={formData.seoMetaTitle}
+                onChange={(e) => setFormData({ ...formData, seoMetaTitle: e.target.value })}
+                maxLength={100}
+              />
+              <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
+                <Info size={12} />
+                A concise, keyword-rich title that appears in search results. Include your business name, main product type, and location.
+              </p>
+              <div className="mt-1 text-xs text-zinc-400">
+                Character count: {formData.seoMetaTitle.length}/100
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label flex items-center gap-2">
+                Meta Description
+                <span className="text-xs text-zinc-400 font-normal">(Max 300 characters)</span>
+              </label>
+              <textarea
+                className="form-input"
+                rows={3}
+                placeholder="e.g., Discover unique handmade toys, custom gifts, and home decor items from [Your Business Name] in Delhi. Best prices, bulk orders welcome, cash on delivery available."
+                value={formData.seoMetaDescription}
+                onChange={(e) => setFormData({ ...formData, seoMetaDescription: e.target.value })}
+                maxLength={300}
+              />
+              <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
+                <Info size={12} />
+                A brief summary of your store and products that appears in search results. Include keywords, your location, and what makes you special.
+              </p>
+              <div className="mt-1 text-xs text-zinc-400">
+                Character count: {formData.seoMetaDescription.length}/300
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label">Keywords (comma-separated)</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="e.g., handmade toys, custom gifts, home decor, Delhi, [your pincode], wholesale, best rates, cash on delivery"
+                value={formData.seoKeywords.join(', ')}
+                onChange={(e) => {
+                  const keywords = e.target.value.split(',').map(k => k.trim()).filter(k => k.length > 0);
+                  setFormData({ ...formData, seoKeywords: keywords });
+                }}
+              />
+              <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
+                <Info size={12} />
+                List relevant keywords that customers might use to find your products. Include: product types, your city/pincode, local area names (e.g., "Sadar Bazar Delhi"), and services (wholesale, COD, etc.)
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {formData.seoKeywords.map((keyword, idx) => (
+                  <span key={idx} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label">Local Area Name (Optional)</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="e.g., Sadar Bazar, Connaught Place, Karol Bagh, etc."
+                value={formData.seoLocalArea}
+                onChange={(e) => setFormData({ ...formData, seoLocalArea: e.target.value })}
+              />
+              <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
+                <Info size={12} />
+                If you're located in a well-known area or market (like "Sadar Bazar Delhi"), add it here. This helps customers searching for that specific location find your store.
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <p className="text-sm font-semibold text-blue-900 mb-2">📋 Example SEO Setup:</p>
+              <div className="text-xs text-blue-800 space-y-2">
+                <div>
+                  <strong>Meta Title:</strong> "Wholesale Toys & Gifts - [Business Name] - Sadar Bazar Delhi"
+                </div>
+                <div>
+                  <strong>Meta Description:</strong> "Best wholesale toys, gift items, and school supplies in Sadar Bazar Delhi. Cheapest rates, bulk orders, cash on delivery. Visit our store or order online!"
+                </div>
+                <div>
+                  <strong>Keywords:</strong> "toys, gift items, school supplies, Sadar Bazar Delhi, wholesale, cheapest rate, bulk supply, cash on delivery, [your pincode]"
+                </div>
+                <div>
+                  <strong>Local Area:</strong> "Sadar Bazar Delhi"
+                </div>
+              </div>
             </div>
           </div>
         </div>
