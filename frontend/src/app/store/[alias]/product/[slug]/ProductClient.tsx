@@ -35,8 +35,30 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
     email: '',
     password: '',
     name: '',
-    phone: '',
+    phone: '+91',
   });
+
+  const handlePhoneChange = (value: string) => {
+    // Remove all non-digit characters except +
+    let cleaned = value.replace(/[^\d+]/g, '');
+    
+    // Ensure it starts with +91
+    if (!cleaned.startsWith('+91')) {
+      if (cleaned.startsWith('91')) {
+        cleaned = '+91' + cleaned.slice(2);
+      } else if (cleaned.startsWith('+')) {
+        cleaned = '+91' + cleaned.slice(1);
+      } else {
+        cleaned = '+91' + cleaned;
+      }
+    }
+    
+    // Limit to +91 followed by max 10 digits
+    const digits = cleaned.slice(3);
+    if (digits.length <= 10) {
+      setAuthForm({ ...authForm, phone: cleaned });
+    }
+  };
   const [showCart, setShowCart] = useState(false);
 
   const theme = store ? getTheme((store.theme as ThemeKey) || 'minimal') : getTheme('minimal');
@@ -87,8 +109,14 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
         setAuth(response.data.user, response.data.token);
         toast.success('Welcome back!');
       } else {
+        // Ensure phone has +91 prefix
+        const phoneWithPrefix = authForm.phone.startsWith('+91') 
+          ? authForm.phone 
+          : '+91' + authForm.phone.replace(/\D/g, '');
+        
         const response = await authApi.registerBuyer({
           ...authForm,
+          phone: phoneWithPrefix,
           sellerAlias: alias,
         });
         setAuth(response.data.user, response.data.token);
@@ -467,7 +495,7 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
       <footer className="py-6 text-center mt-8" style={{ backgroundColor: theme.footerBg }}>
         <p className="text-sm text-white/70">
           Powered by{' '}
-          <Link href="/" className="font-semibold text-white hover:underline">
+          <Link href="/" className="font-semibold text-white hover:underline" target="_blank" rel="noopener noreferrer">
             BloomBase
           </Link>
         </p>
@@ -497,13 +525,22 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
                     onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
                     required
                   />
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    className="form-input"
-                    value={authForm.phone}
-                    onChange={(e) => setAuthForm({ ...authForm, phone: e.target.value })}
-                  />
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium z-10 pointer-events-none">+91</span>
+                    <input
+                      type="tel"
+                      placeholder="XXXXXXXXXX"
+                      className="form-input pl-20"
+                      value={authForm.phone.replace('+91', '')}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '');
+                        if (digits.length <= 10) {
+                          handlePhoneChange('+91' + digits);
+                        }
+                      }}
+                      maxLength={10}
+                    />
+                  </div>
                 </>
               )}
               <input
