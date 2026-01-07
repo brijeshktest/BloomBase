@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { productApi } from '@/lib/api';
+import { productApi, bulkUploadApi } from '@/lib/api';
 import { Product } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
@@ -16,7 +16,11 @@ import {
   ToggleRight,
   X,
   Upload,
-  Link as LinkIcon
+  Link as LinkIcon,
+  FileSpreadsheet,
+  Download,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 
 function ProductsContent() {
@@ -50,6 +54,14 @@ function ProductsContent() {
   const [video, setVideo] = useState<File | null>(null);
   const [videoType, setVideoType] = useState<'file' | 'link'>('link');
   const [saving, setSaving] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [excelFile, setExcelFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<{
+    success: number;
+    errors: number;
+    details?: any;
+  } | null>(null);
 
   useEffect(() => {
     if (searchParams?.get('action') === 'new') {
@@ -236,10 +248,19 @@ function ProductsContent() {
           <h1 className="text-2xl font-bold text-zinc-900">Products</h1>
           <p className="text-zinc-600">Manage your product catalog</p>
         </div>
-        <button onClick={openNewProductModal} className="btn btn-primary">
-          <Plus size={20} />
-          Add Product
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => setShowBulkUpload(true)} 
+            className="btn btn-secondary"
+          >
+            <FileSpreadsheet size={20} />
+            Bulk Upload
+          </button>
+          <button onClick={openNewProductModal} className="btn btn-primary">
+            <Plus size={20} />
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -633,6 +654,209 @@ function ProductsContent() {
                 className="flex-1 btn btn-primary disabled:opacity-50"
               >
                 {saving ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Upload Modal */}
+      {showBulkUpload && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-zinc-100 flex items-center justify-between sticky top-0 bg-white">
+              <h2 className="text-xl font-bold">Bulk Upload Products</h2>
+              <button
+                onClick={() => {
+                  setShowBulkUpload(false);
+                  setExcelFile(null);
+                  setUploadResult(null);
+                }}
+                className="p-2 hover:bg-zinc-100 rounded-lg"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Instructions */}
+              <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                <h3 className="font-semibold text-cyan-900 mb-2">How to use Bulk Upload:</h3>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-cyan-800">
+                  <li>Download the sample Excel template</li>
+                  <li>Fill in your product details (required fields: Product Name, Description, Category, Base Price)</li>
+                  <li>Upload the completed Excel file</li>
+                  <li>Add images and videos later by editing individual products</li>
+                </ol>
+              </div>
+
+              {/* Download Sample */}
+              <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center">
+                <FileSpreadsheet className="mx-auto text-zinc-400 mb-3" size={48} />
+                <h3 className="font-semibold text-zinc-900 mb-2">Download Sample Template</h3>
+                <p className="text-sm text-zinc-600 mb-4">
+                  Get the Excel template with required columns and sample data
+                </p>
+                <a
+                  href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/bulk-upload/sample`}
+                  download="bloombase-product-template.xlsx"
+                  className="btn btn-secondary inline-flex items-center justify-center"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    try {
+                      const token = localStorage.getItem('token');
+                      const response = await fetch(
+                        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/bulk-upload/sample`,
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      );
+                      const blob = await response.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = 'bloombase-product-template.xlsx';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      window.URL.revokeObjectURL(url);
+                      toast.success('Template downloaded');
+                    } catch (error) {
+                      console.error(error);
+                      toast.error('Failed to download template');
+                    }
+                  }}
+                >
+                  <Download size={20} />
+                  Download Template
+                </a>
+              </div>
+
+              {/* Upload File */}
+              <div>
+                <label className="form-label">Upload Excel File</label>
+                <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center">
+                  <Upload className="mx-auto text-zinc-400 mb-2" size={32} />
+                  <p className="text-sm text-zinc-600 mb-2">
+                    {excelFile ? excelFile.name : 'Click or drag Excel file here'}
+                  </p>
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    className="w-full"
+                    onChange={(e) => setExcelFile(e.target.files?.[0] || null)}
+                  />
+                  <p className="text-xs text-zinc-500 mt-2">
+                    Supported formats: .xlsx, .xls (Max 10MB)
+                  </p>
+                </div>
+              </div>
+
+              {/* Upload Results */}
+              {uploadResult && (
+                <div className={`rounded-xl p-4 ${
+                  uploadResult.errors === 0 
+                    ? 'bg-emerald-50 border border-emerald-200' 
+                    : 'bg-amber-50 border border-amber-200'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    {uploadResult.errors === 0 ? (
+                      <CheckCircle className="text-emerald-600 flex-shrink-0 mt-0.5" size={20} />
+                    ) : (
+                      <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
+                    )}
+                    <div className="flex-grow">
+                      <p className="font-semibold mb-2">
+                        {uploadResult.errors === 0 
+                          ? 'All products uploaded successfully!' 
+                          : 'Upload completed with some errors'}
+                      </p>
+                      <div className="text-sm space-y-1">
+                        <p>✅ Successfully uploaded: {uploadResult.success}</p>
+                        {uploadResult.errors > 0 && (
+                          <p>❌ Errors: {uploadResult.errors}</p>
+                        )}
+                      </div>
+                      {uploadResult.details?.errors && uploadResult.details.errors.length > 0 && (
+                        <div className="mt-3 max-h-40 overflow-y-auto">
+                          <p className="text-xs font-semibold mb-1">Error Details:</p>
+                          {uploadResult.details.errors.map((err: any, idx: number) => (
+                            <p key={idx} className="text-xs">
+                              Row {err.row}: {err.error}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-zinc-100 flex gap-4 sticky bottom-0 bg-white">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowBulkUpload(false);
+                  setExcelFile(null);
+                  setUploadResult(null);
+                }}
+                className="flex-1 btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!excelFile) {
+                    toast.error('Please select an Excel file');
+                    return;
+                  }
+
+                  setUploading(true);
+                  setUploadResult(null);
+
+                  try {
+                    const response = await bulkUploadApi.uploadProducts(excelFile);
+                    setUploadResult({
+                      success: response.data.success,
+                      errors: response.data.errors,
+                      details: response.data.details
+                    });
+                    
+                    if (response.data.success > 0) {
+                      toast.success(`${response.data.success} products uploaded successfully!`);
+                      fetchProducts();
+                    }
+                    
+                    if (response.data.errors > 0) {
+                      toast.error(`${response.data.errors} products failed to upload`);
+                    }
+                  } catch (error: unknown) {
+                    const err = error as { response?: { data?: { message?: string } } };
+                    toast.error(err.response?.data?.message || 'Failed to upload products');
+                  } finally {
+                    setUploading(false);
+                  }
+                }}
+                disabled={!excelFile || uploading}
+                className="flex-1 btn btn-primary disabled:opacity-50"
+              >
+                {uploading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={20} />
+                    Upload Products
+                  </>
+                )}
               </button>
             </div>
           </div>

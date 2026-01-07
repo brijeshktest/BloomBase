@@ -175,5 +175,23 @@ export const uploadApi = {
   },
 };
 
+// Bulk Upload APIs
+export const bulkUploadApi = {
+  downloadSample: async () => {
+    const response = await api.get('/bulk-upload/sample', {
+      responseType: 'blob',
+    });
+    return response;
+  },
+  
+  uploadProducts: (file: File) => {
+    const formData = new FormData();
+    formData.append('excel', file);
+    return api.post('/bulk-upload/products', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};
+
 export default api;
 
