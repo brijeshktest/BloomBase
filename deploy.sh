@@ -24,26 +24,9 @@ MONGODB_URI="${MONGODB_URI:-mongodb://localhost:27017/bloombase}"
 BACKEND_PORT="${BACKEND_PORT:-5000}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 
-# Get EC2 public IP if domain not set
-if [ "$DOMAIN_NAME" = "your-domain.com" ]; then
-    PUBLIC_IP=$(curl -s --connect-timeout 2 http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "")
-    if [ -z "$PUBLIC_IP" ]; then
-        print_warning "Could not detect EC2 public IP. Please set DOMAIN_NAME environment variable."
-        print_warning "Using 'localhost' as fallback. Update FRONTEND_URL in .env files after deployment."
-        DOMAIN_NAME="localhost"
-    else
-        DOMAIN_NAME="$PUBLIC_IP"
-        echo -e "${YELLOW}Using EC2 public IP: $PUBLIC_IP${NC}"
-    fi
-fi
-
 PROJECT_DIR="/opt/bloombase"
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
-
-echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}BloomBase Deployment Script${NC}"
-echo -e "${GREEN}========================================${NC}"
 
 # Function to print status
 print_status() {
@@ -57,6 +40,23 @@ print_error() {
 print_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
+
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}BloomBase Deployment Script${NC}"
+echo -e "${GREEN}========================================${NC}"
+
+# Get EC2 public IP if domain not set
+if [ "$DOMAIN_NAME" = "your-domain.com" ]; then
+    PUBLIC_IP=$(curl -s --connect-timeout 2 http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "")
+    if [ -z "$PUBLIC_IP" ]; then
+        print_warning "Could not detect EC2 public IP. Please set DOMAIN_NAME environment variable."
+        print_warning "Using 'localhost' as fallback. Update FRONTEND_URL in .env files after deployment."
+        DOMAIN_NAME="localhost"
+    else
+        DOMAIN_NAME="$PUBLIC_IP"
+        print_status "Using EC2 public IP: $PUBLIC_IP"
+    fi
+fi
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then 
