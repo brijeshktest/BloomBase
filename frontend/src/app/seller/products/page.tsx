@@ -20,7 +20,9 @@ import {
   FileSpreadsheet,
   Download,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Info,
+  PackagePlus
 } from 'lucide-react';
 
 function ProductsContent() {
@@ -62,6 +64,10 @@ function ProductsContent() {
     errors: number;
     details?: any;
   } | null>(null);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [selectedProductForStock, setSelectedProductForStock] = useState<Product | null>(null);
+  const [stockIncrease, setStockIncrease] = useState('1');
+  const [increasingStock, setIncreasingStock] = useState(false);
 
   useEffect(() => {
     if (searchParams?.get('action') === 'new') {
@@ -240,6 +246,35 @@ function ProductsContent() {
     setFormData({ ...formData, priceTiers: tiers });
   };
 
+  const openStockModal = (product: Product) => {
+    setSelectedProductForStock(product);
+    setStockIncrease('1');
+    setShowStockModal(true);
+  };
+
+  const handleIncreaseStock = async () => {
+    if (!selectedProductForStock) return;
+    
+    const quantity = parseInt(stockIncrease);
+    if (isNaN(quantity) || quantity <= 0) {
+      toast.error('Please enter a valid quantity');
+      return;
+    }
+
+    setIncreasingStock(true);
+    try {
+      await productApi.increaseStock(selectedProductForStock._id, quantity);
+      toast.success(`Added ${quantity} items to inventory`);
+      setShowStockModal(false);
+      fetchProducts();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to increase stock');
+    } finally {
+      setIncreasingStock(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -251,10 +286,13 @@ function ProductsContent() {
         <div className="flex gap-3">
           <button 
             onClick={() => setShowBulkUpload(true)} 
-            className="btn btn-secondary"
+            className="relative px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 group"
           >
-            <FileSpreadsheet size={20} />
-            Bulk Upload
+            <FileSpreadsheet size={20} className="group-hover:scale-110 transition-transform" />
+            <span>Bulk Upload</span>
+            <span className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full shadow-md">
+              FAST
+            </span>
           </button>
           <button onClick={openNewProductModal} className="btn btn-primary">
             <Plus size={20} />
@@ -303,9 +341,9 @@ function ProductsContent() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {products.map((product) => (
-            <div key={product._id} className="bg-white rounded-2xl shadow-sm border border-zinc-100 overflow-hidden card-hover">
+            <div key={product._id} className="bg-white rounded-xl shadow-sm border border-zinc-100 overflow-hidden card-hover">
               <div className="aspect-square bg-zinc-100 relative">
                 {product.images[0] ? (
                   <img
@@ -315,44 +353,59 @@ function ProductsContent() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-zinc-300">
-                    <Package size={48} />
+                    <Package size={32} />
                   </div>
                 )}
-                <span className={`absolute top-3 right-3 badge ${product.isActive ? 'badge-success' : 'badge-danger'}`}>
+                <span className={`absolute top-2 right-2 badge text-xs ${product.isActive ? 'badge-success' : 'badge-danger'}`}>
                   {product.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-zinc-900 truncate">{product.name}</h3>
-                <p className="text-sm text-zinc-600 mt-1">{product.category}</p>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-lg font-bold text-cyan-600">₹{product.basePrice}</span>
-                  <span className="text-sm text-zinc-500">MOQ: {product.minimumOrderQuantity}</span>
+              <div className="p-3">
+                <h3 className="font-semibold text-sm text-zinc-900 truncate">{product.name}</h3>
+                <p className="text-xs text-zinc-600 mt-0.5 truncate">{product.category}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-base font-bold text-cyan-600">₹{product.basePrice}</span>
+                  <span className="text-xs text-zinc-500">MOQ: {product.minimumOrderQuantity}</span>
                 </div>
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-zinc-100">
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-zinc-100">
+                  <div className="flex items-center gap-1.5">
+                    <Package size={14} className="text-zinc-400" />
+                    <span className={`text-xs font-medium ${(product.stock || 0) === 0 ? 'text-red-600' : 'text-zinc-600'}`}>
+                      Stock: {product.stock || 0}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => openStockModal(product)}
+                    className="p-1.5 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-600 transition-colors"
+                    title="Quick add stock"
+                  >
+                    <PackagePlus size={14} />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-zinc-100">
                   <button
                     onClick={() => openEditModal(product)}
-                    className="flex-1 btn btn-secondary py-2 text-sm"
+                    className="flex-1 btn btn-secondary py-1.5 text-xs"
                   >
-                    <Edit2 size={16} />
+                    <Edit2 size={14} />
                     Edit
                   </button>
                   <button
                     onClick={() => handleToggle(product)}
-                    className="p-2 rounded-xl hover:bg-zinc-100"
+                    className="p-1.5 rounded-lg hover:bg-zinc-100"
                     title={product.isActive ? 'Disable' : 'Enable'}
                   >
                     {product.isActive ? (
-                      <ToggleRight size={24} className="text-emerald-600" />
+                      <ToggleRight size={18} className="text-emerald-600" />
                     ) : (
-                      <ToggleLeft size={24} className="text-zinc-400" />
+                      <ToggleLeft size={18} className="text-zinc-400" />
                     )}
                   </button>
                   <button
                     onClick={() => handleDelete(product)}
-                    className="p-2 rounded-xl hover:bg-red-50 text-red-600"
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-red-600"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -489,6 +542,23 @@ function ProductsContent() {
                   <button type="button" onClick={addPriceTier} className="text-sm text-cyan-600 hover:text-cyan-700">
                     + Add Tier
                   </button>
+                </div>
+                
+                {/* Pricing Tiers Guide */}
+                <div className="mb-4 p-4 bg-cyan-50 border border-cyan-200 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <Info className="text-cyan-600 mt-0.5 flex-shrink-0" size={18} />
+                    <div className="flex-1 text-sm text-zinc-700">
+                      <p className="font-semibold text-cyan-900 mb-1">How Volume Pricing Works:</p>
+                      <ul className="list-disc list-inside space-y-1 text-zinc-600">
+                        <li>Set different prices based on the quantity buyers purchase</li>
+                        <li><strong>Base Price</strong> applies when no tiers match the order quantity</li>
+                        <li><strong>Min Qty</strong> is the minimum quantity required for this tier</li>
+                        <li><strong>Max Qty</strong> (optional) sets the upper limit - leave empty for unlimited</li>
+                        <li>Example: Buy 1-9 items at ₹100, 10-49 items at ₹90, 50+ items at ₹80</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
                 {formData.priceTiers.map((tier, index) => (
                   <div key={index} className="flex gap-3 mb-3 items-end">
@@ -857,6 +927,61 @@ function ProductsContent() {
                     Upload Products
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Stock Increase Modal */}
+      {showStockModal && selectedProductForStock && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6 border-b border-zinc-100">
+              <h2 className="text-xl font-bold text-zinc-900">Increase Inventory</h2>
+              <p className="text-sm text-zinc-600 mt-1">{selectedProductForStock.name}</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="form-label">Current Stock</label>
+                <div className="text-2xl font-bold text-zinc-900">
+                  {selectedProductForStock.stock || 0} {selectedProductForStock.unit}
+                </div>
+              </div>
+              <div>
+                <label className="form-label">Add Quantity *</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  min="1"
+                  value={stockIncrease}
+                  onChange={(e) => setStockIncrease(e.target.value)}
+                  placeholder="Enter quantity to add"
+                  autoFocus
+                />
+                <p className="text-xs text-zinc-500 mt-1">
+                  New stock will be: {(selectedProductForStock.stock || 0) + parseInt(stockIncrease || '0')} {selectedProductForStock.unit}
+                </p>
+              </div>
+            </div>
+            <div className="p-6 border-t border-zinc-100 flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowStockModal(false);
+                  setSelectedProductForStock(null);
+                  setStockIncrease('1');
+                }}
+                className="flex-1 btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleIncreaseStock}
+                disabled={increasingStock || !stockIncrease || parseInt(stockIncrease) <= 0}
+                className="flex-1 btn btn-primary"
+              >
+                {increasingStock ? 'Adding...' : 'Add to Stock'}
               </button>
             </div>
           </div>

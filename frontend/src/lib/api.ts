@@ -94,6 +94,9 @@ export const productApi = {
   
   deleteProduct: (id: string) => 
     api.delete(`/products/${id}`),
+  
+  increaseStock: (id: string, quantity: number) =>
+    api.patch(`/products/${id}/increase-stock`, { quantity }),
 };
 
 // Promotion APIs
@@ -112,6 +115,18 @@ export const promotionApi = {
   
   delete: (id: string) => 
     api.delete(`/promotions/${id}`),
+};
+
+// Availability APIs
+export const availabilityApi = {
+  requestAvailability: (data: { productId: string; sellerAlias: string }) =>
+    api.post('/availability/request', data),
+  
+  getSellerRequests: () =>
+    api.get('/availability/seller'),
+  
+  fulfillRequest: (id: string) =>
+    api.patch(`/availability/${id}/fulfill`),
 };
 
 // Cart APIs

@@ -11,6 +11,7 @@ const cartRoutes = require('./routes/cart');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
 const bulkUploadRoutes = require('./routes/bulk-upload');
+const availabilityRoutes = require('./routes/availability');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/bulk-upload', bulkUploadRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

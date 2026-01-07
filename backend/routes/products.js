@@ -378,6 +378,31 @@ router.patch('/:id/toggle', protect, sellerOnly, checkTrial, async (req, res) =>
   }
 });
 
+// Increase product stock
+router.patch('/:id/increase-stock', protect, sellerOnly, checkTrial, async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    
+    if (!quantity || quantity <= 0 || !Number.isInteger(Number(quantity))) {
+      return res.status(400).json({ message: 'Valid quantity is required' });
+    }
+
+    const product = await Product.findOne({ _id: req.params.id, seller: req.user._id });
+    
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    product.stock = (product.stock || 0) + parseInt(quantity);
+    await product.save();
+
+    res.json({ message: 'Stock increased successfully', product });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Delete product
 router.delete('/:id', protect, sellerOnly, checkTrial, async (req, res) => {
   try {

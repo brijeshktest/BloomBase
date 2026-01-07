@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { productApi, authApi, cartApi } from '@/lib/api';
+import { productApi, authApi, cartApi, availabilityApi } from '@/lib/api';
 import { Product, Store as StoreType } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -19,7 +19,9 @@ import {
   LogIn,
   Plus,
   Minus,
-  ChevronDown
+  ChevronDown,
+  AlertCircle,
+  Bell
 } from 'lucide-react';
 
 function StoreContent({ alias }: { alias: string }) {
@@ -150,6 +152,12 @@ function StoreContent({ alias }: { alias: string }) {
       return;
     }
 
+    // Check if product is out of stock
+    if ((product.stock || 0) === 0) {
+      toast.error('This product is currently out of stock');
+      return;
+    }
+
     try {
       await cartApi.add({
         productId: product._id,
@@ -161,6 +169,24 @@ function StoreContent({ alias }: { alias: string }) {
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err.response?.data?.message || 'Failed to add to cart');
+    }
+  };
+
+  const handleRequestAvailability = async (product: Product) => {
+    if (!isAuthenticated) {
+      setShowAuth(true);
+      return;
+    }
+
+    try {
+      const response = await availabilityApi.requestAvailability({
+        productId: product._id,
+        sellerAlias: alias,
+      });
+      toast.success('Request sent to seller! They will be notified.');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to send request');
     }
   };
 
@@ -362,11 +388,11 @@ function StoreContent({ alias }: { alias: string }) {
             <p style={{ color: theme.textSecondary }}>No products found</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {products.map((product) => (
               <div
                 key={product._id}
-                className="rounded-2xl overflow-hidden shadow-lg transition-transform hover:scale-[1.02]"
+                className="rounded-xl overflow-hidden shadow-md transition-transform hover:scale-[1.02]"
                 style={{ backgroundColor: theme.cardBg }}
               >
                 <Link href={`/store/${alias}/product/${product.slug}`}>
@@ -375,16 +401,23 @@ function StoreContent({ alias }: { alias: string }) {
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className={`w-full h-full object-cover ${(product.stock || 0) === 0 ? 'opacity-50' : ''}`}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Package className="opacity-20" size={48} />
+                        <Package className="opacity-20" size={32} />
                       </div>
                     )}
-                    {product.hasPromotion && (
+                    {(product.stock || 0) === 0 && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                          Not Available
+                        </span>
+                      </div>
+                    )}
+                    {product.hasPromotion && (product.stock || 0) > 0 && (
                       <span
-                        className="absolute top-2 left-2 px-2 py-1 text-xs font-bold text-white rounded-full"
+                        className="absolute top-1.5 left-1.5 px-1.5 py-0.5 text-xs font-bold text-white rounded-full"
                         style={{ backgroundColor: theme.primary }}
                       >
                         {product.promotion?.discountType === 'percentage'
@@ -395,46 +428,69 @@ function StoreContent({ alias }: { alias: string }) {
                   </div>
                 </Link>
                 
-                <div className="p-4">
+                <div className="p-3">
                   <Link href={`/store/${alias}/product/${product.slug}`}>
-                    <h3 className="font-semibold truncate" style={{ color: theme.textPrimary }}>
+                    <h3 className="font-semibold text-sm truncate" style={{ color: theme.textPrimary }}>
                       {product.name}
                     </h3>
-                    <p className="text-sm opacity-60 mt-1" style={{ color: theme.textSecondary }}>
+                    <p className="text-xs opacity-60 mt-0.5 truncate" style={{ color: theme.textSecondary }}>
                       {product.category}
                     </p>
                   </Link>
                   
-                  <div className="flex items-center justify-between mt-3">
-                    <div>
-                      {product.hasPromotion && product.discountedPrice ? (
-                        <>
-                          <span className="text-lg font-bold" style={{ color: theme.primary }}>
-                            ₹{product.discountedPrice.toFixed(0)}
-                          </span>
-                          <span className="text-sm line-through ml-2 opacity-50">
-                            ₹{product.basePrice}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-lg font-bold" style={{ color: theme.primary }}>
-                          ₹{product.basePrice}
-                        </span>
-                      )}
+                  {(product.stock || 0) === 0 ? (
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center gap-1.5 text-red-600">
+                        <AlertCircle size={14} />
+                        <span className="text-xs font-medium">Not available right now</span>
+                      </div>
+                      <button
+                        onClick={() => handleRequestAvailability(product)}
+                        className="w-full py-2 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border-2 transition-colors"
+                        style={{ 
+                          borderColor: theme.primary,
+                          color: theme.primary,
+                          backgroundColor: 'transparent'
+                        }}
+                      >
+                        <Bell size={14} />
+                        Request Availability
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="p-2 rounded-xl text-white transition-opacity hover:opacity-90"
-                      style={{ backgroundColor: theme.buttonBg }}
-                    >
-                      <Plus size={20} />
-                    </button>
-                  </div>
-                  
-                  {product.minimumOrderQuantity > 1 && (
-                    <p className="text-xs opacity-50 mt-2" style={{ color: theme.textSecondary }}>
-                      Min. order: {product.minimumOrderQuantity}
-                    </p>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between mt-2">
+                        <div>
+                          {product.hasPromotion && product.discountedPrice ? (
+                            <>
+                              <span className="text-base font-bold" style={{ color: theme.primary }}>
+                                ₹{product.discountedPrice.toFixed(0)}
+                              </span>
+                              <span className="text-xs line-through ml-1.5 opacity-50">
+                                ₹{product.basePrice}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-base font-bold" style={{ color: theme.primary }}>
+                              ₹{product.basePrice}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          className="p-1.5 rounded-lg text-white transition-opacity hover:opacity-90"
+                          style={{ backgroundColor: theme.buttonBg }}
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                      
+                      {product.minimumOrderQuantity > 1 && (
+                        <p className="text-xs opacity-50 mt-1.5" style={{ color: theme.textSecondary }}>
+                          Min. order: {product.minimumOrderQuantity}
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

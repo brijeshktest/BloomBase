@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { productApi, cartApi, authApi } from '@/lib/api';
+import { productApi, cartApi, authApi, availabilityApi } from '@/lib/api';
 import { Product, Store as StoreType } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -16,7 +16,9 @@ import {
   Package,
   Play,
   X,
-  User
+  User,
+  AlertCircle,
+  Bell
 } from 'lucide-react';
 
 function ProductContent({ alias, slug }: { alias: string; slug: string }) {
@@ -140,6 +142,12 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
 
     if (!product) return;
 
+    // Check if product is out of stock
+    if ((product.stock || 0) === 0) {
+      toast.error('This product is currently out of stock');
+      return;
+    }
+
     try {
       await cartApi.add({
         productId: product._id,
@@ -151,6 +159,26 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err.response?.data?.message || 'Failed to add to cart');
+    }
+  };
+
+  const handleRequestAvailability = async () => {
+    if (!isAuthenticated) {
+      setShowAuth(true);
+      return;
+    }
+
+    if (!product) return;
+
+    try {
+      await availabilityApi.requestAvailability({
+        productId: product._id,
+        sellerAlias: alias,
+      });
+      toast.success('Request sent to seller! They will be notified.');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to send request');
     }
   };
 
@@ -416,52 +444,84 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
             )}
 
             {/* Quantity Selector */}
-            <div className="mt-6">
-              <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                Quantity (Min: {product.minimumOrderQuantity})
-              </label>
-              <div className="flex items-center gap-4">
+            {(product.stock || 0) > 0 && (
+              <div className="mt-6">
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Quantity (Min: {product.minimumOrderQuantity})
+                </label>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setQuantity(Math.max(product.minimumOrderQuantity, quantity - 1))}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200"
+                  >
+                    <Minus size={20} />
+                  </button>
+                  <input
+                    type="number"
+                    min={product.minimumOrderQuantity}
+                    max={product.stock || undefined}
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(product.minimumOrderQuantity, Math.min(product.stock || Infinity, parseInt(e.target.value) || 1)))}
+                    className="w-20 text-center text-lg font-semibold border rounded-xl py-2"
+                  />
+                  <button
+                    onClick={() => setQuantity(Math.min((product.stock || Infinity), quantity + 1))}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+                {product.stock && (
+                  <p className="text-xs mt-2 opacity-60" style={{ color: theme.textSecondary }}>
+                    Available: {product.stock} {product.unit}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Stock Status */}
+            {(product.stock || 0) === 0 ? (
+              <div className="mt-6 p-4 rounded-xl border-2 border-red-200 bg-red-50">
+                <div className="flex items-center gap-2 text-red-600 mb-3">
+                  <AlertCircle size={20} />
+                  <span className="font-semibold">Not available right now</span>
+                </div>
                 <button
-                  onClick={() => setQuantity(Math.max(product.minimumOrderQuantity, quantity - 1))}
-                  className="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200"
+                  onClick={handleRequestAvailability}
+                  className="w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-opacity hover:opacity-90 border-2"
+                  style={{ 
+                    borderColor: theme.primary,
+                    color: theme.primary,
+                    backgroundColor: 'transparent'
+                  }}
                 >
-                  <Minus size={20} />
-                </button>
-                <input
-                  type="number"
-                  min={product.minimumOrderQuantity}
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(product.minimumOrderQuantity, parseInt(e.target.value) || 1))}
-                  className="w-20 text-center text-lg font-semibold border rounded-xl py-2"
-                />
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200"
-                >
-                  <Plus size={20} />
+                  <Bell size={22} />
+                  Request Availability
                 </button>
               </div>
-            </div>
+            ) : (
+              <>
+                {/* Total */}
+                <div className="mt-6 p-4 rounded-xl" style={{ backgroundColor: `${theme.primary}10` }}>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium" style={{ color: theme.textPrimary }}>Total</span>
+                    <span className="text-2xl font-bold" style={{ color: theme.primary }}>
+                      ₹{(displayPrice * quantity).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
 
-            {/* Total */}
-            <div className="mt-6 p-4 rounded-xl" style={{ backgroundColor: `${theme.primary}10` }}>
-              <div className="flex justify-between items-center">
-                <span className="font-medium" style={{ color: theme.textPrimary }}>Total</span>
-                <span className="text-2xl font-bold" style={{ color: theme.primary }}>
-                  ₹{(displayPrice * quantity).toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAddToCart}
-              className="w-full mt-6 py-4 rounded-xl text-white font-semibold text-lg flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
-              style={{ backgroundColor: theme.buttonBg }}
-            >
-              <ShoppingCart size={22} />
-              Add to Cart
-            </button>
+                {/* Add to Cart Button */}
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full mt-6 py-4 rounded-xl text-white font-semibold text-lg flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: theme.buttonBg }}
+                >
+                  <ShoppingCart size={22} />
+                  Add to Cart
+                </button>
+              </>
+            )}
 
             {/* Description */}
             <div className="mt-8 pt-6 border-t">
