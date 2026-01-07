@@ -613,28 +613,53 @@ function ProductsContent() {
 
               {/* Images */}
               <div>
-                <label className="form-label">Product Images</label>
+                <label className="form-label">Product Images (Up to 10 images)</label>
                 <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center">
                   <Upload className="mx-auto text-zinc-400 mb-2" size={32} />
                   <p className="text-sm text-zinc-600 mb-2">Click or drag images here</p>
                   <input
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
                     className="w-full"
                     onChange={(e) => setImages(Array.from(e.target.files || []))}
                   />
+                  <p className="text-xs text-zinc-500 mt-3">
+                    Recommended: 1200×1200px, Square, Max 5MB per image
+                    <br />
+                    <span className="text-zinc-400">Accepted: 400×400 to 2400×2400px (near square)</span>
+                  </p>
                 </div>
-                {editingProduct && editingProduct.images.length > 0 && (
+                {images.length > 0 && (
                   <div className="flex gap-2 mt-3 flex-wrap">
-                    {editingProduct.images.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${img}`}
-                        alt=""
-                        className="w-16 h-16 rounded-lg object-cover"
-                      />
+                    {images.map((img, idx) => (
+                      <div key={idx} className="relative">
+                        <img
+                          src={URL.createObjectURL(img)}
+                          alt={`Preview ${idx + 1}`}
+                          className="w-20 h-20 rounded-lg object-cover border-2 border-zinc-200"
+                        />
+                        <span className="absolute -top-1 -right-1 bg-cyan-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                      </div>
                     ))}
+                  </div>
+                )}
+                {editingProduct && editingProduct.images.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs text-zinc-500 mb-2">Existing Images:</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {editingProduct.images.map((img, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${img}`}
+                            alt={`Existing ${idx + 1}`}
+                            className="w-20 h-20 rounded-lg object-cover border-2 border-zinc-200"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

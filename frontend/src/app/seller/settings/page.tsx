@@ -116,36 +116,43 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="form-label">Store Logo</label>
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-zinc-100 rounded-xl overflow-hidden flex items-center justify-center">
+              <div className="flex items-start gap-4">
+                <div className="w-24 h-24 bg-zinc-100 rounded-xl overflow-hidden flex items-center justify-center border-2 border-zinc-200 flex-shrink-0">
                   {user?.businessLogo ? (
                     <img
                       src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${user.businessLogo}`}
                       alt="Logo"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   ) : (
                     <Store className="text-zinc-300" size={32} />
                   )}
                 </div>
-                <label className="btn btn-secondary cursor-pointer">
-                  <Upload size={18} />
-                  {uploading ? 'Uploading...' : 'Upload'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleLogoUpload}
-                    disabled={uploading}
-                  />
-                </label>
+                <div className="flex-1">
+                  <label className="btn btn-secondary cursor-pointer inline-block">
+                    <Upload size={18} />
+                    {uploading ? 'Uploading...' : 'Upload Logo'}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      onChange={handleLogoUpload}
+                      disabled={uploading}
+                    />
+                  </label>
+                  <p className="text-xs text-zinc-500 mt-2">
+                    Recommended: 512×512px, Square, Max 2MB
+                    <br />
+                    <span className="text-zinc-400">Accepted: 256×256 to 2048×2048px</span>
+                  </p>
+                </div>
               </div>
             </div>
 
             <div>
               <label className="form-label">Store Banner</label>
-              <div className="flex items-center gap-4">
-                <div className="w-32 h-20 bg-zinc-100 rounded-xl overflow-hidden flex items-center justify-center">
+              <div className="flex items-start gap-4">
+                <div className="w-48 h-20 bg-zinc-100 rounded-xl overflow-hidden flex items-center justify-center border-2 border-zinc-200 flex-shrink-0">
                   {user?.businessBanner ? (
                     <img
                       src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${user.businessBanner}`}
@@ -153,20 +160,27 @@ export default function SettingsPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-xs text-zinc-400">1200×400</span>
+                    <span className="text-xs text-zinc-400">1920×400</span>
                   )}
                 </div>
-                <label className="btn btn-secondary cursor-pointer">
-                  <Upload size={18} />
-                  {uploading ? 'Uploading...' : 'Upload'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleBannerUpload}
-                    disabled={uploading}
-                  />
-                </label>
+                <div className="flex-1">
+                  <label className="btn btn-secondary cursor-pointer inline-block">
+                    <Upload size={18} />
+                    {uploading ? 'Uploading...' : 'Upload Banner'}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      onChange={handleBannerUpload}
+                      disabled={uploading}
+                    />
+                  </label>
+                  <p className="text-xs text-zinc-500 mt-2">
+                    Recommended: 1920×400px, Landscape (4:1 ratio), Max 5MB
+                    <br />
+                    <span className="text-zinc-400">Accepted: 1200×250 to 3840×800px</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

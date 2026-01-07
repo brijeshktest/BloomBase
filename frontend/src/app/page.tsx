@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Store, Smartphone, TrendingUp, Zap, Shield, Heart } from 'lucide-react';
+import { Store, Smartphone, TrendingUp, Zap, Shield, Heart, Download, AppWindow } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -55,6 +55,10 @@ export default function Home() {
               <p className="mt-6 text-sm text-cyan-200 animate-fade-in stagger-3">
                 ✨ 1 Month Free Trial • No Credit Card Required
               </p>
+              <p className="mt-4 text-sm text-cyan-300 animate-fade-in stagger-3 flex items-center justify-center gap-2">
+                <Download size={16} />
+                <span>PWA Enabled - Customers can add your microsite as a mobile app!</span>
+              </p>
             </div>
           </div>
           
@@ -106,9 +110,9 @@ export default function Home() {
                   color: 'bg-amber-500',
                 },
                 {
-                  icon: Shield,
-                  title: 'Mobile Optimized',
-                  description: 'Your store works perfectly on all devices. PWA enabled for app-like experience.',
+                  icon: Smartphone,
+                  title: 'Add to Mobile App',
+                  description: 'Your customers can add your microsite as a mobile app on their phones! Works like a native app with offline support.',
                   color: 'bg-rose-500',
                 },
                 {
@@ -134,6 +138,131 @@ export default function Home() {
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* PWA Highlight Section */}
+        <section className="py-24 bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-300 rounded-full filter blur-3xl"></div>
+          </div>
+          
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left: Content */}
+              <div>
+                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                  <Download className="w-5 h-5" />
+                  <span className="text-sm font-semibold">Progressive Web App (PWA)</span>
+                </div>
+                
+                <h2 className="text-4xl sm:text-5xl font-black mb-6 leading-tight">
+                  Your Microsite as a
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-cyan-200">
+                    Mobile App
+                  </span>
+                </h2>
+                
+                <p className="text-xl text-purple-100 mb-8 leading-relaxed">
+                  Customers can add your BloomBase microsite directly to their phone's home screen! It works just like a native mobile app with offline support and push notifications.
+                </p>
+                
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                      <AppWindow className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg mb-1">Native App Experience</h3>
+                      <p className="text-purple-100">
+                        Your store feels like a real app when installed. No app store downloads needed!
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                      <Download className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg mb-1">Easy Installation</h3>
+                      <p className="text-purple-100">
+                        Customers just tap "Add to Home Screen" on their phone browser - that's it! Your store is now an app on their device.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg mb-1">Offline Access</h3>
+                      <p className="text-purple-100">
+                        Once installed, customers can browse your products even without internet connection (previously viewed items).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                  <p className="font-semibold mb-2">💡 How It Works:</p>
+                  <ol className="list-decimal list-inside space-y-2 text-purple-100 text-sm">
+                    <li>Customer visits your microsite on their phone</li>
+                    <li>Browser shows "Add to Home Screen" prompt</li>
+                    <li>Customer taps install - your store is now an app!</li>
+                    <li>Your store icon appears on their home screen</li>
+                    <li>Customers open it like any other app</li>
+                  </ol>
+                </div>
+              </div>
+              
+              {/* Right: Visual/Illustration */}
+              <div className="relative">
+                <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20">
+                  <div className="space-y-6">
+                    {/* Mock Phone 1 */}
+                    <div className="bg-white rounded-2xl p-6 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl"></div>
+                        <div>
+                          <div className="h-3 bg-zinc-200 rounded w-24 mb-2"></div>
+                          <div className="h-2 bg-zinc-100 rounded w-16"></div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl"></div>
+                        <div className="h-2 bg-zinc-200 rounded w-full"></div>
+                        <div className="h-2 bg-zinc-200 rounded w-3/4"></div>
+                      </div>
+                      <div className="mt-4 text-xs text-center text-zinc-500">
+                        Your Microsite
+                      </div>
+                    </div>
+                    
+                    {/* Arrow */}
+                    <div className="flex justify-center">
+                      <div className="w-12 h-12 bg-white/30 rounded-full flex items-center justify-center">
+                        <Download className="w-6 h-6" />
+                      </div>
+                    </div>
+                    
+                    {/* Mock Phone 2 - Installed */}
+                    <div className="bg-white rounded-2xl p-6 shadow-2xl transform -rotate-3 hover:rotate-0 transition-transform">
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl"></div>
+                        <span className="text-sm font-bold text-zinc-700">Installed App</span>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 text-center">
+                        <AppWindow className="w-12 h-12 mx-auto text-purple-400 mb-2" />
+                        <p className="text-xs text-zinc-600 font-semibold">Opens like a native app!</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -205,7 +334,7 @@ export default function Home() {
                 <li><strong>WhatsApp Integration:</strong> Connect directly with buyers through WhatsApp. When customers add items to cart, they're redirected to your WhatsApp for seamless order processing and communication.</li>
                 <li><strong>Free Microsite:</strong> Get your own personalized microsite with a unique URL. Choose from beautiful themes to match your brand identity.</li>
                 <li><strong>No Technical Skills Required:</strong> You don't need coding knowledge or technical expertise. Our platform is designed for everyone, from beginners to experienced sellers.</li>
-                <li><strong>Mobile-Optimized:</strong> Your store looks perfect on all devices. Plus, it works as a Progressive Web App (PWA) for an app-like experience.</li>
+                <li><strong>PWA - Mobile App Experience:</strong> Customers can add your microsite as a mobile app on their phone! It installs directly to their home screen and works like a native app with offline support - no app store needed!</li>
                 <li><strong>SEO Optimized:</strong> Your microsite is automatically optimized for search engines, helping customers in your area find your products when they search online.</li>
               </ul>
               <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">

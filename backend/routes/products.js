@@ -6,6 +6,9 @@ const User = require('../models/User');
 const { protect, sellerOnly, checkTrial } = require('../middleware/auth');
 const { createUniqueSlug } = require('../utils/slugify');
 const upload = require('../utils/upload');
+const { validateImage } = require('../utils/imageValidator');
+const path = require('path');
+const fs = require('fs');
 
 const router = express.Router();
 
@@ -336,9 +339,40 @@ router.post('/', protect, sellerOnly, checkTrial, upload.fields([
       productData.tags = typeof tags === 'string' ? tags.split(',').map(t => t.trim()) : tags;
     }
 
-    // Handle images
+    // Handle images with validation
     if (req.files && req.files.images) {
-      productData.images = req.files.images.map(file => `/uploads/products/images/${file.filename}`);
+      const validImages = [];
+      const errors = [];
+      
+      for (const file of req.files.images) {
+        const filePath = path.join(__dirname, '..', file.path);
+        const validation = await validateImage(filePath, 'product');
+        
+        if (validation.valid) {
+          validImages.push(`/uploads/products/images/${file.filename}`);
+        } else {
+          // Delete invalid file
+          fs.unlinkSync(filePath);
+          errors.push(`Image ${file.originalname}: ${validation.error}`);
+        }
+      }
+      
+      if (errors.length > 0) {
+        // Delete any valid files that were uploaded alongside invalid ones
+        validImages.forEach(img => {
+          const imgPath = path.join(__dirname, '..', img);
+          if (fs.existsSync(imgPath)) {
+            fs.unlinkSync(imgPath);
+          }
+        });
+        return res.status(400).json({
+          message: 'Product image validation failed',
+          errors: errors,
+          requirements: 'Product images must be square (400x400 to 2400x2400 pixels, max 5MB per image). Recommended: 1200x1200px'
+        });
+      }
+      
+      productData.images = validImages;
     }
 
     // Handle video
@@ -397,10 +431,40 @@ router.put('/:id', protect, sellerOnly, checkTrial, upload.fields([
       updates.tags = typeof updates.tags === 'string' ? updates.tags.split(',').map(t => t.trim()) : updates.tags;
     }
 
-    // Handle new images
+    // Handle new images with validation
     if (req.files && req.files.images) {
-      const newImages = req.files.images.map(file => `/uploads/products/images/${file.filename}`);
-      updates.images = [...(product.images || []), ...newImages];
+      const validImages = [];
+      const errors = [];
+      
+      for (const file of req.files.images) {
+        const filePath = path.join(__dirname, '..', file.path);
+        const validation = await validateImage(filePath, 'product');
+        
+        if (validation.valid) {
+          validImages.push(`/uploads/products/images/${file.filename}`);
+        } else {
+          // Delete invalid file
+          fs.unlinkSync(filePath);
+          errors.push(`Image ${file.originalname}: ${validation.error}`);
+        }
+      }
+      
+      if (errors.length > 0) {
+        // Delete any valid files that were uploaded alongside invalid ones
+        validImages.forEach(img => {
+          const imgPath = path.join(__dirname, '..', img);
+          if (fs.existsSync(imgPath)) {
+            fs.unlinkSync(imgPath);
+          }
+        });
+        return res.status(400).json({
+          message: 'Product image validation failed',
+          errors: errors,
+          requirements: 'Product images must be square (400x400 to 2400x2400 pixels, max 5MB per image). Recommended: 1200x1200px'
+        });
+      }
+      
+      updates.images = [...(product.images || []), ...validImages];
     }
 
     // Handle removing images

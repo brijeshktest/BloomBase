@@ -273,7 +273,7 @@ function StoreContent({ alias }: { alias: string }) {
                 <img
                   src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${store.logo}`}
                   alt={store.businessName}
-                  className="w-12 h-12 rounded-xl object-cover"
+                  className="h-12 w-auto rounded-xl object-contain"
                 />
               )}
               <h1 className="text-xl font-bold">{store.businessName}</h1>
@@ -320,10 +320,10 @@ function StoreContent({ alias }: { alias: string }) {
 
       {/* Banner */}
       {store.banner && (
-        <div className="h-48 sm:h-64 relative">
+        <div className="relative w-full" style={{ aspectRatio: '4.8/1', maxHeight: '500px' }}>
           <img
             src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${store.banner}`}
-            alt=""
+            alt={`${store.businessName} banner`}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -492,7 +492,8 @@ function StoreContent({ alias }: { alias: string }) {
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`}
                         alt={product.name}
-                        className={`w-full h-full object-cover ${(product.stock || 0) === 0 ? 'opacity-50' : ''}`}
+                        className={`w-full h-full object-contain bg-white ${(product.stock || 0) === 0 ? 'opacity-50' : ''}`}
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
