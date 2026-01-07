@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { authApi, uploadApi } from '@/lib/api';
 import { themes, ThemeKey } from '@/lib/themes';
 import toast from 'react-hot-toast';
-import { Save, Upload, Check, Store, User, Palette } from 'lucide-react';
+import { Save, Upload, Check, Store, User, Palette, Search, Info, HelpCircle } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, updateUser } = useAuthStore();
@@ -23,6 +23,10 @@ export default function SettingsPage() {
       state: '',
       pincode: '',
     },
+    seoMetaTitle: '',
+    seoMetaDescription: '',
+    seoKeywords: [] as string[],
+    seoLocalArea: '',
   });
 
   useEffect(() => {

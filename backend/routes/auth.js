@@ -242,7 +242,8 @@ router.get('/me', protect, async (req, res) => {
 // Update profile
 router.put('/profile', protect, async (req, res) => {
   try {
-    const allowedUpdates = ['name', 'phone', 'businessDescription', 'address', 'theme'];
+    const allowedUpdates = ['name', 'phone', 'businessDescription', 'address', 'theme', 
+                           'seoMetaTitle', 'seoMetaDescription', 'seoKeywords', 'seoLocalArea'];
     const updates = {};
     
     allowedUpdates.forEach(field => {
@@ -250,6 +251,11 @@ router.put('/profile', protect, async (req, res) => {
         updates[field] = req.body[field];
       }
     });
+
+    // Handle SEO keywords - convert string to array if needed
+    if (updates.seoKeywords && typeof updates.seoKeywords === 'string') {
+      updates.seoKeywords = updates.seoKeywords.split(',').map(k => k.trim()).filter(k => k);
+    }
 
     // If seller changes phone, require re-verification
     if (req.user.role === 'seller' && updates.phone && updates.phone !== req.user.phone) {

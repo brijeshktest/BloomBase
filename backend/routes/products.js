@@ -161,7 +161,12 @@ router.get('/store/:alias', async (req, res) => {
         businessDescription: seller.businessDescription,
         theme: seller.theme,
         logo: seller.businessLogo,
-        banner: seller.businessBanner
+        banner: seller.businessBanner,
+        seoMetaTitle: seller.seoMetaTitle,
+        seoMetaDescription: seller.seoMetaDescription,
+        seoKeywords: seller.seoKeywords,
+        seoLocalArea: seller.seoLocalArea,
+        address: seller.address
       },
       activePromotions: promotions.map((p) => ({
         _id: p._id,

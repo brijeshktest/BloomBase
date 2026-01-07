@@ -22,6 +22,11 @@ export interface User {
     state?: string;
     pincode?: string;
   };
+  // SEO fields
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoKeywords?: string[];
+  seoLocalArea?: string;
 }
 
 export type Theme = 'ocean' | 'sunset' | 'forest' | 'midnight' | 'rose' | 'minimal';
@@ -99,6 +104,16 @@ export interface Store {
   logo?: string;
   banner?: string;
   phone?: string;
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoKeywords?: string[];
+  seoLocalArea?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+  };
 }
 
 export interface Pagination {

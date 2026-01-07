@@ -67,6 +67,25 @@ const userSchema = new mongoose.Schema({
     state: String,
     pincode: String
   },
+  // SEO fields
+  seoMetaTitle: {
+    type: String,
+    maxlength: 60,
+    trim: true
+  },
+  seoMetaDescription: {
+    type: String,
+    maxlength: 160,
+    trim: true
+  },
+  seoKeywords: {
+    type: [String],
+    default: []
+  },
+  seoLocalArea: {
+    type: String,
+    trim: true
+  },
   isApproved: {
     type: Boolean,
     default: false

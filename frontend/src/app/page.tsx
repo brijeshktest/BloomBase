@@ -26,16 +26,15 @@ export default function Home() {
                 />
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-tight animate-fade-in">
-                Bring Your
+                Online Platform to
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-green-300">
-                  Home Business
+                  List Your Products
                 </span>
-                Online
+                <span className="block">Connect with Buyers on WhatsApp</span>
               </h1>
               
               <p className="mt-6 text-lg sm:text-xl text-cyan-100 max-w-2xl mx-auto animate-fade-in stagger-1">
-                Create your beautiful online store in minutes. No coding required. 
-                Start selling to customers in your area today.
+                BloomBase helps you create a beautiful online store in minutes. List your products, connect with buyers via WhatsApp checkout, and grow your home-based business. No coding required.
               </p>
               
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in stagger-2">
@@ -84,14 +83,14 @@ export default function Home() {
               {[
                 {
                   icon: Store,
-                  title: 'Your Own Microsite',
-                  description: 'Get a personalized store with your business name. Beautiful themes to choose from.',
+                  title: 'List Products Online Easily',
+                  description: 'Get a personalized microsite to list all your products. Upload images, set prices, and organize your inventory beautifully.',
                   color: 'bg-cyan-500',
                 },
                 {
                   icon: Smartphone,
-                  title: 'WhatsApp Checkout',
-                  description: 'Customers checkout directly via WhatsApp. Easy communication, no payment gateway needed.',
+                  title: 'Connect with Buyers on WhatsApp',
+                  description: 'Customers checkout directly via WhatsApp. Receive orders instantly, communicate easily, no payment gateway needed.',
                   color: 'bg-emerald-500',
                 },
                 {
@@ -188,20 +187,61 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SEO Content Section */}
+        <section className="py-24 bg-white">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="prose prose-lg max-w-none">
+              <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-6">
+                The Best Online Platform to List Your Products and Connect with Buyers on WhatsApp
+              </h2>
+              <p className="text-lg text-zinc-700 mb-6">
+                Looking for an online platform to list your products and connect with buyers on WhatsApp? BloomBase is the perfect solution for home-based sellers, small business owners, and entrepreneurs who want to take their business online quickly and easily.
+              </p>
+              <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
+                Why Choose BloomBase as Your Online Product Listing Platform?
+              </h3>
+              <ul className="list-disc list-inside space-y-3 text-zinc-700 mb-6">
+                <li><strong>Easy Product Listing:</strong> List your products online in minutes with our simple interface. Upload product images, add descriptions, set prices, and organize your inventory effortlessly.</li>
+                <li><strong>WhatsApp Integration:</strong> Connect directly with buyers through WhatsApp. When customers add items to cart, they're redirected to your WhatsApp for seamless order processing and communication.</li>
+                <li><strong>Free Microsite:</strong> Get your own personalized microsite with a unique URL. Choose from beautiful themes to match your brand identity.</li>
+                <li><strong>No Technical Skills Required:</strong> You don't need coding knowledge or technical expertise. Our platform is designed for everyone, from beginners to experienced sellers.</li>
+                <li><strong>Mobile-Optimized:</strong> Your store looks perfect on all devices. Plus, it works as a Progressive Web App (PWA) for an app-like experience.</li>
+                <li><strong>SEO Optimized:</strong> Your microsite is automatically optimized for search engines, helping customers in your area find your products when they search online.</li>
+              </ul>
+              <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
+                How to Start Listing Products and Connecting with Buyers
+              </h3>
+              <ol className="list-decimal list-inside space-y-3 text-zinc-700 mb-6">
+                <li><strong>Register for Free:</strong> Sign up with your business details and get started with a 1-month free trial.</li>
+                <li><strong>Create Your Store:</strong> Set up your microsite by choosing a theme and adding your business information.</li>
+                <li><strong>List Your Products:</strong> Add products with images, descriptions, prices, and inventory details. You can also bulk upload products using Excel.</li>
+                <li><strong>Connect WhatsApp:</strong> Your WhatsApp number is automatically integrated. Customers can checkout via WhatsApp directly from your store.</li>
+                <li><strong>Share and Sell:</strong> Share your store link with customers. Start receiving orders and growing your business!</li>
+              </ol>
+              <div className="bg-cyan-50 border-l-4 border-cyan-500 p-6 rounded-r-lg mt-8">
+                <p className="text-zinc-800 font-semibold mb-2">Perfect For:</p>
+                <p className="text-zinc-700">
+                  Home-based sellers, handmade craft businesses, local food vendors, small manufacturers, online resellers, and anyone who wants to list products online and connect with buyers through WhatsApp. If you're searching for an online platform to showcase your products and communicate with customers via WhatsApp, BloomBase is your answer.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-24 bg-gradient-to-r from-cyan-600 to-teal-600 text-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-5xl font-black mb-6">
-              Ready to Grow Your Business?
+              Ready to List Your Products Online?
             </h2>
             <p className="text-xl text-cyan-100 mb-10">
-              Join thousands of home-based sellers who have taken their business online with BloomBase.
+              Start using BloomBase today - the best online platform to list products and connect with buyers on WhatsApp. Join thousands of successful sellers and grow your business.
             </p>
             <Link
               href="/register"
               className="inline-block px-10 py-5 bg-white text-cyan-700 rounded-2xl font-bold text-lg hover:bg-cyan-50 transition-all hover:scale-105 shadow-xl"
             >
-              Create Your Store Now →
+              Start Listing Products Free →
             </Link>
           </div>
         </section>
