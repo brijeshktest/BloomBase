@@ -26,18 +26,25 @@ const navItems = [
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, hasHydrated } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (!isAuthenticated || user?.role !== 'seller') {
       router.push('/login');
     }
-  }, [isAuthenticated, user, router]);
+  }, [hasHydrated, isAuthenticated, user, router]);
 
-  if (!isAuthenticated || user?.role !== 'seller') {
-    return null;
+  if (!hasHydrated) {
+    return (
+      <div className="min-h-screen bg-zinc-100 flex items-center justify-center text-zinc-600">
+        Loading...
+      </div>
+    );
   }
+
+  if (!isAuthenticated || user?.role !== 'seller') return null;
 
   const handleLogout = () => {
     logout();

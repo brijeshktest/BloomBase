@@ -61,6 +61,9 @@ export const authApi = {
   
   updateProfile: (data: Record<string, unknown>) => 
     api.put('/auth/profile', data),
+
+  verifyPhone: (token: string) =>
+    api.get('/auth/verify-phone', { params: { token } }),
 };
 
 // Product APIs
@@ -142,6 +145,9 @@ export const adminApi = {
   
   approveSeller: (id: string) => 
     api.patch(`/admin/sellers/${id}/approve`),
+
+  sendPhoneVerification: (id: string) =>
+    api.post(`/admin/sellers/${id}/send-phone-verification`),
   
   toggleSeller: (id: string) => 
     api.patch(`/admin/sellers/${id}/toggle`),

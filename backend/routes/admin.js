@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const { protect, adminOnly } = require('../middleware/auth');
+const crypto = require('crypto');
 
 const router = express.Router();
 
@@ -106,6 +107,10 @@ router.patch('/sellers/:id/approve', protect, adminOnly, async (req, res) => {
       return res.status(404).json({ message: 'Seller not found' });
     }
 
+    if (!seller.phoneVerified) {
+      return res.status(400).json({ message: 'Seller WhatsApp number is not verified yet. Send verification link first.' });
+    }
+
     seller.isApproved = true;
     await seller.save();
 
@@ -123,6 +128,51 @@ router.patch('/sellers/:id/approve', protect, adminOnly, async (req, res) => {
         email: seller.email
       },
       notificationUrl: whatsappUrl
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Send WhatsApp phone verification link to seller
+router.post('/sellers/:id/send-phone-verification', protect, adminOnly, async (req, res) => {
+  try {
+    const seller = await User.findOne({ _id: req.params.id, role: 'seller' });
+
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+
+    if (!seller.phone) {
+      return res.status(400).json({ message: 'Seller phone number is missing' });
+    }
+
+    // Generate one-time token valid for 7 days
+    const token = crypto.randomBytes(24).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    seller.phoneVerified = false;
+    seller.phoneVerificationToken = token;
+    seller.phoneVerificationExpiresAt = expiresAt;
+    await seller.save();
+
+    const sellerPhone = seller.phone.replace(/\+/g, '').replace(/\s/g, '');
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const verifyUrl = `${frontendUrl}/verify-phone?token=${token}`;
+
+    const message = encodeURIComponent(
+      `🔒 BloomBase WhatsApp Number Verification\n\nHi ${seller.name},\n\nPlease verify your WhatsApp number to proceed with approval of your seller account.\n\n✅ Tap this link to verify:\n${verifyUrl}\n\nIf you did not request this, you can ignore this message.`
+    );
+
+    const whatsappUrl = `https://wa.me/${sellerPhone}?text=${message}`;
+
+    res.json({
+      message: 'Verification link generated',
+      expiresAt,
+      verifyUrl,
+      whatsappUrl
     });
   } catch (error) {
     console.error(error);

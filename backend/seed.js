@@ -7,15 +7,38 @@ const seedAdmin = async () => {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bloombase');
     console.log('Connected to MongoDB');
 
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ email: 'admin@bloombase' });
+    // Admin email must be a valid email (login endpoint validates isEmail()).
+    const desiredEmail = 'admin@bloombase.com';
+
+    // Find any existing admin (legacy or current)
+    const existingAdmin =
+      (await User.findOne({ email: desiredEmail })) ||
+      (await User.findOne({ email: 'admin@bloombase' })) ||
+      (await User.findOne({ role: 'admin' }));
     
     if (existingAdmin) {
-      console.log('Admin user already exists');
+      // Migrate legacy email (admin@bloombase) to valid email
+      if (existingAdmin.email !== desiredEmail) {
+        existingAdmin.email = desiredEmail;
+      }
+
+      // Ensure credentials match expected defaults
+      existingAdmin.password = 'Bloxham1!';
+      existingAdmin.name = existingAdmin.name || 'BloomBase Admin';
+      existingAdmin.role = 'admin';
+      existingAdmin.phone = existingAdmin.phone || '+917838055426';
+      existingAdmin.isApproved = true;
+      existingAdmin.isActive = true;
+
+      await existingAdmin.save();
+
+      console.log('✅ Admin user updated successfully');
+      console.log(`   Email: ${desiredEmail}`);
+      console.log('   Password: Bloxham1!');
     } else {
       // Create admin user
       const admin = await User.create({
-        email: 'admin@bloombase',
+        email: desiredEmail,
         password: 'Bloxham1!',
         name: 'BloomBase Admin',
         role: 'admin',
@@ -25,7 +48,7 @@ const seedAdmin = async () => {
       });
 
       console.log('✅ Admin user created successfully');
-      console.log('   Email: admin@bloombase');
+      console.log(`   Email: ${desiredEmail}`);
       console.log('   Password: Bloxham1!');
     }
 

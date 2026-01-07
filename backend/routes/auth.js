@@ -49,7 +49,8 @@ router.post('/register/seller', [
       theme: theme || 'minimal',
       businessDescription,
       address,
-      isApproved: false
+      isApproved: false,
+      phoneVerified: false
     });
 
     // Send WhatsApp notification to admin (construct URL for manual notification)
@@ -72,6 +73,38 @@ router.post('/register/seller', [
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Verify Seller Phone (token link)
+// This is intended to be opened from WhatsApp; it does not require login.
+router.get('/verify-phone', async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ message: 'Missing verification token' });
+    }
+
+    const seller = await User.findOne({
+      role: 'seller',
+      phoneVerificationToken: token,
+      phoneVerificationExpiresAt: { $gt: new Date() }
+    });
+
+    if (!seller) {
+      return res.status(400).json({ message: 'Invalid or expired verification link' });
+    }
+
+    seller.phoneVerified = true;
+    seller.phoneVerificationToken = undefined;
+    seller.phoneVerificationExpiresAt = undefined;
+    await seller.save();
+
+    return res.json({ message: 'WhatsApp number verified successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
@@ -200,11 +233,17 @@ router.put('/profile', protect, async (req, res) => {
       }
     });
 
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      updates,
-      { new: true, runValidators: true }
-    ).select('-password');
+    // If seller changes phone, require re-verification
+    if (req.user.role === 'seller' && updates.phone && updates.phone !== req.user.phone) {
+      updates.phoneVerified = false;
+      updates.phoneVerificationToken = undefined;
+      updates.phoneVerificationExpiresAt = undefined;
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, updates, {
+      new: true,
+      runValidators: true
+    }).select('-password');
 
     res.json(user);
   } catch (error) {

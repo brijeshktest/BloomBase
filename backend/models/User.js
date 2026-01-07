@@ -28,6 +28,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: function() { return this.role === 'seller'; }
   },
+  // Seller phone verification
+  phoneVerified: {
+    type: Boolean,
+    default: false
+  },
+  phoneVerificationToken: {
+    type: String
+  },
+  phoneVerificationExpiresAt: {
+    type: Date
+  },
   // Seller specific fields
   businessName: {
     type: String,

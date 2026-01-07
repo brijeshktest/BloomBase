@@ -5,6 +5,7 @@ export interface User {
   name: string;
   role: 'admin' | 'seller' | 'buyer';
   phone?: string;
+  phoneVerified?: boolean;
   businessName?: string;
   alias?: string;
   theme?: Theme;

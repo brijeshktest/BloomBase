@@ -19,7 +19,9 @@ import {
   ExternalLink,
   LogOut,
   Calendar,
-  MessageCircle
+  MessageCircle,
+  ShieldCheck,
+  Send
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -30,7 +32,7 @@ interface SellerWithStats extends User {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, hasHydrated } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalSellers: 0,
@@ -45,12 +47,13 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (!isAuthenticated || user?.role !== 'admin') {
       router.push('/login');
       return;
     }
     fetchData();
-  }, [isAuthenticated, user, router]);
+  }, [hasHydrated, isAuthenticated, user, router]);
 
   const fetchData = async () => {
     try {
@@ -105,6 +108,20 @@ export default function AdminPage() {
     }
   };
 
+  const handleSendVerification = async (seller: SellerWithStats) => {
+    try {
+      const response = await adminApi.sendPhoneVerification(seller._id || seller.id);
+      toast.success('Verification link generated. Send it on WhatsApp.');
+      if (response.data.whatsappUrl) {
+        window.open(response.data.whatsappUrl, '_blank');
+      }
+      fetchSellers();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'Failed to generate verification link');
+    }
+  };
+
   const handleToggle = async (seller: SellerWithStats) => {
     try {
       await adminApi.toggleSeller(seller._id || seller.id);
@@ -144,9 +161,15 @@ export default function AdminPage() {
     router.push('/');
   };
 
-  if (!isAuthenticated || user?.role !== 'admin') {
-    return null;
+  if (!hasHydrated) {
+    return (
+      <div className="min-h-screen bg-zinc-100 flex items-center justify-center text-zinc-600">
+        Loading...
+      </div>
+    );
   }
+
+  if (!isAuthenticated || user?.role !== 'admin') return null;
 
   return (
     <div className="min-h-screen bg-zinc-100">
@@ -298,18 +321,40 @@ export default function AdminPage() {
                           ) : (
                             <span className="badge badge-danger">Inactive</span>
                           )}
+                          <span className={`badge ${seller.phoneVerified ? 'badge-success' : 'badge-warning'}`}>
+                            <span className="inline-flex items-center gap-1">
+                              <ShieldCheck size={12} />
+                              {seller.phoneVerified ? 'Phone verified' : 'Phone not verified'}
+                            </span>
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
                           {!seller.isApproved && (
-                            <button
-                              onClick={() => handleApprove(seller)}
-                              className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"
-                              title="Approve"
-                            >
-                              <CheckCircle size={18} />
-                            </button>
+                            <>
+                              {!seller.phoneVerified && (
+                                <button
+                                  onClick={() => handleSendVerification(seller)}
+                                  className="p-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200"
+                                  title="Send WhatsApp verification link"
+                                >
+                                  <Send size={18} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleApprove(seller)}
+                                disabled={!seller.phoneVerified}
+                                className={`p-2 rounded-lg ${
+                                  seller.phoneVerified
+                                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                    : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+                                }`}
+                                title={seller.phoneVerified ? 'Approve' : 'Requires phone verification'}
+                              >
+                                <CheckCircle size={18} />
+                              </button>
+                            </>
                           )}
                           {seller.isApproved && (
                             <>
