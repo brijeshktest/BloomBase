@@ -10,7 +10,7 @@ export const themes = {
     textSecondary: '#155e75',
     buttonBg: '#0891b2',
     buttonText: '#ffffff',
-    headerBg: '#0c4a6e',
+    headerBg: '#e0f2fe',
     footerBg: '#164e63',
   },
   sunset: {
@@ -24,7 +24,7 @@ export const themes = {
     textSecondary: '#9a3412',
     buttonBg: '#ea580c',
     buttonText: '#ffffff',
-    headerBg: '#7c2d12',
+    headerBg: '#fff7ed',
     footerBg: '#9a3412',
   },
   forest: {
@@ -38,7 +38,7 @@ export const themes = {
     textSecondary: '#166534',
     buttonBg: '#15803d',
     buttonText: '#ffffff',
-    headerBg: '#14532d',
+    headerBg: '#f0fdf4',
     footerBg: '#166534',
   },
   midnight: {
@@ -52,7 +52,7 @@ export const themes = {
     textSecondary: '#312e81',
     buttonBg: '#6366f1',
     buttonText: '#ffffff',
-    headerBg: '#1e1b4b',
+    headerBg: '#eef2ff',
     footerBg: '#312e81',
   },
   rose: {
@@ -66,7 +66,7 @@ export const themes = {
     textSecondary: '#9f1239',
     buttonBg: '#be123c',
     buttonText: '#ffffff',
-    headerBg: '#881337',
+    headerBg: '#fff1f2',
     footerBg: '#9f1239',
   },
   minimal: {
@@ -80,7 +80,7 @@ export const themes = {
     textSecondary: '#3f3f46',
     buttonBg: '#18181b',
     buttonText: '#ffffff',
-    headerBg: '#18181b',
+    headerBg: '#fafafa',
     footerBg: '#27272a',
   },
 };

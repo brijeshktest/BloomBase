@@ -69,11 +69,11 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-zinc-900 to-zinc-800 text-white transform transition-transform lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-zinc-200 text-zinc-900 transform transition-transform lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="p-6 border-b border-zinc-700">
+        <div className="p-6 border-b border-zinc-200">
           <Link href="/" className="flex items-center space-x-3">
             <img 
               src="/logo-full.svg" 
@@ -84,14 +84,14 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
         </div>
 
         <div className="p-4">
-          <div className="bg-zinc-700/50 rounded-xl p-4 mb-6">
-            <p className="text-sm text-zinc-400">Store</p>
-            <p className="font-semibold truncate">{user?.businessName}</p>
+          <div className="bg-zinc-100 rounded-xl p-4 mb-6">
+            <p className="text-sm text-zinc-600">Store</p>
+            <p className="font-semibold truncate text-zinc-900">{user?.businessName}</p>
             {user?.alias && (
               <Link
                 href={`/store/${user.alias}`}
                 target="_blank"
-                className="mt-2 flex items-center text-sm text-cyan-400 hover:text-cyan-300"
+                className="mt-2 flex items-center text-sm text-cyan-600 hover:text-cyan-700"
               >
                 <Store size={14} className="mr-1" />
                 View Store
@@ -100,12 +100,12 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
           </div>
 
           {!user?.isApproved && (
-            <div className="bg-amber-500/20 border border-amber-500/30 rounded-xl p-4 mb-6">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
               <div className="flex items-start space-x-2">
-                <AlertCircle size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-amber-200">Pending Approval</p>
-                  <p className="text-xs text-amber-300/80 mt-1">
+                  <p className="text-sm font-medium text-amber-900">Pending Approval</p>
+                  <p className="text-xs text-amber-700 mt-1">
                     Your account is being reviewed. You can add products after approval.
                   </p>
                 </div>
@@ -119,7 +119,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors"
+                className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-zinc-100 transition-colors text-zinc-700"
               >
                 <item.icon size={20} />
                 <span>{item.label}</span>
@@ -128,10 +128,10 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
           </nav>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-zinc-700">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-zinc-200">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-red-400 transition-colors"
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-red-50 text-red-600 transition-colors"
           >
             <LogOut size={20} />
             <span>Logout</span>

@@ -429,7 +429,14 @@ function StoreContent({ alias }: { alias: string }) {
       
       <div style={{ pointerEvents: siteBlocked ? 'none' : 'auto', opacity: siteBlocked ? 0.5 : 1 }}>
       {/* Header */}
-      <header style={{ backgroundColor: theme.headerBg }} className="text-white sticky top-0 z-40">
+      <header 
+        style={{ 
+          backgroundColor: theme.headerBg, 
+          color: theme.textPrimary,
+          borderBottomColor: theme.headerBg === '#fafafa' ? '#e4e4e7' : 'rgba(0,0,0,0.1)'
+        }} 
+        className="sticky top-0 z-40 shadow-sm border-b"
+      >
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -440,12 +447,12 @@ function StoreContent({ alias }: { alias: string }) {
                   className="h-12 w-auto rounded-xl object-contain flex-shrink-0"
                 />
               )}
-              <h1 className="text-xl font-bold truncate">{store.businessName}</h1>
+              <h1 className="text-xl font-bold truncate" style={{ color: theme.textPrimary }}>{store.businessName}</h1>
               
               {/* Mobile Social Media Icons */}
               {(store.instagramHandle || store.facebookHandle) && (
                 <div className="md:hidden flex items-center gap-2 ml-2">
-                  <span className="text-xs opacity-80">Follow:</span>
+                  <span className="text-xs" style={{ color: theme.textSecondary, opacity: 0.8 }}>Follow:</span>
                   {store.instagramHandle && (
                     <a
                       href={`https://instagram.com/${store.instagramHandle}`}
@@ -488,8 +495,8 @@ function StoreContent({ alias }: { alias: string }) {
             <div className="flex items-center gap-3">
               {/* Social Media Icons */}
               {(store.instagramHandle || store.facebookHandle) && (
-                <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-                  <span className="text-sm opacity-90">Follow us on</span>
+                <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg transition-colors" style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: theme.textSecondary }}>
+                  <span className="text-sm">Follow us on</span>
                   <div className="flex items-center gap-2">
                     {store.instagramHandle && (
                       <a
@@ -532,10 +539,11 @@ function StoreContent({ alias }: { alias: string }) {
               
               {isAuthenticated && user?.role === 'buyer' ? (
                 <div className="flex items-center gap-3">
-                  <span className="text-sm hidden sm:inline opacity-80">Hi, {user.name.split(' ')[0]}</span>
+                  <span className="text-sm hidden sm:inline" style={{ color: theme.textSecondary }}>Hi, {user.name.split(' ')[0]}</span>
                   <button
                     onClick={() => logout()}
-                    className="text-sm opacity-80 hover:opacity-100"
+                    className="text-sm hover:opacity-80 transition-opacity font-medium"
+                    style={{ color: '#000000' }}
                   >
                     Logout
                   </button>
@@ -543,7 +551,8 @@ function StoreContent({ alias }: { alias: string }) {
               ) : (
                 <button
                   onClick={() => setShowAuth(true)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/20 hover:bg-white/30"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
+                  style={{ backgroundColor: theme.buttonBg, color: theme.buttonText }}
                 >
                   <User size={18} />
                   <span className="hidden sm:inline">Login</span>
@@ -552,7 +561,8 @@ function StoreContent({ alias }: { alias: string }) {
               
               <button
                 onClick={() => setShowCart(true)}
-                className="relative p-2 rounded-lg bg-white/20 hover:bg-white/30"
+                className="relative p-2 rounded-lg transition-colors"
+                style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: theme.textPrimary }}
               >
                 <ShoppingCart size={22} />
                 {cartItemCount > 0 && (
