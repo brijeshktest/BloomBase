@@ -10,51 +10,51 @@ export default function Home() {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900 text-white">
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-cyan-400 rounded-full filter blur-3xl"></div>
-            <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-400 rounded-full filter blur-3xl"></div>
+        <section className="relative overflow-hidden bg-gradient-to-br from-zinc-50 via-white to-zinc-100 text-zinc-900">
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-20 left-20 w-72 h-72 bg-orange-200 rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full filter blur-3xl"></div>
           </div>
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
             <div className="text-center max-w-4xl mx-auto">
-              <div className="flex justify-center mb-6 animate-fade-in">
+              <div className="flex justify-center mb-8 animate-fade-in">
                 <img 
                   src="/logo-full.svg" 
-                  alt="BloomBase" 
-                  className="h-24 w-auto"
+                  alt="SellLocal Online" 
+                  className="h-32 sm:h-40 lg:h-48 w-auto"
                 />
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-tight animate-fade-in">
                 Platform for
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-green-300">
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-teal-600">
                   Home-Based Retailers
                 </span>
               </h1>
               
-              <p className="mt-6 text-lg sm:text-xl text-cyan-100 max-w-2xl mx-auto animate-fade-in stagger-1">
+              <p className="mt-6 text-lg sm:text-xl text-zinc-700 max-w-2xl mx-auto animate-fade-in stagger-1">
                 For home-based retailers who buy items in bulk from Sadar market. List your products and offer customers better prices than online e-commerce platforms. Cash on Delivery, WhatsApp checkout - start selling today!
               </p>
               
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in stagger-2">
                 <Link
                   href="/register"
-                  className="px-8 py-4 bg-white text-teal-900 rounded-2xl font-bold text-lg hover:bg-cyan-100 transition-all hover:scale-105 shadow-xl shadow-black/20"
+                  className="px-8 py-4 bg-orange-600 text-white rounded-2xl font-bold text-lg hover:bg-orange-700 transition-all hover:scale-105 shadow-xl shadow-orange-500/30"
                 >
                   Start Selling Free →
                 </Link>
                 <Link
                   href="#features"
-                  className="px-8 py-4 bg-white/10 backdrop-blur-sm rounded-2xl font-semibold text-lg hover:bg-white/20 transition-all border border-white/20"
+                  className="px-8 py-4 bg-zinc-100 text-zinc-900 rounded-2xl font-semibold text-lg hover:bg-zinc-200 transition-all border border-zinc-300"
                 >
                   Learn More
                 </Link>
               </div>
               
-              <p className="mt-6 text-sm text-cyan-200 animate-fade-in stagger-3">
+              <p className="mt-6 text-sm text-zinc-600 animate-fade-in stagger-3">
                 ✨ 1 Month Free Trial • No Credit Card Required
               </p>
-              <p className="mt-4 text-sm text-cyan-300 animate-fade-in stagger-3 flex items-center justify-center gap-2">
+              <p className="mt-4 text-sm text-zinc-600 animate-fade-in stagger-3 flex items-center justify-center gap-2">
                 <Download size={16} />
                 <span>PWA Enabled - Customers can add your microsite as a mobile app!</span>
               </p>
@@ -75,7 +75,7 @@ export default function Home() {
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-black text-zinc-900">
                 Everything You Need to
-                <span className="text-cyan-600"> Succeed Online</span>
+                <span className="text-orange-600"> Succeed Online</span>
               </h2>
               <p className="mt-4 text-lg text-zinc-600 max-w-2xl mx-auto">
                 Powerful features designed specifically for home-based sellers
@@ -171,7 +171,7 @@ export default function Home() {
                 </h2>
                 
                 <p className="text-xl text-purple-100 mb-8 leading-relaxed">
-                  Customers can add your BloomBase microsite directly to their phone's home screen! It works just like a native mobile app with offline support and push notifications.
+                  Customers can add your SellLocal Online microsite directly to their phone's home screen! It works just like a native mobile app with offline support and push notifications.
                 </p>
                 
                 <div className="space-y-4 mb-8">
@@ -278,7 +278,7 @@ export default function Home() {
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-black text-zinc-900">
                 Get Started in
-                <span className="text-cyan-600"> 3 Simple Steps</span>
+                <span className="text-orange-600"> 3 Simple Steps</span>
               </h2>
             </div>
             
@@ -302,7 +302,7 @@ export default function Home() {
               ].map((item, index) => (
                 <div key={item.step} className="relative">
                   <div className="bg-white p-8 rounded-3xl shadow-lg">
-                    <span className="text-6xl font-black text-cyan-100">
+                    <span className="text-6xl font-black text-zinc-200">
                       {item.step}
                     </span>
                     <h3 className="text-xl font-bold text-zinc-900 mt-4 mb-3">
@@ -313,7 +313,7 @@ export default function Home() {
                     </p>
                   </div>
                   {index < 2 && (
-                    <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-cyan-300"></div>
+                    <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-orange-300"></div>
                   )}
                 </div>
               ))}
@@ -329,10 +329,10 @@ export default function Home() {
                 The Best Online Platform to List Your Products and Connect with Buyers on WhatsApp
               </h2>
               <p className="text-lg text-zinc-700 mb-6">
-                Looking for an online platform to list your products and connect with buyers on WhatsApp? BloomBase is the perfect solution for home-based sellers, small business owners, and entrepreneurs who want to take their business online quickly and easily.
+                Looking for an online platform to list your products and connect with buyers on WhatsApp? SellLocal Online is the perfect solution for home-based sellers, small business owners, and entrepreneurs who want to take their business online quickly and easily.
               </p>
               <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
-                Why Choose BloomBase as Your Online Product Listing Platform?
+                Why Choose SellLocal Online as Your Online Product Listing Platform?
               </h3>
               <ul className="list-disc list-inside space-y-3 text-zinc-700 mb-6">
                 <li><strong>Easy Product Listing:</strong> List your products online in minutes with our simple interface. Upload product images, add descriptions, set prices, and organize your inventory effortlessly.</li>
@@ -365,10 +365,10 @@ export default function Home() {
                 <li><strong>Connect WhatsApp:</strong> Your WhatsApp number is automatically integrated. Customers can checkout via WhatsApp directly from your store.</li>
                 <li><strong>Share and Sell:</strong> Share your store link with customers. Start receiving orders and growing your business!</li>
               </ol>
-              <div className="bg-cyan-50 border-l-4 border-cyan-500 p-6 rounded-r-lg mt-8">
+              <div className="bg-orange-50 border-l-4 border-orange-500 p-6 rounded-r-lg mt-8">
                 <p className="text-zinc-800 font-semibold mb-2">Perfect For:</p>
                 <p className="text-zinc-700">
-                  Home-based sellers, handmade craft businesses, local food vendors, small manufacturers, online resellers, and anyone who wants to list products online and connect with buyers through WhatsApp. If you're searching for an online platform to showcase your products and communicate with customers via WhatsApp, BloomBase is your answer.
+                  Home-based sellers, handmade craft businesses, local food vendors, small manufacturers, online resellers, and anyone who wants to list products online and connect with buyers through WhatsApp. If you're searching for an online platform to showcase your products and communicate with customers via WhatsApp, SellLocal Online is your answer.
                 </p>
               </div>
             </div>
@@ -380,10 +380,10 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-4">
-                Platform for <span className="text-cyan-600">Home-Based Retailers</span>
+                Platform for <span className="text-orange-600">Home-Based Retailers</span>
               </h2>
               <p className="text-lg text-zinc-600 max-w-3xl mx-auto">
-                BloomBase is the perfect platform for home-based retailers who buy items in bulk from Sadar market. List your products and offer customers better prices than online e-commerce platforms. Cash on delivery, WhatsApp checkout - everything you need to compete with big online stores.
+                SellLocal Online is the perfect platform for home-based retailers who buy items in bulk from Sadar market. List your products and offer customers better prices than online e-commerce platforms. Cash on delivery, WhatsApp checkout - everything you need to compete with big online stores.
               </p>
             </div>
 
@@ -412,31 +412,31 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="bg-gradient-to-r from-cyan-600 to-teal-600 rounded-2xl p-8 text-white">
-              <h3 className="text-2xl font-black mb-4">Why Choose BloomBase for Your Home-Based Retail Business?</h3>
+            <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-2xl p-8 text-white">
+              <h3 className="text-2xl font-black mb-4">Why Choose SellLocal Online for Your Home-Based Retail Business?</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-bold text-lg mb-2">💰 Better Prices Than Online Stores</h4>
-                  <p className="text-cyan-100">
+                  <p className="text-orange-50">
                     Since you buy in bulk from Sadar market, you can offer customers better prices than online e-commerce platforms. Showcase your competitive rates and attract price-conscious buyers.
                   </p>
                 </div>
                 <div>
                   <h4 className="font-bold text-lg mb-2">📦 Source from Sadar Market</h4>
-                  <p className="text-cyan-100">
+                  <p className="text-orange-50">
                     Perfect for home-based retailers who buy items in bulk from Sadar market. List your products and compete with big online platforms by offering better rates.
                   </p>
                 </div>
                 <div>
                   <h4 className="font-bold text-lg mb-2">🚚 Cash on Delivery (COD)</h4>
-                  <p className="text-cyan-100">
+                  <p className="text-orange-50">
                     With WhatsApp checkout, you can handle cash on delivery orders directly. Customers checkout via WhatsApp and you can arrange COD delivery.
                   </p>
                 </div>
                 <div>
                   <h4 className="font-bold text-lg mb-2">📍 Perfect for Home-Based Retailers</h4>
-                  <p className="text-cyan-100">
-                    If you're a home-based retailer buying from Sadar Bazar Delhi, BloomBase helps you create an online presence. Reach customers looking for better prices than online stores.
+                  <p className="text-orange-50">
+                    If you're a home-based retailer buying from Sadar Bazar Delhi, SellLocal Online helps you create an online presence. Reach customers looking for better prices than online stores.
                   </p>
                 </div>
               </div>
@@ -448,11 +448,11 @@ export default function Home() {
         <section className="py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-8 text-center">
-              Home-Based Retailers in <span className="text-cyan-600">Sadar Bazar Delhi</span> - List Your Products Online
+              Home-Based Retailers in <span className="text-orange-600">Sadar Bazar Delhi</span> - List Your Products Online
             </h2>
             <div className="prose prose-lg max-w-none">
               <p className="text-lg text-zinc-700 mb-6">
-                Are you a <strong>home-based retailer</strong> who buys items in bulk from <strong>Sadar Bazar Delhi</strong>? BloomBase helps you create an online store where customers can discover your products at better prices than online e-commerce platforms. Whether you sell toys, gift items, school supplies, home decor, kitchen items, beddings, or any other products, BloomBase makes it easy to compete with big online stores.
+                Are you a <strong>home-based retailer</strong> who buys items in bulk from <strong>Sadar Bazar Delhi</strong>? SellLocal Online helps you create an online store where customers can discover your products at better prices than online e-commerce platforms. Whether you sell toys, gift items, school supplies, home decor, kitchen items, beddings, or any other products, SellLocal Online makes it easy to compete with big online stores.
               </p>
               <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
                 Features for Home-Based Retailers
@@ -465,7 +465,7 @@ export default function Home() {
                 <li><strong>Location-Based SEO:</strong> When customers search for "sadar bazar delhi" or products in your area, your store can appear in search results, helping local customers find you.</li>
               </ul>
               <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
-                Why Customers Choose BloomBase Retailers
+                Why Customers Choose SellLocal Online Retailers
               </h3>
               <ul className="list-disc list-inside space-y-3 text-zinc-700 mb-6">
                 <li>Better prices than online e-commerce platforms</li>
@@ -479,7 +479,7 @@ export default function Home() {
               <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg mt-8">
                 <p className="text-zinc-800 font-semibold mb-2">🎯 Target Keywords:</p>
                 <p className="text-zinc-700 text-sm mb-3">
-                  BloomBase is optimized to appear in search results when customers search for:
+                  SellLocal Online is optimized to appear in search results when customers search for:
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {[
@@ -508,17 +508,17 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-24 bg-gradient-to-r from-cyan-600 to-teal-600 text-white">
+        <section className="py-24 bg-gradient-to-r from-orange-600 to-amber-600 text-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-5xl font-black mb-6">
               Start Your Home-Based Retail Business Online Today
             </h2>
-            <p className="text-xl text-cyan-100 mb-10">
+            <p className="text-xl text-orange-50 mb-10">
               Whether you're buying from Sadar Bazar Delhi or anywhere in India, list your products and offer customers better prices than online e-commerce platforms. Cash on delivery (COD), WhatsApp checkout, and reach more customers. Join home-based retailers offering toys, gift items, school supplies, home decor, kitchen items, beddings at competitive rates.
             </p>
             <Link
               href="/register"
-              className="inline-block px-10 py-5 bg-white text-cyan-700 rounded-2xl font-bold text-lg hover:bg-cyan-50 transition-all hover:scale-105 shadow-xl"
+              className="inline-block px-10 py-5 bg-white text-orange-700 rounded-2xl font-bold text-lg hover:bg-orange-50 transition-all hover:scale-105 shadow-xl"
             >
               Start Listing Products Free →
             </Link>

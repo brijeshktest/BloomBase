@@ -77,8 +77,8 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
           <Link href="/" className="flex items-center space-x-3">
             <img 
               src="/logo-full.svg" 
-              alt="BloomBase" 
-              className="h-10 w-auto"
+              alt="SellLocal Online" 
+              className="h-12 sm:h-14 w-auto"
             />
           </Link>
         </div>

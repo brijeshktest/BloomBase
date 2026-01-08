@@ -63,7 +63,7 @@ router.post('/register/seller', [
     // Send WhatsApp notification to admin (construct URL for manual notification)
     const adminPhone = process.env.ADMIN_PHONE;
     const sellerPhone = phone.replace(/\+/g, '');
-    const whatsappMessage = encodeURIComponent(`New seller registration!\n\nName: ${name}\nBusiness: ${businessName}\nEmail: ${email}\nPhone: ${phone}\n\nPlease review and approve on BloomBase admin panel.`);
+    const whatsappMessage = encodeURIComponent(`New seller registration!\n\nName: ${name}\nBusiness: ${businessName}\nEmail: ${email}\nPhone: ${phone}\n\nPlease review and approve on SellLocal Online admin panel.`);
     
     console.log(`WhatsApp notification URL: https://wa.me/${adminPhone.replace(/\+/g, '')}?text=${whatsappMessage}`);
 

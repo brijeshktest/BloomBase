@@ -1,63 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
   <defs>
-    <linearGradient id="arrowGreen" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22c55e"/>
-      <stop offset="1" stop-color="#15803d"/>
+    <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#ea580c" />
     </linearGradient>
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
-    </filter>
+    <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
   </defs>
-
-  <g transform="translate(60,60)" filter="url(#softShadow)">
-    <!-- growth arrow swoosh -->
-    <path d="M40 420 C 160 470, 340 460, 470 370 C 580 295, 655 250, 710 250"
-          fill="none" stroke="url(#arrowGreen)" stroke-width="48" stroke-linecap="round"/>
-    <path d="M690 228 L770 250 L700 292"
-          fill="none" stroke="url(#arrowGreen)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
-
-    <!-- back house -->
-    <path d="M140 300 L270 210 L400 300 Z" fill="#16a34a" opacity="0.85"/>
-    <rect x="175" y="300" width="190" height="170" rx="14" fill="#14532d" opacity="0.85"/>
-
-    <!-- front shop -->
-    <path d="M255 300 L410 185 L565 300 Z" fill="#f97316"/>
-    <rect x="295" y="300" width="230" height="190" rx="16" fill="#b45309"/>
-
-    <!-- awning -->
-    <rect x="315" y="295" width="190" height="52" rx="10" fill="#fdba74"/>
-    <g opacity="0.7">
-      <rect x="315" y="295" width="32" height="52" fill="#ffffff"/>
-      <rect x="379" y="295" width="32" height="52" fill="#ffffff"/>
-      <rect x="443" y="295" width="32" height="52" fill="#ffffff"/>
+  
+  <!-- Icon Group -->
+  <g transform="translate(100, 100)">
+    <!-- Expanding Circles (Reach/Growth) -->
+    <circle cx="0" cy="0" r="45" fill="none" stroke="#f97316" stroke-width="2" opacity="0.3"/>
+    <circle cx="0" cy="0" r="60" fill="none" stroke="#14b8a6" stroke-width="2" opacity="0.2"/>
+    <circle cx="0" cy="0" r="75" fill="none" stroke="#f97316" stroke-width="1.5" opacity="0.15"/>
+    
+    <!-- House Icon (Home-Based) -->
+    <g transform="translate(-35, -20)">
+      <!-- House Roof -->
+      <path d="M-12 -15 L12 -15 L0 -28 Z" fill="url(#orangeGradient)"/>
+      <!-- House Body -->
+      <rect x="-12" y="-15" width="24" height="30" fill="#ffffff" rx="2"/>
+      <!-- Windows -->
+      <rect x="-8" y="-8" width="5" height="5" fill="#14b8a6" rx="1"/>
+      <rect x="3" y="-8" width="5" height="5" fill="#14b8a6" rx="1"/>
+      <!-- Door -->
+      <rect x="-3" y="0" width="6" height="12" fill="url(#orangeGradient)" rx="1"/>
     </g>
-
-    <!-- shopping bag -->
-    <rect x="385" y="368" width="76" height="92" rx="12" fill="#ffffff"/>
-    <path d="M402 384 C 402 364, 416 351, 435 351 C 454 351, 468 364, 468 384"
-          fill="none" stroke="#9a3412" stroke-width="9" stroke-linecap="round"/>
-
-    <!-- plant -->
-    <rect x="180" y="435" width="76" height="60" rx="12" fill="#7c2d12"/>
-    <path d="M196 435 C 198 404, 218 380, 240 380 C 228 411, 214 425, 196 435 Z" fill="#16a34a"/>
-    <path d="M238 435 C 236 404, 258 382, 282 382 C 273 411, 262 427, 238 435 Z" fill="#22c55e"/>
-
-    <!-- parcel -->
-    <rect x="270" y="445" width="105" height="66" rx="12" fill="#f59e0b"/>
-    <rect x="315" y="445" width="24" height="66" fill="#fde68a" opacity="0.95"/>
-
-    <!-- wifi -->
-    <path d="M390 150 C 415 132, 455 132, 480 150" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round"/>
-    <path d="M409 182 C 421 172, 449 172, 461 182" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round"/>
-    <circle cx="435" cy="212" r="9" fill="#16a34a"/>
-
-    <!-- sparkles -->
-    <g transform="translate(590,250)">
-      <path d="M28 0 L36 18 L54 26 L36 34 L28 52 L20 34 L2 26 L20 18 Z" fill="#f97316"/>
-      <path d="M82 18 L88 30 L100 36 L88 42 L82 54 L76 42 L64 36 L76 30 Z" fill="#fb923c"/>
-      <path d="M62 70 L66 78 L74 82 L66 86 L62 94 L58 86 L50 82 L58 78 Z" fill="#fdba74"/>
+    
+    <!-- Connection Lines (Going Online) -->
+    <g stroke="#14b8a6" stroke-width="2" fill="none" opacity="0.6">
+      <!-- Line from house to center -->
+      <line x1="-20" y1="-5" x2="0" y2="0" stroke-dasharray="3 3"/>
+      <!-- Network nodes -->
+      <circle cx="-20" cy="-5" r="3" fill="#14b8a6"/>
+      <circle cx="0" cy="0" r="4" fill="#14b8a6"/>
+      <circle cx="20" cy="5" r="3" fill="#f97316"/>
+      <circle cx="40" cy="10" r="3" fill="#f97316"/>
+      <!-- Expanding lines -->
+      <line x1="0" y1="0" x2="20" y2="5" stroke-dasharray="3 3"/>
+      <line x1="20" y1="5" x2="40" y2="10" stroke-dasharray="3 3"/>
+    </g>
+    
+    <!-- Shopping Bag (E-commerce) -->
+    <g transform="translate(35, 15)">
+      <!-- Bag Body -->
+      <path d="M-8 0 L-8 18 L8 18 L8 0 L6 -2 L-6 -2 Z" fill="url(#orangeGradient)"/>
+      <!-- Bag Handle -->
+      <path d="M-5 -2 Q-5 -6 0 -6 Q5 -6 5 -2" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Growth Arrow -->
+      <path d="M0 10 L0 5 M-3 7 L0 5 L3 7" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    
+    <!-- Expansion Arrows -->
+    <g transform="translate(0, 0)" opacity="0.7">
+      <path d="M45 0 L50 0 M48 -2 L50 0 L48 2" stroke="#f97316" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M-45 0 L-50 0 M-48 -2 L-50 0 L-48 2" stroke="#14b8a6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0 45 L0 50 M-2 48 L0 50 L2 48" stroke="#f97316" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0 -45 L0 -50 M-2 -48 L0 -50 L2 -48" stroke="#14b8a6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
   </g>
 </svg>
-
-

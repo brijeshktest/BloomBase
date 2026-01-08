@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       const data = await res.json();
       const store = data.store;
       
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bloombase.com';
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://selllocalonline.com';
       const seoTitle = store.seoMetaTitle || `${store.businessName} - Shop Online`;
       const seoDescription = store.seoMetaDescription || store.businessDescription || `Shop at ${store.businessName}. Browse our products and checkout via WhatsApp.`;
       
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   
   return {
-    title: 'Store | BloomBase',
+    title: 'Store | SellLocal Online',
   };
 }
 

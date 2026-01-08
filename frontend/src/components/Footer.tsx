@@ -9,8 +9,8 @@ export default function Footer() {
             <Link href="/" className="flex items-center space-x-3 mb-4">
               <img 
                 src="/logo-full.svg" 
-                alt="BloomBase" 
-                className="h-12 w-auto"
+                alt="SellLocal Online" 
+                className="h-16 sm:h-20 w-auto"
               />
             </Link>
             <p className="text-zinc-400 max-w-md">
@@ -35,13 +35,13 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-4">Contact</h3>
             <ul className="space-y-2 text-zinc-400">
-              <li>support@bloombase.com</li>
+              <li>support@selllocalonline.com</li>
               <li>+91 78380 55426</li>
             </ul>
           </div>
         </div>
         <div className="mt-12 pt-8 border-t border-zinc-700 text-center text-zinc-500">
-          <p>&copy; {new Date().getFullYear()} BloomBase. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SellLocal Online. All rights reserved.</p>
         </div>
       </div>
     </footer>

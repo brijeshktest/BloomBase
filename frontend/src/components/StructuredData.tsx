@@ -1,13 +1,13 @@
 export default function StructuredData() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bloombase.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://selllocalonline.com';
 
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'BloomBase',
+    name: 'SellLocal Online',
     url: baseUrl,
     logo: `${baseUrl}/logo-full.svg`,
-    description: 'BloomBase is an online platform that empowers home-based sellers to list their products and connect with buyers via WhatsApp. Create your free online store in minutes.',
+    description: 'SellLocal Online is an online platform that empowers home-based sellers to list their products and connect with buyers via WhatsApp. Create your free online store in minutes.',
     sameAs: [],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -19,7 +19,7 @@ export default function StructuredData() {
   const softwareApplicationSchema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'BloomBase',
+    name: 'SellLocal Online',
     applicationCategory: 'E-commerce Platform',
     operatingSystem: 'Web',
     offers: {
@@ -49,7 +49,7 @@ export default function StructuredData() {
   const webSiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'BloomBase',
+    name: 'SellLocal Online',
     url: baseUrl,
     description: 'Online platform for home-based sellers to list products and connect with buyers via WhatsApp',
     potentialAction: {
@@ -66,7 +66,7 @@ export default function StructuredData() {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     '@id': `${baseUrl}#business`,
-    name: 'BloomBase - Wholesale Marketplace',
+    name: 'SellLocal Online - Wholesale Marketplace',
     description: 'Wholesale marketplace platform for sellers in Sadar Bazar Delhi and across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at best rates. Bulk supply, cash on delivery available.',
     url: baseUrl,
     address: {
@@ -114,26 +114,26 @@ export default function StructuredData() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'How do I list my products online with BloomBase?',
+        name: 'How do I list my products online with SellLocal Online?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'BloomBase is an online platform that allows you to create a free microsite, list your products with images and descriptions, and connect with buyers directly via WhatsApp. Simply register, add your products, and share your store link with customers.',
+          text: 'SellLocal Online is an online platform that allows you to create a free microsite, list your products with images and descriptions, and connect with buyers directly via WhatsApp. Simply register, add your products, and share your store link with customers.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Can I connect with buyers on WhatsApp through BloomBase?',
+        name: 'Can I connect with buyers on WhatsApp through SellLocal Online?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes! BloomBase includes WhatsApp checkout integration. When customers add products to cart and checkout, they are redirected to your WhatsApp chat where you can process orders directly.',
+          text: 'Yes! SellLocal Online includes WhatsApp checkout integration. When customers add products to cart and checkout, they are redirected to your WhatsApp chat where you can process orders directly.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Is BloomBase free to use?',
+        name: 'Is SellLocal Online free to use?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'BloomBase offers a 1-month free trial for all new sellers. After the trial period, you can contact admin to extend your subscription.',
+          text: 'SellLocal Online offers a 1-month free trial for all new sellers. After the trial period, you can contact admin to extend your subscription.',
         },
       },
       {
@@ -141,15 +141,15 @@ export default function StructuredData() {
         name: 'Do I need coding skills to create my online store?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'No coding required! BloomBase provides a simple interface where you can create your store, add products, choose themes, and start selling - all without any technical knowledge.',
+          text: 'No coding required! SellLocal Online provides a simple interface where you can create your store, add products, choose themes, and start selling - all without any technical knowledge.',
         },
       },
       {
         '@type': 'Question',
-        name: 'Can I sell wholesale products on BloomBase?',
+        name: 'Can I sell wholesale products on SellLocal Online?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes! BloomBase is perfect for wholesale sellers. You can set minimum order quantities, offer volume-based pricing for bulk supply, and list products at best rates. Perfect for sellers in Sadar Bazar Delhi and other wholesale markets.',
+          text: 'Yes! SellLocal Online is perfect for wholesale sellers. You can set minimum order quantities, offer volume-based pricing for bulk supply, and list products at best rates. Perfect for sellers in Sadar Bazar Delhi and other wholesale markets.',
         },
       },
       {
@@ -157,12 +157,12 @@ export default function StructuredData() {
         name: 'Do you support cash on delivery (COD)?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes! BloomBase integrates with WhatsApp checkout, allowing you to handle cash on delivery orders directly. Customers checkout via WhatsApp and you can arrange COD delivery as per your terms.',
+          text: 'Yes! SellLocal Online integrates with WhatsApp checkout, allowing you to handle cash on delivery orders directly. Customers checkout via WhatsApp and you can arrange COD delivery as per your terms.',
         },
       },
       {
         '@type': 'Question',
-        name: 'What products can I list on BloomBase?',
+        name: 'What products can I list on SellLocal Online?',
         acceptedAnswer: {
           '@type': 'Answer',
           text: 'You can list any products including toys, gift items, school supplies, home decor, kitchen items, beddings, and more. Perfect for wholesale sellers offering bulk supply at cheapest rates.',
@@ -173,7 +173,7 @@ export default function StructuredData() {
         name: 'How do customers find my store when searching for wholesale products?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'BloomBase stores are SEO optimized. When customers search for terms like "sadar bazar delhi wholesale toy market", "wholesale beddings cheapest rate", "bulk supply kitchen items", or similar keywords, your store can appear in search results based on your location and product categories.',
+          text: 'SellLocal Online stores are SEO optimized. When customers search for terms like "sadar bazar delhi wholesale toy market", "wholesale beddings cheapest rate", "bulk supply kitchen items", or similar keywords, your store can appear in search results based on your location and product categories.',
         },
       },
     ],

@@ -78,7 +78,7 @@ router.get('/sample', protect, sellerOnly, (req, res) => {
     const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="bloombase-product-template.xlsx"');
+    res.setHeader('Content-Disposition', 'attachment; filename="selllocalonline-product-template.xlsx"');
     res.send(buffer);
   } catch (error) {
     console.error(error);

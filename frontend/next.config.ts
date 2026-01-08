@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  turbopack: {},
 };
 
 module.exports = withPWA(nextConfig);

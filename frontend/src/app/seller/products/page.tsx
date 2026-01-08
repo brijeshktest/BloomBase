@@ -794,7 +794,7 @@ function ProductsContent() {
                 </p>
                 <a
                   href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/bulk-upload/sample`}
-                  download="bloombase-product-template.xlsx"
+                  download="selllocalonline-product-template.xlsx"
                   className="btn btn-secondary inline-flex items-center justify-center"
                   onClick={async (e) => {
                     e.preventDefault();
@@ -812,7 +812,7 @@ function ProductsContent() {
                       const url = window.URL.createObjectURL(blob);
                       const link = document.createElement('a');
                       link.href = url;
-                      link.download = 'bloombase-product-template.xlsx';
+                      link.download = 'selllocalonline-product-template.xlsx';
                       document.body.appendChild(link);
                       link.click();
                       document.body.removeChild(link);

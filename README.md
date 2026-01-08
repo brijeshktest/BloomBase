@@ -1,4 +1,4 @@
-# BloomBase
+# SellLocal Online
 
 Empowering home-based sellers to bring their business online and increase their reach to nearby areas.
 
@@ -53,7 +53,7 @@ npm run seed
 ```
 
 This creates the admin user:
-- Email: `admin@bloombase`
+- Email: `admin@selllocalonline.com`
 - Password: `Bloxham1!`
 
 ### Running the Application
@@ -77,7 +77,7 @@ The frontend will run on `http://localhost:3000`
 ## User Roles
 
 ### Admin
-- Login: `admin@bloombase` / `Bloxham1!`
+- Login: `admin@selllocalonline.com` / `Bloxham1!`
 - Can approve/reject seller registrations
 - Can enable/disable sellers
 - Can extend seller trials

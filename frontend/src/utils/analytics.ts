@@ -5,7 +5,7 @@ export function getSessionId(): string {
   if (!sessionId) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('bloombase_session_id', sessionId);
+      sessionStorage.setItem('selllocalonline_session_id', sessionId);
     }
   }
   return sessionId;
@@ -13,7 +13,7 @@ export function getSessionId(): string {
 
 export function loadSessionId(): void {
   if (typeof window !== 'undefined') {
-    const stored = sessionStorage.getItem('bloombase_session_id');
+    const stored = sessionStorage.getItem('selllocalonline_session_id');
     if (stored) {
       sessionId = stored;
     }

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ################################################################################
-# BloomBase AWS EC2 Deployment Script
-# This script deploys the entire BloomBase application on an AWS EC2 instance
+# SellLocal Online AWS EC2 Deployment Script
+# This script deploys the entire SellLocal Online application on an AWS EC2 instance
 # It installs dependencies, sets up MongoDB, configures nginx, and starts services
 ################################################################################
 
@@ -16,15 +16,15 @@ NC='\033[0m' # No Color
 
 # Configuration - Update these values
 DOMAIN_NAME="${DOMAIN_NAME:-your-domain.com}"  # Set your domain or use EC2 public IP
-ADMIN_EMAIL="${ADMIN_EMAIL:-admin@bloombase.com}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@selllocalonline.com}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-Bloxham1!}"
 ADMIN_PHONE="${ADMIN_PHONE:-+917838055426}"
 JWT_SECRET="${JWT_SECRET:-$(openssl rand -base64 32 2>/dev/null || date +%s | sha256sum | base64 | head -c 32 || echo 'change-this-secret-key-in-production')}"
-MONGODB_URI="${MONGODB_URI:-mongodb://localhost:27017/bloombase}"
+MONGODB_URI="${MONGODB_URI:-mongodb://localhost:27017/selllocalonline}"
 BACKEND_PORT="${BACKEND_PORT:-5000}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 
-PROJECT_DIR="/opt/bloombase"
+PROJECT_DIR="/opt/selllocalonline"
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
 
@@ -42,7 +42,7 @@ print_warning() {
 }
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}BloomBase Deployment Script${NC}"
+echo -e "${GREEN}SellLocal Online Deployment Script${NC}"
 echo -e "${GREEN}========================================${NC}"
 
 # Get EC2 public IP if domain not set
@@ -229,16 +229,16 @@ require('dotenv').config();
 
 const seedAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bloombase');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/selllocalonline');
     console.log('Connected to MongoDB');
 
-    const desiredEmail = process.env.ADMIN_EMAIL || 'admin@bloombase.com';
+    const desiredEmail = process.env.ADMIN_EMAIL || 'admin@selllocalonline.com';
     const adminPassword = process.env.ADMIN_PASSWORD || 'Bloxham1!';
     const adminPhone = process.env.ADMIN_PHONE || '+917838055426';
 
     const existingAdmin =
       (await User.findOne({ email: desiredEmail })) ||
-      (await User.findOne({ email: 'admin@bloombase' })) ||
+      (await User.findOne({ email: 'admin@selllocalonline' })) ||
       (await User.findOne({ role: 'admin' }));
     
     if (existingAdmin) {
@@ -246,7 +246,7 @@ const seedAdmin = async () => {
         existingAdmin.email = desiredEmail;
       }
       existingAdmin.password = adminPassword;
-      existingAdmin.name = existingAdmin.name || 'BloomBase Admin';
+      existingAdmin.name = existingAdmin.name || 'SellLocal Online Admin';
       existingAdmin.role = 'admin';
       existingAdmin.phone = adminPhone;
       existingAdmin.isApproved = true;
@@ -262,7 +262,7 @@ const seedAdmin = async () => {
       const admin = await User.create({
         email: desiredEmail,
         password: adminPassword,
-        name: 'BloomBase Admin',
+        name: 'SellLocal Online Admin',
         role: 'admin',
         phone: adminPhone,
         isApproved: true,
@@ -304,8 +304,8 @@ NODE_ENV=production node seed.js || {
 ################################################################################
 print_status "Configuring PM2 for backend..."
 cd $BACKEND_DIR
-pm2 delete bloombase-backend 2>/dev/null || true
-pm2 start server.js --name bloombase-backend --env production
+pm2 delete selllocalonline-backend 2>/dev/null || true
+pm2 start server.js --name selllocalonline-backend --env production
 pm2 save
 
 ################################################################################
@@ -313,15 +313,15 @@ pm2 save
 ################################################################################
 print_status "Configuring PM2 for frontend..."
 cd $FRONTEND_DIR
-pm2 delete bloombase-frontend 2>/dev/null || true
-pm2 start npm --name bloombase-frontend -- start
+pm2 delete selllocalonline-frontend 2>/dev/null || true
+pm2 start npm --name selllocalonline-frontend -- start
 pm2 save
 
 ################################################################################
 # Step 15: Configure Nginx reverse proxy
 ################################################################################
 print_status "Configuring Nginx..."
-cat > /etc/nginx/sites-available/bloombase << EOF
+cat > /etc/nginx/sites-available/selllocalonline << EOF
 server {
     listen 80;
     server_name $DOMAIN_NAME;
@@ -365,7 +365,7 @@ server {
 EOF
 
 # Enable site and remove default
-ln -sf /etc/nginx/sites-available/bloombase /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/selllocalonline /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 # Test and reload nginx
@@ -410,8 +410,8 @@ pm2 list
 
 echo -e "\n${YELLOW}Useful Commands:${NC}"
 echo -e "  View logs: pm2 logs"
-echo -e "  Restart backend: pm2 restart bloombase-backend"
-echo -e "  Restart frontend: pm2 restart bloombase-frontend"
+echo -e "  Restart backend: pm2 restart selllocalonline-backend"
+echo -e "  Restart frontend: pm2 restart selllocalonline-frontend"
 echo -e "  View nginx logs: tail -f /var/log/nginx/error.log"
 echo -e "  View MongoDB logs: tail -f /var/log/mongodb/mongod.log"
 

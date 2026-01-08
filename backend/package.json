@@ -1,7 +1,7 @@
 {
-  "name": "bloombase-backend",
+  "name": "selllocalonline-backend",
   "version": "1.0.0",
-  "description": "BloomBase - E-commerce platform for home-based sellers",
+  "description": "SellLocal Online - E-commerce platform for home-based sellers",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

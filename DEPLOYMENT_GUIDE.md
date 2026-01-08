@@ -1,6 +1,6 @@
-# AWS EC2 Deployment Guide for BloomBase
+# AWS EC2 Deployment Guide for SellLocal Online
 
-This guide will help you connect Cursor to your AWS EC2 instance and deploy the BloomBase application.
+This guide will help you connect Cursor to your AWS EC2 instance and deploy the SellLocal Online application.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ This guide will help you connect Cursor to your AWS EC2 instance and deploy the 
    Add this configuration to your SSH config file:
 
    ```
-   Host bloombase-ec2
+   Host selllocalonline-ec2
        HostName YOUR_EC2_PUBLIC_IP
        User ubuntu
        IdentityFile /path/to/your/key.pem
@@ -49,7 +49,7 @@ This guide will help you connect Cursor to your AWS EC2 instance and deploy the 
 
 5. **Connect**:
    - Press `F1` → "Remote-SSH: Connect to Host"
-   - Select "bloombase-ec2"
+   - Select "selllocalonline-ec2"
    - Cursor will connect to your EC2 instance
 
 ### Option B: Using Terminal in Cursor
@@ -72,7 +72,7 @@ Open a **local terminal** (not SSH'd into EC2) and run:
 cd "C:\Bloom Base"
 
 # Upload entire project
-scp -i "C:\path\to\your-key.pem" -r "C:\Bloom Base" ubuntu@YOUR_EC2_IP:~/bloombase
+scp -i "C:\path\to\your-key.pem" -r "C:\Bloom Base" ubuntu@YOUR_EC2_IP:~/selllocalonline
 ```
 
 **Mac/Linux:**
@@ -81,7 +81,7 @@ scp -i "C:\path\to\your-key.pem" -r "C:\Bloom Base" ubuntu@YOUR_EC2_IP:~/bloomba
 cd /path/to/Bloom\ Base
 
 # Upload entire project
-scp -i ~/path/to/your-key.pem -r "Bloom Base" ubuntu@YOUR_EC2_IP:~/bloombase
+scp -i ~/path/to/your-key.pem -r "Bloom Base" ubuntu@YOUR_EC2_IP:~/selllocalonline
 ```
 
 ### Option B: Using Git (Recommended)
@@ -91,15 +91,15 @@ If your code is in a Git repository:
 1. **On EC2** (via SSH):
    ```bash
    cd ~
-   git clone YOUR_REPO_URL bloombase
-   cd bloombase
+   git clone YOUR_REPO_URL selllocalonline
+   cd selllocalonline
    ```
 
 2. **Or push to GitHub and clone**:
    ```bash
    cd ~
-   git clone https://github.com/yourusername/bloombase.git
-   cd bloombase
+   git clone https://github.com/yourusername/selllocalonline.git
+   cd selllocalonline
    ```
 
 ### Option C: Using VS Code/Cursor Remote
@@ -116,7 +116,7 @@ Once files are uploaded to EC2:
 
 2. **Navigate to project directory**:
    ```bash
-   cd ~/bloombase
+   cd ~/selllocalonline
    ```
 
 3. **Make deployment script executable**:
@@ -160,12 +160,12 @@ Once files are uploaded to EC2:
 
 2. **Test the application**:
    - Visit `http://YOUR_EC2_IP` in your browser
-   - You should see the BloomBase landing page
+   - You should see the SellLocal Online landing page
 
 3. **Check logs if needed**:
    ```bash
-   pm2 logs bloombase-backend
-   pm2 logs bloombase-frontend
+   pm2 logs selllocalonline-backend
+   pm2 logs selllocalonline-frontend
    ```
 
 ## Step 5: Configure Domain Name (Optional)
@@ -176,16 +176,16 @@ Once files are uploaded to EC2:
 
 2. **Update environment variables**:
    ```bash
-   sudo nano /opt/bloombase/backend/.env
+   sudo nano /opt/selllocalonline/backend/.env
    # Update FRONTEND_URL to your domain
    
-   sudo nano /opt/bloombase/frontend/.env.production
+   sudo nano /opt/selllocalonline/frontend/.env.production
    # Update NEXT_PUBLIC_API_URL to your domain
    ```
 
 3. **Update Nginx configuration**:
    ```bash
-   sudo nano /etc/nginx/sites-available/bloombase
+   sudo nano /etc/nginx/sites-available/selllocalonline
    # Update server_name to your domain
    sudo nginx -t
    sudo systemctl reload nginx
@@ -277,10 +277,10 @@ pm2 restart all
 sudo systemctl restart nginx
 
 # Update application (after code changes)
-cd /opt/bloombase/backend
+cd /opt/selllocalonline/backend
 sudo npm install --production
 
-cd /opt/bloombase/frontend
+cd /opt/selllocalonline/frontend
 sudo npm install
 sudo npm run build
 pm2 restart all

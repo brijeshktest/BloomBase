@@ -1,6 +1,6 @@
-# Image Specifications for BloomBase
+# Image Specifications for SellLocal Online
 
-This document outlines the recommended dimensions and restrictions for all images used in the BloomBase application.
+This document outlines the recommended dimensions and restrictions for all images used in the SellLocal Online application.
 
 ## Recommended Dimensions
 

@@ -200,8 +200,8 @@ export default function AdminPage() {
             <Link href="/" className="flex items-center gap-3">
               <img 
                 src="/logo-full.svg" 
-                alt="BloomBase" 
-                className="h-10 w-auto"
+                alt="SellLocal Online" 
+                className="h-12 sm:h-14 w-auto"
               />
               <span className="text-xl font-bold hidden sm:inline text-white">Admin</span>
             </Link>

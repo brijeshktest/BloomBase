@@ -10,12 +10,12 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bloombase.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://selllocalonline.com'),
   title: {
-    default: 'BloomBase - Online Platform to List Products & Connect with Buyers on WhatsApp',
-    template: '%s | BloomBase'
+    default: 'SellLocal Online - Online Platform to List Products & Connect with Buyers on WhatsApp',
+    template: '%s | SellLocal Online'
   },
-  description: 'BloomBase - Best wholesale marketplace for sellers in Sadar Bazar Delhi and across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at cheapest rates. Bulk supply, cash on delivery (COD), best rates. Create your free online store and connect with buyers via WhatsApp.',
+  description: 'SellLocal Online - Best wholesale marketplace for sellers in Sadar Bazar Delhi and across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at cheapest rates. Bulk supply, cash on delivery (COD), best rates. Create your free online store and connect with buyers via WhatsApp.',
   keywords: [
     // Primary keywords
     'online platform to list products',
@@ -67,9 +67,9 @@ export const metadata: Metadata = {
     'wholesale dealer',
     'wholesale distributor'
   ],
-  authors: [{ name: 'BloomBase', url: 'https://bloombase.com' }],
-  creator: 'BloomBase',
-  publisher: 'BloomBase',
+  authors: [{ name: 'SellLocal Online', url: 'https://selllocalonline.com' }],
+  creator: 'SellLocal Online',
+  publisher: 'SellLocal Online',
   robots: {
     index: true,
     follow: true,
@@ -85,24 +85,24 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     url: '/',
-    siteName: 'BloomBase',
-    title: 'BloomBase - Wholesale Marketplace | Best Rates, Bulk Supply, Cash on Delivery',
+    siteName: 'SellLocal Online',
+    title: 'SellLocal Online - Wholesale Marketplace | Best Rates, Bulk Supply, Cash on Delivery',
     description: 'Wholesale marketplace for toys, gift items, school supplies, home decor, kitchen items, beddings. Best rates, bulk supply, COD available. Perfect for Sadar Bazar Delhi sellers and businesses across India.',
     images: [
       {
         url: '/logo-full.svg',
         width: 1200,
         height: 630,
-        alt: 'BloomBase - Online Platform for Home-Based Sellers',
+        alt: 'SellLocal Online - Online Platform for Home-Based Sellers',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BloomBase - Online Platform to List Products & Connect with Buyers',
+    title: 'SellLocal Online - Online Platform to List Products & Connect with Buyers',
     description: 'Create your free online store. List products and connect with buyers via WhatsApp.',
     images: ['/logo-full.svg'],
-    creator: '@BloomBase',
+    creator: '@SellLocalOnline',
   },
   alternates: {
     canonical: '/',

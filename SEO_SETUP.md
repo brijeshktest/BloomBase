@@ -1,6 +1,6 @@
-# SEO Setup Guide for BloomBase
+# SEO Setup Guide for SellLocal Online
 
-This document outlines the SEO optimizations implemented for BloomBase and what you need to configure for maximum search engine visibility.
+This document outlines the SEO optimizations implemented for SellLocal Online and what you need to configure for maximum search engine visibility.
 
 ## ✅ Completed SEO Optimizations
 

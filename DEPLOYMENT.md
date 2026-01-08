@@ -1,6 +1,6 @@
-# BloomBase AWS EC2 Deployment Guide
+# SellLocal Online AWS EC2 Deployment Guide
 
-This guide will help you deploy the BloomBase application on an AWS EC2 instance.
+This guide will help you deploy the SellLocal Online application on an AWS EC2 instance.
 
 ## Prerequisites
 
@@ -23,13 +23,13 @@ This guide will help you deploy the BloomBase application on an AWS EC2 instance
 2. **Upload the project files to the server:**
    ```bash
    # From your local machine
-   scp -i your-key.pem -r "C:\Bloom Base" ubuntu@your-ec2-ip:~/bloombase
+   scp -i your-key.pem -r "C:\Bloom Base" ubuntu@your-ec2-ip:~/selllocalonline
    ```
 
 3. **Run the deployment script:**
    ```bash
    # On the EC2 instance
-   cd ~/bloombase
+   cd ~/selllocalonline
    chmod +x deploy.sh
    sudo ./deploy.sh
    ```
@@ -37,7 +37,7 @@ This guide will help you deploy the BloomBase application on an AWS EC2 instance
 4. **Configure environment variables (optional):**
    ```bash
    export DOMAIN_NAME=your-domain.com
-   export ADMIN_EMAIL=admin@bloombase.com
+   export ADMIN_EMAIL=admin@selllocalonline.com
    export ADMIN_PASSWORD=Bloxham1!
    export ADMIN_PHONE=+917838055426
    export JWT_SECRET=$(openssl rand -base64 32)
@@ -85,22 +85,22 @@ If you prefer to deploy manually, follow these steps:
 
 6. **Setup project:**
    ```bash
-   sudo mkdir -p /opt/bloombase
-   sudo cp -r ~/bloombase/backend /opt/bloombase/
-   sudo cp -r ~/bloombase/frontend /opt/bloombase/
-   sudo mkdir -p /opt/bloombase/backend/uploads
+   sudo mkdir -p /opt/selllocalonline
+   sudo cp -r ~/selllocalonline/backend /opt/selllocalonline/
+   sudo cp -r ~/selllocalonline/frontend /opt/selllocalonline/
+   sudo mkdir -p /opt/selllocalonline/backend/uploads
    ```
 
 7. **Create backend .env file:**
    ```bash
-   sudo nano /opt/bloombase/backend/.env
+   sudo nano /opt/selllocalonline/backend/.env
    ```
    
    Add the following:
    ```env
    PORT=5000
    NODE_ENV=production
-   MONGODB_URI=mongodb://localhost:27017/bloombase
+   MONGODB_URI=mongodb://localhost:27017/selllocalonline
    JWT_SECRET=your-secret-key-here
    JWT_EXPIRES_IN=7d
    FRONTEND_URL=http://your-domain-or-ip
@@ -109,7 +109,7 @@ If you prefer to deploy manually, follow these steps:
 
 8. **Create frontend .env.production file:**
    ```bash
-   sudo nano /opt/bloombase/frontend/.env.production
+   sudo nano /opt/selllocalonline/frontend/.env.production
    ```
    
    Add the following:
@@ -120,35 +120,35 @@ If you prefer to deploy manually, follow these steps:
 
 9. **Install dependencies and build:**
    ```bash
-   cd /opt/bloombase/backend
+   cd /opt/selllocalonline/backend
    sudo npm install --production
    
-   cd /opt/bloombase/frontend
+   cd /opt/selllocalonline/frontend
    sudo npm install
    sudo npm run build
    ```
 
 10. **Seed database:**
     ```bash
-    cd /opt/bloombase/backend
+    cd /opt/selllocalonline/backend
     sudo node seed.js
     ```
 
 11. **Start with PM2:**
     ```bash
-    cd /opt/bloombase/backend
-    sudo pm2 start server.js --name bloombase-backend
+    cd /opt/selllocalonline/backend
+    sudo pm2 start server.js --name selllocalonline-backend
     
-    cd /opt/bloombase/frontend
-    sudo pm2 start npm --name bloombase-frontend -- start
+    cd /opt/selllocalonline/frontend
+    sudo pm2 start npm --name selllocalonline-frontend -- start
     
     sudo pm2 save
     ```
 
 12. **Configure Nginx:**
-    Create `/etc/nginx/sites-available/bloombase` with the configuration from the deploy script, then:
+    Create `/etc/nginx/sites-available/selllocalonline` with the configuration from the deploy script, then:
     ```bash
-    sudo ln -s /etc/nginx/sites-available/bloombase /etc/nginx/sites-enabled/
+    sudo ln -s /etc/nginx/sites-available/selllocalonline /etc/nginx/sites-enabled/
     sudo rm /etc/nginx/sites-enabled/default
     sudo nginx -t
     sudo systemctl reload nginx
@@ -161,11 +161,11 @@ If you prefer to deploy manually, follow these steps:
 The deployment script uses these default values but can be overridden:
 
 - `DOMAIN_NAME`: Your domain name or EC2 public IP (default: EC2 public IP)
-- `ADMIN_EMAIL`: Admin email (default: admin@bloombase.com)
+- `ADMIN_EMAIL`: Admin email (default: admin@selllocalonline.com)
 - `ADMIN_PASSWORD`: Admin password (default: Bloxham1!)
 - `ADMIN_PHONE`: Admin phone (default: +917838055426)
 - `JWT_SECRET`: JWT secret key (auto-generated if not provided)
-- `MONGODB_URI`: MongoDB connection string (default: mongodb://localhost:27017/bloombase)
+- `MONGODB_URI`: MongoDB connection string (default: mongodb://localhost:27017/selllocalonline)
 
 ### Custom Domain Setup
 
@@ -200,8 +200,8 @@ sudo systemctl status mongod
 
 ```bash
 # Application logs
-pm2 logs bloombase-backend
-pm2 logs bloombase-frontend
+pm2 logs selllocalonline-backend
+pm2 logs selllocalonline-frontend
 
 # Nginx logs
 sudo tail -f /var/log/nginx/access.log
@@ -215,10 +215,10 @@ sudo tail -f /var/log/mongodb/mongod.log
 
 ```bash
 # Restart backend
-pm2 restart bloombase-backend
+pm2 restart selllocalonline-backend
 
 # Restart frontend
-pm2 restart bloombase-frontend
+pm2 restart selllocalonline-frontend
 
 # Restart Nginx
 sudo systemctl restart nginx
@@ -234,18 +234,18 @@ To update the application:
 1. **Pull latest code or upload new files**
 2. **Update dependencies:**
    ```bash
-   cd /opt/bloombase/backend
+   cd /opt/selllocalonline/backend
    sudo npm install --production
    
-   cd /opt/bloombase/frontend
+   cd /opt/selllocalonline/frontend
    sudo npm install
    sudo npm run build
    ```
 
 3. **Restart services:**
    ```bash
-   pm2 restart bloombase-backend
-   pm2 restart bloombase-frontend
+   pm2 restart selllocalonline-backend
+   pm2 restart selllocalonline-frontend
    ```
 
 ## Troubleshooting
@@ -321,7 +321,7 @@ mongorestore /backup/20240101
 ### Backup Uploads
 
 ```bash
-tar -czf uploads-backup.tar.gz /opt/bloombase/backend/uploads
+tar -czf uploads-backup.tar.gz /opt/selllocalonline/backend/uploads
 ```
 
 ## Support
@@ -331,7 +331,7 @@ For issues or questions, check the application logs first using the commands abo
 ---
 
 **Default Admin Credentials:**
-- Email: admin@bloombase.com
+- Email: admin@selllocalonline.com
 - Password: Bloxham1!
 
 **⚠️ Important:** Change the admin password after first login!

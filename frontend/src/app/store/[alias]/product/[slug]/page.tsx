@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   
   return {
-    title: 'Product | BloomBase',
+    title: 'Product | SellLocal Online',
   };
 }
 

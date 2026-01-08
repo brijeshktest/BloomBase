@@ -11,11 +11,11 @@ import Footer from '@/components/Footer';
 import { themes, ThemeKey } from '@/lib/themes';
 
 export const metadata = {
-  title: 'Register - Start Selling Online with BloomBase',
-  description: 'Create your free online store today. Register on BloomBase to list your products and connect with buyers via WhatsApp. Start your 1-month free trial now.',
+  title: 'Register - Start Selling Online with SellLocal Online',
+  description: 'Create your free online store today. Register on SellLocal Online to list your products and connect with buyers via WhatsApp. Start your 1-month free trial now.',
   keywords: ['register online store', 'create online store', 'seller registration', 'list products online', 'whatsapp ecommerce'],
   openGraph: {
-    title: 'Register - Start Selling Online with BloomBase',
+    title: 'Register - Start Selling Online with SellLocal Online',
     description: 'Create your free online store and start listing products today.',
   },
 };
@@ -111,7 +111,7 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                   required
                 />
-                <p className="text-xs text-zinc-500 mt-1">This will be your store URL: bloombase.com/store/{formData.businessName ? formData.businessName.toLowerCase().replace(/\s+/g, '-') : 'your-store'}</p>
+                <p className="text-xs text-zinc-500 mt-1">This will be your store URL: selllocalonline.com/store/{formData.businessName ? formData.businessName.toLowerCase().replace(/\s+/g, '-') : 'your-store'}</p>
               </div>
 
               <div>

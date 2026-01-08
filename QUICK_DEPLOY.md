@@ -12,13 +12,13 @@
 
 ```bash
 # On your EC2 instance
-cd ~/bloombase  # or wherever you uploaded the project
+cd ~/selllocalonline  # or wherever you uploaded the project
 chmod +x deploy.sh
 sudo ./deploy.sh
 ```
 
 **Default Admin:**
-- Email: `admin@bloombase.com`
+- Email: `admin@selllocalonline.com`
 - Password: `Bloxham1!`
 
 ### Custom Deployment (Custom Credentials)
@@ -41,10 +41,10 @@ From your local machine:
 
 ```bash
 # Windows (PowerShell)
-scp -i your-key.pem -r "C:\Bloom Base" ubuntu@your-ec2-ip:~/bloombase
+scp -i your-key.pem -r "C:\Bloom Base" ubuntu@your-ec2-ip:~/selllocalonline
 
 # Mac/Linux
-scp -i your-key.pem -r /path/to/Bloom\ Base ubuntu@your-ec2-ip:~/bloombase
+scp -i your-key.pem -r /path/to/Bloom\ Base ubuntu@your-ec2-ip:~/selllocalonline
 ```
 
 ## Post-Deployment

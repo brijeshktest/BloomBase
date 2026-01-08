@@ -125,7 +125,7 @@ router.patch('/sellers/:id/approve', protect, adminOnly, async (req, res) => {
 
     // Generate WhatsApp notification URL for the seller
     const sellerPhone = seller.phone.replace(/\+/g, '').replace(/\s/g, '');
-    const message = encodeURIComponent(`🎉 Congratulations ${seller.name}!\n\nYour BloomBase seller account for "${seller.businessName}" has been approved!\n\nYou can now login and start adding products.\n\nYour store URL: ${seller.alias}\n\nHappy selling! 🚀`);
+    const message = encodeURIComponent(`🎉 Congratulations ${seller.name}!\n\nYour SellLocal Online seller account for "${seller.businessName}" has been approved!\n\nYou can now login and start adding products.\n\nYour store URL: ${seller.alias}\n\nHappy selling! 🚀`);
     const whatsappUrl = `https://wa.me/${sellerPhone}?text=${message}`;
 
     res.json({ 
@@ -180,7 +180,7 @@ router.post('/sellers/:id/send-phone-verification', protect, adminOnly, async (r
     const verifyUrl = `${frontendUrl}/verify-phone?token=${token}`;
 
     const message = encodeURIComponent(
-      `🔒 BloomBase WhatsApp Number Verification\n\nHi ${seller.name},\n\nPlease verify your WhatsApp number to proceed with approval of your seller account.\n\n✅ Tap this link to verify:\n${verifyUrl}\n\nIf you did not request this, you can ignore this message.`
+      `🔒 SellLocal Online WhatsApp Number Verification\n\nHi ${seller.name},\n\nPlease verify your WhatsApp number to proceed with approval of your seller account.\n\n✅ Tap this link to verify:\n${verifyUrl}\n\nIf you did not request this, you can ignore this message.`
     );
 
     const whatsappUrl = `https://wa.me/${sellerPhone}?text=${message}`;
@@ -248,7 +248,7 @@ router.patch('/sellers/:id/extend-validity', protect, adminOnly, async (req, res
     // Send WhatsApp notification
     const sellerPhone = seller.phone.replace(/\+/g, '').replace(/\s/g, '');
     const message = encodeURIComponent(
-      `✅ Account Extended!\n\nHi ${seller.name},\n\nYour BloomBase seller account has been extended by ${months} month${months > 1 ? 's' : ''}.\n\nYour account is now active until ${newEndDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}.\n\nYou can now login and continue selling! 🚀`
+      `✅ Account Extended!\n\nHi ${seller.name},\n\nYour SellLocal Online seller account has been extended by ${months} month${months > 1 ? 's' : ''}.\n\nYour account is now active until ${newEndDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}.\n\nYou can now login and continue selling! 🚀`
     );
     const whatsappUrl = `https://wa.me/${sellerPhone}?text=${message}`;
 

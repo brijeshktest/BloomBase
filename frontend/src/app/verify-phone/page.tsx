@@ -65,7 +65,7 @@ export default function VerifyPhonePage() {
               Go to Login
             </Link>
             <Link href="/" className="btn btn-secondary">
-              Back to BloomBase
+              Back to SellLocal Online
             </Link>
           </div>
         </div>

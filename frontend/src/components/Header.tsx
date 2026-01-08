@@ -17,14 +17,14 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-emerald-900 via-teal-800 to-cyan-900 text-white shadow-xl">
+    <header className="bg-gradient-to-r from-zinc-50 via-white to-zinc-50 text-zinc-900 shadow-md border-b border-zinc-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3">
             <img 
               src="/logo-full.svg" 
-              alt="BloomBase" 
-              className="h-10 w-auto"
+              alt="SellLocal Online" 
+              className="h-14 sm:h-16 w-auto"
             />
           </Link>
 
@@ -35,7 +35,7 @@ export default function Header() {
                 {user?.role === 'admin' && (
                   <Link
                     href="/admin"
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 transition-colors text-zinc-900"
                   >
                     <LayoutDashboard size={18} />
                     <span>Admin Panel</span>
@@ -45,7 +45,7 @@ export default function Header() {
                   <>
                     <Link
                       href="/seller/dashboard"
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 transition-colors text-zinc-900"
                     >
                       <LayoutDashboard size={18} />
                       <span>Dashboard</span>
@@ -53,7 +53,7 @@ export default function Header() {
                     {user.alias && (
                       <Link
                         href={`/store/${user.alias}`}
-                        className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-cyan-500/30 hover:bg-cyan-500/40 transition-colors"
+                        className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-orange-100 hover:bg-orange-200 transition-colors text-orange-900"
                         target="_blank"
                       >
                         <Store size={18} />
@@ -63,7 +63,7 @@ export default function Header() {
                   </>
                 )}
                 <div className="flex items-center space-x-4 pl-4 border-l border-white/20">
-                  <span className="text-sm text-cyan-200">
+                  <span className="text-sm text-zinc-700">
                     Hi, {user?.name?.split(' ')[0]}
                   </span>
                   <button
@@ -79,13 +79,13 @@ export default function Header() {
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2 rounded-lg hover:bg-white/10 transition-colors"
+                  className="px-4 py-2 rounded-lg hover:bg-zinc-100 transition-colors text-zinc-900"
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="px-6 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white font-semibold transition-colors"
+                  className="px-6 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition-colors"
                 >
                   Start Selling
                 </Link>
@@ -105,14 +105,14 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-teal-900/95 backdrop-blur-lg border-t border-white/10">
+        <div className="md:hidden bg-white backdrop-blur-lg border-t border-zinc-200">
           <div className="px-4 py-4 space-y-3">
             {isAuthenticated ? (
               <>
                 {user?.role === 'admin' && (
                   <Link
                     href="/admin"
-                    className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-white/10"
+                    className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-zinc-100 text-zinc-900"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <LayoutDashboard size={18} />
@@ -123,7 +123,7 @@ export default function Header() {
                   <>
                     <Link
                       href="/seller/dashboard"
-                      className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-white/10"
+                      className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-zinc-100 text-zinc-900"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <LayoutDashboard size={18} />
@@ -132,7 +132,7 @@ export default function Header() {
                     {user.alias && (
                       <Link
                         href={`/store/${user.alias}`}
-                        className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-cyan-500/30"
+                        className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-orange-100 text-orange-900"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Store size={18} />
@@ -146,7 +146,7 @@ export default function Header() {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center space-x-2 px-4 py-3 rounded-lg bg-red-500/20 text-red-200"
+                  className="w-full flex items-center space-x-2 px-4 py-3 rounded-lg bg-red-100 text-red-700"
                 >
                   <LogOut size={18} />
                   <span>Logout</span>
@@ -156,14 +156,14 @@ export default function Header() {
               <>
                 <Link
                   href="/login"
-                  className="block px-4 py-3 rounded-lg hover:bg-white/10"
+                  className="block px-4 py-3 rounded-lg hover:bg-zinc-100 text-zinc-900"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="block px-4 py-3 rounded-lg bg-cyan-500 text-center font-semibold"
+                  className="block px-4 py-3 rounded-lg bg-orange-600 text-white text-center font-semibold hover:bg-orange-700"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Start Selling

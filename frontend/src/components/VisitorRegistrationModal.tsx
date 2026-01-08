@@ -94,9 +94,9 @@ export default function VisitorRegistrationModal({
       });
 
       // Store in sessionStorage so we don't ask again this session
-      sessionStorage.setItem('bloombase_visitor_registered', 'true');
-      sessionStorage.setItem('bloombase_visitor_name', name.trim());
-      sessionStorage.setItem('bloombase_visitor_phone', phone.trim());
+      sessionStorage.setItem('selllocalonline_visitor_registered', 'true');
+      sessionStorage.setItem('selllocalonline_visitor_name', name.trim());
+      sessionStorage.setItem('selllocalonline_visitor_phone', phone.trim());
 
       onComplete();
       toast.success('Welcome! You can now browse the store.');

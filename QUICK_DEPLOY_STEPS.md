@@ -10,14 +10,14 @@
 
 **From local terminal:**
 ```bash
-scp -i key.pem -r "C:\Bloom Base" ubuntu@EC2_IP:~/bloombase
+scp -i key.pem -r "C:\Bloom Base" ubuntu@EC2_IP:~/selllocalonline
 ```
 
 ## 3. Deploy
 
 **On EC2:**
 ```bash
-cd ~/bloombase
+cd ~/selllocalonline
 chmod +x deploy.sh
 sudo ./deploy.sh
 ```
@@ -27,7 +27,7 @@ sudo ./deploy.sh
 Visit: `http://YOUR_EC2_IP`
 
 **Default Admin:**
-- Email: `admin@bloombase.com`
+- Email: `admin@selllocalonline.com`
 - Password: `Bloxham1!`
 
 ---

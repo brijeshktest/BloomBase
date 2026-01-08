@@ -72,7 +72,7 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
 
   useEffect(() => {
     // Check if visitor already registered in this session
-    const isRegistered = sessionStorage.getItem('bloombase_visitor_registered') === 'true';
+    const isRegistered = sessionStorage.getItem('selllocalonline_visitor_registered') === 'true';
     setVisitorRegistered(isRegistered);
     
     if (!isRegistered) {
@@ -643,7 +643,7 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
         <p className="text-sm text-white/70">
           Powered by{' '}
           <Link href="/" className="font-semibold text-white hover:underline" target="_blank" rel="noopener noreferrer">
-            BloomBase
+            SellLocal Online
           </Link>
         </p>
       </footer>

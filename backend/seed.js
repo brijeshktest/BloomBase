@@ -4,27 +4,27 @@ require('dotenv').config();
 
 const seedAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bloombase');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/selllocalonline');
     console.log('Connected to MongoDB');
 
     // Admin email must be a valid email (login endpoint validates isEmail()).
-    const desiredEmail = 'admin@bloombase.com';
+    const desiredEmail = 'admin@selllocalonline.com';
 
     // Find any existing admin (legacy or current)
     const existingAdmin =
       (await User.findOne({ email: desiredEmail })) ||
-      (await User.findOne({ email: 'admin@bloombase' })) ||
+      (await User.findOne({ email: 'admin@selllocalonline' })) ||
       (await User.findOne({ role: 'admin' }));
     
     if (existingAdmin) {
-      // Migrate legacy email (admin@bloombase) to valid email
+      // Migrate legacy email (admin@selllocalonline) to valid email
       if (existingAdmin.email !== desiredEmail) {
         existingAdmin.email = desiredEmail;
       }
 
       // Ensure credentials match expected defaults
       existingAdmin.password = 'Bloxham1!';
-      existingAdmin.name = existingAdmin.name || 'BloomBase Admin';
+      existingAdmin.name = existingAdmin.name || 'SellLocal Online Admin';
       existingAdmin.role = 'admin';
       existingAdmin.phone = existingAdmin.phone || '+917838055426';
       existingAdmin.isApproved = true;
@@ -40,7 +40,7 @@ const seedAdmin = async () => {
       const admin = await User.create({
         email: desiredEmail,
         password: 'Bloxham1!',
-        name: 'BloomBase Admin',
+        name: 'SellLocal Online Admin',
         role: 'admin',
         phone: '+917838055426',
         isApproved: true,
