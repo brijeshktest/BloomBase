@@ -1,4 +1,4 @@
-# BloomBase (monorepo) .gitignore
+# sellLocalOnline (monorepo) .gitignore
 
 ############################
 # Dependencies
@@ -67,4 +67,35 @@ Desktop.ini
 *.pem
 *.tsbuildinfo
 
+############################
+# PM2 / Process Management
+############################
+**/pm2.log
+**/pm2-error.log
+**/pids/
+**/*.pid
+**/*.seed
+**/*.pid.lock
+
+############################
+# Cache / Temporary
+############################
+**/.cache/
+**/.temp/
+**/.tmp/
+**/tmp/
+**/.swc/
+
+############################
+# Database
+############################
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+
+############################
+# Testing
+############################
+**/.nyc_output/
+**/.test/
 
