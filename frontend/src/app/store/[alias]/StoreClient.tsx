@@ -217,9 +217,19 @@ function StoreContent({ alias }: { alias: string }) {
       setCategories(response.data.categories);
       setStore(response.data.store);
       setActivePromotions(response.data.activePromotions || []);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error('Failed to load store');
+      const err = error as { response?: { status?: number; data?: { message?: string } } };
+      
+      // Handle 404 specifically - store not found
+      if (err.response?.status === 404) {
+        setStore(null);
+        setProducts([]);
+        setCategories([]);
+        setActivePromotions([]);
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to load store');
+      }
     } finally {
       setLoading(false);
     }

@@ -18,7 +18,13 @@ router.get('/store/:alias', async (req, res) => {
     const { alias } = req.params;
     const { search, sort, category, page = 1, limit = 20, onSale } = req.query;
 
-    const seller = await User.findOne({ alias, role: 'seller', isActive: true, isApproved: true });
+    const seller = await User.findOne({ 
+      alias, 
+      role: 'seller', 
+      isActive: true, 
+      isApproved: true,
+      isSuspended: false 
+    });
     if (!seller) {
       return res.status(404).json({ message: 'Store not found' });
     }
@@ -194,7 +200,13 @@ router.get('/store/:alias/:slug', async (req, res) => {
   try {
     const { alias, slug } = req.params;
 
-    const seller = await User.findOne({ alias, role: 'seller', isActive: true, isApproved: true });
+    const seller = await User.findOne({ 
+      alias, 
+      role: 'seller', 
+      isActive: true, 
+      isApproved: true,
+      isSuspended: false 
+    });
     if (!seller) {
       return res.status(404).json({ message: 'Store not found' });
     }

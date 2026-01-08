@@ -1,65 +1,44 @@
 import { Metadata } from 'next';
 import StoreClient from './StoreClient';
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface Props {
   params: Promise<{ alias: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { alias } = await params;
-  
+  // Get alias safely
+  let alias = '';
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/products/store/${alias}?limit=1`,
-      { next: { revalidate: 60 } }
-    );
-    
-    if (res.ok) {
-      const data = await res.json();
-      const store = data.store;
-      
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://selllocalonline.com';
-      const seoTitle = store.seoMetaTitle || `${store.businessName} - Shop Online`;
-      const seoDescription = store.seoMetaDescription || store.businessDescription || `Shop at ${store.businessName}. Browse our products and checkout via WhatsApp.`;
-      
-      // Build location-based keywords if pincode/area available
-      const locationKeywords = store.address?.pincode 
-        ? ` near ${store.address.pincode}${store.address.city ? ` ${store.address.city}` : ''}${store.address.state ? ` ${store.address.state}` : ''}`
-        : '';
-      
-      return {
-        title: seoTitle,
-        description: `${seoDescription}${locationKeywords}`,
-        keywords: store.seoKeywords?.join(', ') || `${store.businessName}, online shopping, whatsapp shopping${locationKeywords}`,
-        openGraph: {
-          title: seoTitle,
-          description: seoDescription,
-          type: 'website',
-          images: store.logo ? [
-            {
-              url: `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${store.logo}`,
-              width: 1200,
-              height: 630,
-              alt: store.businessName,
-            }
-          ] : [],
-        },
-        alternates: {
-          canonical: `${baseUrl}/store/${alias}`,
-        },
-      };
-    }
+    const resolvedParams = await params;
+    alias = resolvedParams?.alias || '';
   } catch (error) {
-    console.error(error);
+    console.error('Error getting alias for metadata:', error);
   }
   
+  // Return simple metadata - don't fetch from API to avoid blocking
+  // The client component will handle dynamic metadata updates
   return {
-    title: 'Store | SellLocal Online',
+    title: `Store | SellLocal Online`,
+    description: 'Store page on SellLocal Online',
   };
 }
 
 export default async function StorePage({ params }: Props) {
-  const { alias } = await params;
+  // Always render - never throw or call notFound()
+  let alias = '';
+  try {
+    const resolvedParams = await params;
+    alias = resolvedParams?.alias || '';
+  } catch (error) {
+    console.error('Error getting params:', error);
+    // Continue with empty alias - StoreClient will handle it
+  }
+  
+  // Always render the client component - let it handle 404s
   return <StoreClient alias={alias} />;
 }
 

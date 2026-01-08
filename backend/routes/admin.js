@@ -207,11 +207,18 @@ router.patch('/sellers/:id/toggle', protect, adminOnly, async (req, res) => {
     }
 
     seller.isActive = !seller.isActive;
+    
+    // When reactivating, also clear suspension status
+    if (seller.isActive) {
+      seller.isSuspended = false;
+    }
+    
     await seller.save();
 
     res.json({ 
       message: `Seller ${seller.isActive ? 'activated' : 'deactivated'}`,
-      isActive: seller.isActive
+      isActive: seller.isActive,
+      isSuspended: seller.isSuspended
     });
   } catch (error) {
     console.error(error);

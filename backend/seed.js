@@ -23,12 +23,23 @@ const seedAdmin = async () => {
       }
 
       // Ensure credentials match expected defaults
-      existingAdmin.password = 'Bloxham1!';
+      // Force password update by setting it directly and marking as modified
+      // This ensures the pre-save hook will hash it
+      const bcrypt = require('bcryptjs');
+      const plainPassword = 'Bloxham1!';
+      // Check if password is already hashed (bcrypt hashes start with $2a$, $2b$, or $2y$)
+      const isHashed = existingAdmin.password && existingAdmin.password.startsWith('$2');
+      if (!isHashed || !(await bcrypt.compare(plainPassword, existingAdmin.password))) {
+        // Password is not hashed or doesn't match, so update it
+        existingAdmin.password = plainPassword;
+        existingAdmin.markModified('password');
+      }
       existingAdmin.name = existingAdmin.name || 'SellLocal Online Admin';
       existingAdmin.role = 'admin';
       existingAdmin.phone = existingAdmin.phone || '+917838055426';
       existingAdmin.isApproved = true;
       existingAdmin.isActive = true;
+      existingAdmin.isSuspended = false;
 
       await existingAdmin.save();
 
