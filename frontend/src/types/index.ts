@@ -27,6 +27,9 @@ export interface User {
   seoMetaDescription?: string;
   seoKeywords?: string[];
   seoLocalArea?: string;
+  // Social media handles
+  instagramHandle?: string;
+  facebookHandle?: string;
 }
 
 export type Theme = 'ocean' | 'sunset' | 'forest' | 'midnight' | 'rose' | 'minimal';
@@ -108,6 +111,8 @@ export interface Store {
   seoMetaDescription?: string;
   seoKeywords?: string[];
   seoLocalArea?: string;
+  instagramHandle?: string;
+  facebookHandle?: string;
   address?: {
     street?: string;
     city?: string;

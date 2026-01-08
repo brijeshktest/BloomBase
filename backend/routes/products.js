@@ -63,7 +63,9 @@ router.get('/store/:alias', async (req, res) => {
             businessDescription: seller.businessDescription,
             theme: seller.theme,
             logo: seller.businessLogo,
-            banner: seller.businessBanner
+            banner: seller.businessBanner,
+            instagramHandle: seller.instagramHandle,
+            facebookHandle: seller.facebookHandle
           },
           activePromotions: []
         });
@@ -169,7 +171,9 @@ router.get('/store/:alias', async (req, res) => {
         seoMetaDescription: seller.seoMetaDescription,
         seoKeywords: seller.seoKeywords,
         seoLocalArea: seller.seoLocalArea,
-        address: seller.address
+        address: seller.address,
+        instagramHandle: seller.instagramHandle,
+        facebookHandle: seller.facebookHandle
       },
       activePromotions: promotions.map((p) => ({
         _id: p._id,

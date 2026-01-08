@@ -86,6 +86,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // Social media handles
+  instagramHandle: {
+    type: String,
+    trim: true
+  },
+  facebookHandle: {
+    type: String,
+    trim: true
+  },
   isApproved: {
     type: Boolean,
     default: false

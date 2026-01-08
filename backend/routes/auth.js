@@ -232,7 +232,18 @@ router.post('/login', [
 // Get current user
 router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const user = await User.findById(req.user._id).select('-password').lean();
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    // Always include social media fields (set to empty string if not present)
+    // Use hasOwnProperty to check if field exists, otherwise set it
+    if (!user.hasOwnProperty('instagramHandle') || user.instagramHandle === null || user.instagramHandle === undefined) {
+      user.instagramHandle = '';
+    }
+    if (!user.hasOwnProperty('facebookHandle') || user.facebookHandle === null || user.facebookHandle === undefined) {
+      user.facebookHandle = '';
+    }
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -243,7 +254,8 @@ router.get('/me', protect, async (req, res) => {
 router.put('/profile', protect, async (req, res) => {
   try {
     const allowedUpdates = ['name', 'phone', 'businessDescription', 'address', 'theme', 
-                           'seoMetaTitle', 'seoMetaDescription', 'seoKeywords', 'seoLocalArea'];
+                           'seoMetaTitle', 'seoMetaDescription', 'seoKeywords', 'seoLocalArea',
+                           'instagramHandle', 'facebookHandle'];
     const updates = {};
     
     allowedUpdates.forEach(field => {
@@ -251,6 +263,8 @@ router.put('/profile', protect, async (req, res) => {
         updates[field] = req.body[field];
       }
     });
+
+    console.log('Profile update request:', { userId: req.user._id, updates });
 
     // Handle SEO keywords - convert string to array if needed
     if (updates.seoKeywords && typeof updates.seoKeywords === 'string') {
@@ -276,12 +290,42 @@ router.put('/profile', protect, async (req, res) => {
       }
     }
 
+    // Check if there are any updates to apply
+    if (Object.keys(updates).length === 0) {
+      // No updates, just return current user
+      const user = await User.findById(req.user._id).select('-password').lean();
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      // Always include social media fields (set to empty string if not present)
+      if (!user.hasOwnProperty('instagramHandle') || user.instagramHandle === null || user.instagramHandle === undefined) {
+        user.instagramHandle = '';
+      }
+      if (!user.hasOwnProperty('facebookHandle') || user.facebookHandle === null || user.facebookHandle === undefined) {
+        user.facebookHandle = '';
+      }
+      return res.status(200).json(user);
+    }
+
     const user = await User.findByIdAndUpdate(req.user._id, updates, {
       new: true,
       runValidators: true
-    }).select('-password');
+    }).select('-password').lean();
 
-    res.json(user);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Always include social media fields (set to empty string if not present)
+    if (!user.hasOwnProperty('instagramHandle') || user.instagramHandle === null || user.instagramHandle === undefined) {
+      user.instagramHandle = '';
+    }
+    if (!user.hasOwnProperty('facebookHandle') || user.facebookHandle === null || user.facebookHandle === undefined) {
+      user.facebookHandle = '';
+    }
+
+    console.log('Profile updated successfully:', { userId: user._id, instagramHandle: user.instagramHandle, facebookHandle: user.facebookHandle });
+    return res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
