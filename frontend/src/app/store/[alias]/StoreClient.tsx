@@ -9,7 +9,10 @@ import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { getTheme, ThemeKey } from '@/lib/themes';
 import { trackEvent } from '@/utils/analytics';
+import { isVisitorRegistered } from '@/utils/cookies';
+import { getPriceForQuantity, getNextTierInfo } from '@/utils/pricing';
 import VisitorRegistrationModal from '@/components/VisitorRegistrationModal';
+import SharePlatformButton from '@/components/SharePlatformButton';
 import toast from 'react-hot-toast';
 import {
   Search,
@@ -55,6 +58,8 @@ function StoreContent({ alias }: { alias: string }) {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [showCart, setShowCart] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
+  const [showQuantitySelector, setShowQuantitySelector] = useState<Record<string, boolean>>({});
   const [authForm, setAuthForm] = useState({
     email: '',
     password: '',
@@ -90,8 +95,8 @@ function StoreContent({ alias }: { alias: string }) {
   const theme = store ? getTheme((store.theme as ThemeKey) || 'minimal') : getTheme('minimal');
 
   useEffect(() => {
-    // Check if visitor already registered in this session
-    const isRegistered = sessionStorage.getItem('selllocalonline_visitor_registered') === 'true';
+    // Check if visitor already registered (checks cookies and sessionStorage)
+    const isRegistered = isVisitorRegistered();
     setVisitorRegistered(isRegistered);
     
     if (!isRegistered) {
@@ -289,7 +294,7 @@ function StoreContent({ alias }: { alias: string }) {
     }
   };
 
-  const handleAddToCart = async (product: Product) => {
+  const handleAddToCart = async (product: Product, quantity?: number) => {
     if (!isAuthenticated) {
       setShowAuth(true);
       return;
@@ -301,24 +306,68 @@ function StoreContent({ alias }: { alias: string }) {
       return;
     }
 
+    // If quantity selector is not shown, show it first
+    if (!showQuantitySelector[product._id]) {
+      setShowQuantitySelector({ ...showQuantitySelector, [product._id]: true });
+      setProductQuantities({ ...productQuantities, [product._id]: product.minimumOrderQuantity });
+      return;
+    }
+
+    const qty = quantity || productQuantities[product._id] || product.minimumOrderQuantity;
+    
+    // Validate quantity
+    if (qty < product.minimumOrderQuantity) {
+      toast.error(`Minimum order quantity is ${product.minimumOrderQuantity}`);
+      return;
+    }
+
+    if (qty > (product.stock || 0)) {
+      toast.error(`Only ${product.stock} items available`);
+      return;
+    }
+
     try {
       await cartApi.add({
         productId: product._id,
-        quantity: product.minimumOrderQuantity,
+        quantity: qty,
         sellerAlias: alias,
       });
+      
       // Track add to cart event
       trackEvent(alias, 'add_to_cart', {
         productId: product._id,
         buyerId: user?._id || user?.id,
-        metadata: { quantity: product.minimumOrderQuantity, productName: product.name }
+        metadata: { quantity: qty, productName: product.name }
       });
-      toast.success('Added to cart');
+      
+      // Check for next tier pricing
+      const nextTierInfo = getNextTierInfo(product, qty);
+      if (nextTierInfo) {
+        toast.success(
+          `Added ${qty} to cart! Add ${nextTierInfo.quantityNeeded} more to get ₹${nextTierInfo.nextTier.price} per item (save ₹${nextTierInfo.priceDifference.toFixed(2)} per item)`,
+          { duration: 5000 }
+        );
+      } else {
+        toast.success('Added to cart');
+      }
+      
+      // Reset quantity selector and quantity for this product
+      setShowQuantitySelector({ ...showQuantitySelector, [product._id]: false });
+      setProductQuantities({ ...productQuantities, [product._id]: product.minimumOrderQuantity });
       fetchCart();
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err.response?.data?.message || 'Failed to add to cart');
     }
+  };
+
+  const handleQuantityChange = (productId: string, change: number) => {
+    const product = products.find(p => p._id === productId);
+    if (!product) return;
+
+    const currentQty = productQuantities[productId] || product.minimumOrderQuantity;
+    const newQty = Math.max(product.minimumOrderQuantity, Math.min(currentQty + change, product.stock || 0));
+    setProductQuantities({ ...productQuantities, [productId]: newQty });
   };
 
   const handleRequestAvailability = async (product: Product) => {
@@ -490,6 +539,15 @@ function StoreContent({ alias }: { alias: string }) {
                   )}
                 </div>
               )}
+              
+              {/* Mobile Refer Platform Button */}
+              <div className="md:hidden">
+                <SharePlatformButton 
+                  variant="icon"
+                  backgroundColor="rgba(0,0,0,0.05)"
+                  textColor={theme.textPrimary}
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -536,6 +594,15 @@ function StoreContent({ alias }: { alias: string }) {
                   </div>
                 </div>
               )}
+              
+              {/* Refer Platform Button */}
+              <div className="hidden md:block">
+                <SharePlatformButton 
+                  variant="icon"
+                  backgroundColor="rgba(0,0,0,0.05)"
+                  textColor={theme.textPrimary}
+                />
+              </div>
               
               {isAuthenticated && user?.role === 'buyer' ? (
                 <div className="flex items-center gap-3">
@@ -849,37 +916,124 @@ function StoreContent({ alias }: { alias: string }) {
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center justify-between mt-2">
-                        <div>
-                          {product.hasPromotion && product.discountedPrice ? (
-                            <>
-                              <span className="text-base font-bold" style={{ color: theme.primary }}>
-                                ₹{product.discountedPrice.toFixed(0)}
-                              </span>
-                              <span className="text-xs line-through ml-1.5 opacity-50">
-                                ₹{product.basePrice}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-base font-bold" style={{ color: theme.primary }}>
-                              ₹{product.basePrice}
-                            </span>
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            {(() => {
+                              const basePrice = product.hasPromotion && product.discountedPrice 
+                                ? product.discountedPrice 
+                                : product.basePrice;
+                              
+                              return (
+                                <>
+                                  <span className="text-base font-bold" style={{ color: theme.primary }}>
+                                    ₹{basePrice.toFixed(0)}
+                                  </span>
+                                  {product.hasPromotion && product.discountedPrice && (
+                                    <span className="text-xs line-through ml-1.5 opacity-50">
+                                      ₹{product.basePrice}
+                                    </span>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+                          {!showQuantitySelector[product._id] && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(product);
+                              }}
+                              className="p-1.5 rounded-lg text-white transition-opacity hover:opacity-90"
+                              style={{ backgroundColor: theme.buttonBg }}
+                            >
+                              <Plus size={16} />
+                            </button>
                           )}
                         </div>
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          className="p-1.5 rounded-lg text-white transition-opacity hover:opacity-90"
-                          style={{ backgroundColor: theme.buttonBg }}
-                        >
-                          <Plus size={16} />
-                        </button>
+                        
+                        {/* Quantity Selector - Only shown after clicking Add */}
+                        {showQuantitySelector[product._id] && (
+                          <>
+                            <div className="flex items-center gap-2 mb-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuantityChange(product._id, -1);
+                                }}
+                                className="p-1 rounded-lg transition-colors"
+                                style={{ 
+                                  backgroundColor: 'rgba(0,0,0,0.05)',
+                                  color: theme.textPrimary
+                                }}
+                                disabled={(productQuantities[product._id] || product.minimumOrderQuantity) <= product.minimumOrderQuantity}
+                              >
+                                <Minus size={14} />
+                              </button>
+                              <span className="text-sm font-medium flex-1 text-center" style={{ color: theme.textPrimary }}>
+                                {productQuantities[product._id] || product.minimumOrderQuantity}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuantityChange(product._id, 1);
+                                }}
+                                className="p-1 rounded-lg transition-colors"
+                                style={{ 
+                                  backgroundColor: 'rgba(0,0,0,0.05)',
+                                  color: theme.textPrimary
+                                }}
+                                disabled={(productQuantities[product._id] || product.minimumOrderQuantity) >= (product.stock || 0)}
+                              >
+                                <Plus size={14} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(product);
+                                }}
+                                className="px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-opacity hover:opacity-90 flex-1"
+                                style={{ backgroundColor: theme.buttonBg }}
+                              >
+                                Add
+                              </button>
+                            </div>
+                            
+                            {/* Tier Pricing Info */}
+                            {(() => {
+                              const qty = productQuantities[product._id] || product.minimumOrderQuantity;
+                              const price = getPriceForQuantity(product, qty);
+                              const basePrice = product.hasPromotion && product.discountedPrice 
+                                ? product.discountedPrice 
+                                : product.basePrice;
+                              const nextTier = getNextTierInfo(product, qty);
+                              
+                              return (
+                                <>
+                                  {price < basePrice && (
+                                    <div className="mb-1.5 text-xs" style={{ color: theme.textSecondary }}>
+                                      <span>Price: ₹{price.toFixed(0)}</span>
+                                      <span className="line-through ml-1 opacity-50">₹{basePrice}</span>
+                                    </div>
+                                  )}
+                                  {nextTier && (
+                                    <div className="mt-1.5 p-1.5 rounded-lg text-xs" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#16a34a' }}>
+                                      <span className="font-medium">Add {nextTier.quantityNeeded} more</span>
+                                      <span className="ml-1">for ₹{nextTier.nextTier.price}/item</span>
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </>
+                        )}
+                        
+                        {product.minimumOrderQuantity > 1 && !showQuantitySelector[product._id] && (
+                          <p className="text-xs opacity-50 mt-1.5" style={{ color: theme.textSecondary }}>
+                            Min. order: {product.minimumOrderQuantity}
+                          </p>
+                        )}
                       </div>
-                      
-                      {product.minimumOrderQuantity > 1 && (
-                        <p className="text-xs opacity-50 mt-1.5" style={{ color: theme.textSecondary }}>
-                          Min. order: {product.minimumOrderQuantity}
-                        </p>
-                      )}
                     </>
                   )}
                 </div>
@@ -888,6 +1042,48 @@ function StoreContent({ alias }: { alias: string }) {
           </div>
         )}
       </div>
+
+      {/* Meet the Seller Section */}
+      {store.sellerVideo && (
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden" style={{ backgroundColor: theme.cardBg }}>
+            <div className="p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: `${theme.primary}20` }}>
+                  <User size={24} style={{ color: theme.primary }} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold" style={{ color: theme.textPrimary }}>
+                    Meet the Seller
+                  </h2>
+                  <p className="text-sm" style={{ color: theme.textSecondary }}>
+                    Learn about {store.businessName} and our story
+                  </p>
+                </div>
+              </div>
+              
+              <div className="relative w-full rounded-xl overflow-hidden bg-zinc-900" style={{ aspectRatio: '16/9' }}>
+                <video
+                  src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${store.sellerVideo}`}
+                  controls
+                  className="w-full h-full"
+                  preload="metadata"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              
+              {store.businessDescription && (
+                <div className="mt-6 pt-6 border-t" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
+                  <p className="text-sm leading-relaxed" style={{ color: theme.textSecondary }}>
+                    {store.businessDescription}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="py-6 text-center" style={{ backgroundColor: theme.footerBg }}>
@@ -1034,10 +1230,34 @@ function StoreContent({ alias }: { alias: string }) {
                           <button
                             onClick={() => handleUpdateCart(item.product._id, item.quantity + 1)}
                             className="p-1 rounded bg-zinc-200 hover:bg-zinc-300"
+                            disabled={item.quantity >= (item.product.stock || 0)}
                           >
                             <Plus size={16} />
                           </button>
                         </div>
+                        {/* Tier Pricing Prompt */}
+                        {(() => {
+                          const nextTier = getNextTierInfo(item.product, item.quantity);
+                          if (nextTier) {
+                            return (
+                              <div className="mt-2 p-2 rounded-lg text-xs" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
+                                <p className="text-green-700 font-medium">
+                                  Add {nextTier.quantityNeeded} more to get ₹{nextTier.nextTier.price}/item
+                                </p>
+                                <p className="text-green-600 mt-0.5">
+                                  Save ₹{nextTier.priceDifference.toFixed(2)} per item
+                                </p>
+                                <button
+                                  onClick={() => handleUpdateCart(item.product._id, nextTier.nextTier.minQuantity)}
+                                  className="mt-1.5 w-full py-1 px-2 rounded bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors"
+                                >
+                                  Add {nextTier.quantityNeeded} More
+                                </button>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                       <div className="text-right">
                         <p className="font-bold">₹{item.lineTotal.toFixed(2)}</p>

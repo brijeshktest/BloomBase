@@ -61,6 +61,7 @@ const userSchema = new mongoose.Schema({
   },
   businessLogo: String,
   businessBanner: String,
+  sellerVideo: String, // Video file path for seller's story/vision video
   address: {
     street: String,
     city: String,

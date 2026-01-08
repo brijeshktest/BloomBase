@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, User, Phone, AlertCircle, CheckCircle } from 'lucide-react';
 import { analyticsApi } from '@/lib/api';
 import { getSessionId } from '@/utils/analytics';
+import { saveVisitorInfo } from '@/utils/cookies';
 import toast from 'react-hot-toast';
 
 interface VisitorRegistrationModalProps {
@@ -93,10 +94,8 @@ export default function VisitorRegistrationModal({
         }
       });
 
-      // Store in sessionStorage so we don't ask again this session
-      sessionStorage.setItem('selllocalonline_visitor_registered', 'true');
-      sessionStorage.setItem('selllocalonline_visitor_name', name.trim());
-      sessionStorage.setItem('selllocalonline_visitor_phone', phone.trim());
+      // Store in cookies (persists across sessions) and sessionStorage (for backward compatibility)
+      saveVisitorInfo(name.trim(), phone.trim(), 30); // 30 days expiration
 
       onComplete();
       toast.success('Welcome! You can now browse the store.');

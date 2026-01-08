@@ -15,6 +15,8 @@ const storage = multer.diskStorage({
     
     if (file.fieldname === 'logo' || file.fieldname === 'banner') {
       uploadPath += 'sellers/';
+    } else if (file.fieldname === 'sellerVideo') {
+      uploadPath += 'sellers/videos/';
     } else if (file.fieldname === 'images') {
       uploadPath += 'products/images/';
     } else if (file.fieldname === 'video') {
@@ -39,7 +41,7 @@ const fileFilter = (req, file, cb) => {
   const extname = path.extname(file.originalname).toLowerCase().slice(1);
   const mimetype = file.mimetype;
   
-  if (file.fieldname === 'video') {
+  if (file.fieldname === 'video' || file.fieldname === 'sellerVideo') {
     if (videoTypes.test(extname) && mimetype.startsWith('video/')) {
       cb(null, true);
     } else {
@@ -58,7 +60,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB max
+    fileSize: 100 * 1024 * 1024 // 100MB max for videos
   }
 });
 

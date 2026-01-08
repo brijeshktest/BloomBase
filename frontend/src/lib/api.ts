@@ -188,6 +188,14 @@ export const uploadApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+  
+  uploadSellerVideo: (file: File) => {
+    const formData = new FormData();
+    formData.append('sellerVideo', file);
+    return api.post('/upload/seller-video', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Bulk Upload APIs

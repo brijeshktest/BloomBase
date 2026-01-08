@@ -8,7 +8,9 @@ import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { getTheme, ThemeKey } from '@/lib/themes';
 import { trackEvent } from '@/utils/analytics';
+import { isVisitorRegistered } from '@/utils/cookies';
 import VisitorRegistrationModal from '@/components/VisitorRegistrationModal';
+import ShareProductButton from '@/components/ShareProductButton';
 import toast from 'react-hot-toast';
 import {
   ArrowLeft,
@@ -71,8 +73,8 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
   const theme = store ? getTheme((store.theme as ThemeKey) || 'minimal') : getTheme('minimal');
 
   useEffect(() => {
-    // Check if visitor already registered in this session
-    const isRegistered = sessionStorage.getItem('selllocalonline_visitor_registered') === 'true';
+    // Check if visitor already registered (checks cookies and sessionStorage)
+    const isRegistered = isVisitorRegistered();
     setVisitorRegistered(isRegistered);
     
     if (!isRegistered) {
@@ -479,13 +481,24 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
               </span>
             )}
 
-            <h1 className="text-2xl lg:text-3xl font-bold" style={{ color: theme.textPrimary }}>
-              {product.name}
-            </h1>
-            
-            <p className="text-sm mt-2" style={{ color: theme.textSecondary }}>
-              {product.category}
-            </p>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h1 className="text-2xl lg:text-3xl font-bold" style={{ color: theme.textPrimary }}>
+                  {product.name}
+                </h1>
+                
+                <p className="text-sm mt-2" style={{ color: theme.textSecondary }}>
+                  {product.category}
+                </p>
+              </div>
+              <ShareProductButton
+                product={product}
+                sellerAlias={alias}
+                variant="icon"
+                backgroundColor="rgba(0,0,0,0.05)"
+                textColor={theme.textPrimary}
+              />
+            </div>
 
             <div className="mt-6">
               {product.hasPromotion ? (

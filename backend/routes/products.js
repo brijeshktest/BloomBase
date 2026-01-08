@@ -71,7 +71,8 @@ router.get('/store/:alias', async (req, res) => {
             logo: seller.businessLogo,
             banner: seller.businessBanner,
             instagramHandle: seller.instagramHandle,
-            facebookHandle: seller.facebookHandle
+            facebookHandle: seller.facebookHandle,
+            sellerVideo: seller.sellerVideo
           },
           activePromotions: []
         });
@@ -179,7 +180,8 @@ router.get('/store/:alias', async (req, res) => {
         seoLocalArea: seller.seoLocalArea,
         address: seller.address,
         instagramHandle: seller.instagramHandle,
-        facebookHandle: seller.facebookHandle
+        facebookHandle: seller.facebookHandle,
+        sellerVideo: seller.sellerVideo
       },
       activePromotions: promotions.map((p) => ({
         _id: p._id,
@@ -245,7 +247,8 @@ router.get('/store/:alias/:slug', async (req, res) => {
       store: {
         businessName: seller.businessName,
         phone: seller.phone,
-        theme: seller.theme
+        theme: seller.theme,
+        sellerVideo: seller.sellerVideo
       }
     });
   } catch (error) {

@@ -30,6 +30,8 @@ export interface User {
   // Social media handles
   instagramHandle?: string;
   facebookHandle?: string;
+  // Seller video
+  sellerVideo?: string;
 }
 
 export type Theme = 'ocean' | 'sunset' | 'forest' | 'midnight' | 'rose' | 'minimal';
@@ -113,6 +115,7 @@ export interface Store {
   seoLocalArea?: string;
   instagramHandle?: string;
   facebookHandle?: string;
+  sellerVideo?: string;
   address?: {
     street?: string;
     city?: string;

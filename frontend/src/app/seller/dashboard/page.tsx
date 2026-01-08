@@ -7,6 +7,7 @@ import { productApi } from '@/lib/api';
 import { Product } from '@/types';
 import { Package, Eye, TrendingUp, Clock, Plus, ExternalLink, Copy, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SharePlatformButton from '@/components/SharePlatformButton';
 
 export default function SellerDashboard() {
   const { user } = useAuthStore();
@@ -87,13 +88,16 @@ export default function SellerDashboard() {
           <h1 className="text-2xl font-bold text-zinc-900">Dashboard</h1>
           <p className="text-zinc-600">Welcome back, {user?.name}</p>
         </div>
-        <Link
-          href="/seller/products?action=new"
-          className="btn btn-primary"
-        >
-          <Plus size={20} />
-          Add Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <SharePlatformButton />
+          <Link
+            href="/seller/products?action=new"
+            className="btn btn-primary"
+          >
+            <Plus size={20} />
+            Add Product
+          </Link>
+        </div>
       </div>
 
       {/* Trial Warning */}

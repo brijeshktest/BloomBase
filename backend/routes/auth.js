@@ -244,6 +244,10 @@ router.get('/me', protect, async (req, res) => {
     if (!user.hasOwnProperty('facebookHandle') || user.facebookHandle === null || user.facebookHandle === undefined) {
       user.facebookHandle = '';
     }
+    // Ensure sellerVideo is included (can be null/undefined, that's fine)
+    if (!user.hasOwnProperty('sellerVideo')) {
+      user.sellerVideo = null;
+    }
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -304,13 +308,20 @@ router.put('/profile', protect, async (req, res) => {
       if (!user.hasOwnProperty('facebookHandle') || user.facebookHandle === null || user.facebookHandle === undefined) {
         user.facebookHandle = '';
       }
+      // Ensure sellerVideo is included (can be null/undefined, that's fine)
+      if (!user.hasOwnProperty('sellerVideo')) {
+        user.sellerVideo = null;
+      }
       return res.status(200).json(user);
     }
 
-    const user = await User.findByIdAndUpdate(req.user._id, updates, {
-      new: true,
+    // Update the user
+    await User.findByIdAndUpdate(req.user._id, updates, {
       runValidators: true
-    }).select('-password').lean();
+    });
+
+    // Fetch the complete updated user to ensure all fields are returned
+    const user = await User.findById(req.user._id).select('-password').lean();
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -323,8 +334,12 @@ router.put('/profile', protect, async (req, res) => {
     if (!user.hasOwnProperty('facebookHandle') || user.facebookHandle === null || user.facebookHandle === undefined) {
       user.facebookHandle = '';
     }
+    // Ensure sellerVideo is included (can be null/undefined, that's fine)
+    if (!user.hasOwnProperty('sellerVideo')) {
+      user.sellerVideo = null;
+    }
 
-    console.log('Profile updated successfully:', { userId: user._id, instagramHandle: user.instagramHandle, facebookHandle: user.facebookHandle });
+    console.log('Profile updated successfully:', { userId: user._id, instagramHandle: user.instagramHandle, facebookHandle: user.facebookHandle, sellerVideo: user.sellerVideo });
     return res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

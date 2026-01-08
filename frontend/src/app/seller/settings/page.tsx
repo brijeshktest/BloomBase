@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { authApi, uploadApi } from '@/lib/api';
 import { themes, ThemeKey } from '@/lib/themes';
 import toast from 'react-hot-toast';
-import { Save, Upload, Check, Store, User, Palette, Search, Info, HelpCircle } from 'lucide-react';
+import { Save, Upload, Check, Store, User, Palette, Search, Info, HelpCircle, Video, X } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, updateUser } = useAuthStore();
@@ -111,11 +111,53 @@ export default function SettingsPage() {
       const response = await uploadApi.uploadBanner(file);
       updateUser({ businessBanner: response.data.path });
       toast.success('Banner uploaded');
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to upload banner');
+    } catch (error: any) {
+      console.error('Banner upload error:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to upload banner';
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleSellerVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (100MB max)
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error('Video file must be less than 100MB');
+      return;
+    }
+
+    // Validate file type
+    const videoTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
+    if (!videoTypes.includes(file.type)) {
+      toast.error('Only MP4, WebM, MOV, and AVI video files are allowed');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const response = await uploadApi.uploadSellerVideo(file);
+      updateUser({ sellerVideo: response.data.path });
+      toast.success('Video uploaded successfully');
+    } catch (error: any) {
+      console.error('Seller video upload error:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to upload video';
+      toast.error(errorMessage);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveVideo = async () => {
+    try {
+      updateUser({ sellerVideo: '' });
+      toast.success('Video removed');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to remove video');
     }
   };
 
@@ -206,6 +248,60 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Seller Video */}
+          <div className="mt-6">
+            <label className="form-label">Meet the Seller Video</label>
+            <p className="text-xs text-zinc-500 mb-3">
+              Upload a video to share your story, vision, and connect with customers. This will be displayed in a "Meet the Seller" section on your store.
+            </p>
+            {user?.sellerVideo ? (
+              <div className="space-y-3">
+                <div className="relative w-full max-w-md">
+                  <video
+                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${user.sellerVideo}`}
+                    controls
+                    className="w-full rounded-xl"
+                  />
+                  <button
+                    onClick={handleRemoveVideo}
+                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    title="Remove video"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <label className="btn btn-secondary cursor-pointer inline-block">
+                  <Upload size={18} />
+                  {uploading ? 'Uploading...' : 'Replace Video'}
+                  <input
+                    type="file"
+                    accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
+                    className="hidden"
+                    onChange={handleSellerVideoUpload}
+                    disabled={uploading}
+                  />
+                </label>
+              </div>
+            ) : (
+              <label className="btn btn-secondary cursor-pointer inline-block">
+                <Video size={18} />
+                {uploading ? 'Uploading...' : 'Upload Video'}
+                <input
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
+                  className="hidden"
+                  onChange={handleSellerVideoUpload}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+            <p className="text-xs text-zinc-500 mt-2">
+              Accepted formats: MP4, WebM, MOV, AVI (Max 100MB)
+              <br />
+              <span className="text-zinc-400">Recommended: MP4 format for best compatibility</span>
+            </p>
           </div>
 
           <div className="mt-6">
