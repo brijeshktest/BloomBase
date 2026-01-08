@@ -31,10 +31,20 @@ router.get('/store/:alias', async (req, res) => {
 
     // Get active promotions first (used for sale banner + optional filtering)
     const now = new Date();
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
     const promotions = await Promotion.find({
       seller: seller._id,
       isActive: true,
       startDate: { $lte: now },
+      endDate: { $gte: now }
+    });
+    
+    // Get upcoming promotions (starting within 7 days)
+    const upcomingPromotions = await Promotion.find({
+      seller: seller._id,
+      isActive: true,
+      startDate: { $gt: now, $lte: sevenDaysFromNow },
       endDate: { $gte: now }
     });
 
@@ -74,7 +84,8 @@ router.get('/store/:alias', async (req, res) => {
             facebookHandle: seller.facebookHandle,
             sellerVideo: seller.sellerVideo
           },
-          activePromotions: []
+          activePromotions: [],
+          upcomingPromotions: []
         });
       }
 
@@ -111,6 +122,14 @@ router.get('/store/:alias', async (req, res) => {
               discountType: p.discountType,
               discountValue: p.discountValue,
               applyToAll: p.applyToAll
+            })),
+            upcomingPromotions: upcomingPromotions.map((p) => ({
+              _id: p._id,
+              name: p.name,
+              discountType: p.discountType,
+              discountValue: p.discountValue,
+              applyToAll: p.applyToAll,
+              startDate: p.startDate
             }))
           });
         }
@@ -189,6 +208,14 @@ router.get('/store/:alias', async (req, res) => {
         discountType: p.discountType,
         discountValue: p.discountValue,
         applyToAll: p.applyToAll
+      })),
+      upcomingPromotions: upcomingPromotions.map((p) => ({
+        _id: p._id,
+        name: p.name,
+        discountType: p.discountType,
+        discountValue: p.discountValue,
+        applyToAll: p.applyToAll,
+        startDate: p.startDate
       }))
     });
   } catch (error) {

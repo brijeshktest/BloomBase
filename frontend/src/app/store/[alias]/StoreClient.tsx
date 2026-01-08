@@ -48,6 +48,14 @@ function StoreContent({ alias }: { alias: string }) {
     discountValue: number;
     applyToAll: boolean;
   }>>([]);
+  const [upcomingPromotions, setUpcomingPromotions] = useState<Array<{
+    _id: string;
+    name: string;
+    discountType: 'percentage' | 'absolute';
+    discountValue: number;
+    applyToAll: boolean;
+    startDate: string;
+  }>>([]);
   const [search, setSearch] = useState(searchParams?.get('search') || '');
   const [category, setCategory] = useState(searchParams?.get('category') || '');
   const [priceRange, setPriceRange] = useState('');
@@ -222,6 +230,7 @@ function StoreContent({ alias }: { alias: string }) {
       setCategories(response.data.categories);
       setStore(response.data.store);
       setActivePromotions(response.data.activePromotions || []);
+      setUpcomingPromotions(response.data.upcomingPromotions || []);
     } catch (error: unknown) {
       console.error(error);
       const err = error as { response?: { status?: number; data?: { message?: string } } };
@@ -232,6 +241,7 @@ function StoreContent({ alias }: { alias: string }) {
         setProducts([]);
         setCategories([]);
         setActivePromotions([]);
+        setUpcomingPromotions([]);
       } else {
         toast.error(err.response?.data?.message || 'Failed to load store');
       }
@@ -644,6 +654,42 @@ function StoreContent({ alias }: { alias: string }) {
           </div>
         </div>
       </header>
+
+      {/* Upcoming Promotions Banner - Flashing */}
+      {upcomingPromotions.length > 0 && (
+        <div className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 py-3 px-4 sm:px-6 animate-pulse-flash">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 text-white">
+              <Bell size={20} className="sm:w-5 sm:h-5 animate-bounce" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 text-center sm:text-left">
+                <span className="text-base sm:text-lg font-bold">UPCOMING SALE!</span>
+                {upcomingPromotions.map((promo, idx) => {
+                  const startDate = new Date(promo.startDate);
+                  const daysUntil = Math.ceil((startDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                  return (
+                    <span key={promo._id} className="text-sm sm:text-base font-semibold">
+                      {idx > 0 && ' • '}
+                      {promo.name}
+                      {promo.discountType === 'percentage' ? (
+                        <span className="ml-1 bg-white/30 px-2 py-0.5 rounded-md">
+                          {promo.discountValue}% OFF
+                        </span>
+                      ) : (
+                        <span className="ml-1 bg-white/30 px-2 py-0.5 rounded-md">
+                          ₹{promo.discountValue} OFF
+                        </span>
+                      )}
+                      <span className="ml-2 text-xs sm:text-sm opacity-90">
+                        {daysUntil === 0 ? 'Starts Today!' : `Starts in ${daysUntil} day${daysUntil > 1 ? 's' : ''}`}
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Banner */}
       {store.banner && (
