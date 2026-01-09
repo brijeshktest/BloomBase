@@ -19,6 +19,8 @@ import {
   Users,
   MessageSquare
 } from 'lucide-react';
+import TrialExpiredNotification from '@/components/TrialExpiredNotification';
+import { adminApi } from '@/lib/api';
 
 const baseNavItems = [
   { href: '/seller/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -35,6 +37,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   const { user, isAuthenticated, logout, hasHydrated } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [broadcastsEnabled, setBroadcastsEnabled] = useState(true);
+  const [adminWhatsApp, setAdminWhatsApp] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -44,7 +47,18 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
     }
     // Check if broadcasts are enabled
     checkBroadcastsEnabled();
+    // Fetch admin contact info
+    fetchAdminContactInfo();
   }, [hasHydrated, isAuthenticated, user, router]);
+
+  const fetchAdminContactInfo = async () => {
+    try {
+      const response = await adminApi.getContactInfo();
+      setAdminWhatsApp(response.data.whatsapp);
+    } catch (error) {
+      console.error('Error fetching admin contact info:', error);
+    }
+  };
 
   const checkBroadcastsEnabled = async () => {
     try {
@@ -177,6 +191,13 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       {/* Main content */}
       <main className="lg:ml-64 min-h-screen">
         <div className="p-4 lg:p-8">
+          <TrialExpiredNotification
+            trialEndsAt={user?.trialEndsAt}
+            businessName={user?.businessName}
+            sellerName={user?.name}
+            adminWhatsApp={adminWhatsApp}
+            variant="portal"
+          />
           {children}
         </div>
       </main>

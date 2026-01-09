@@ -32,6 +32,12 @@ export default function RegisterPage() {
     businessName: '',
     businessDescription: '',
     theme: 'minimal' as ThemeKey,
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      pincode: '',
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +45,19 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await authApi.registerSeller(formData);
+      // Validate address before submission
+      if (!formData.address.street || !formData.address.city || !formData.address.state || !formData.address.pincode) {
+        toast.error('Please fill in all address fields');
+        return;
+      }
+      
+      // Ensure phone has +91 prefix
+      const phoneWithCountryCode = formData.phone.startsWith('+91') ? formData.phone : `+91${formData.phone}`;
+      
+      await authApi.registerSeller({
+        ...formData,
+        phone: phoneWithCountryCode
+      });
       toast.success('Registration successful! Please wait for admin approval.');
       router.push('/login');
     } catch (error: unknown) {
@@ -89,13 +107,13 @@ export default function RegisterPage() {
 
                 <div>
                   <label className="form-label">Phone Number *</label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 font-medium">
+                  <div className="flex gap-2">
+                    <div className="flex items-center px-4 py-2 bg-zinc-100 border border-zinc-300 rounded-lg text-zinc-600 font-medium">
                       +91
                     </div>
                     <input
                       type="tel"
-                      className="form-input pl-12"
+                      className="form-input flex-1"
                       placeholder="10-digit mobile number"
                       value={formData.phone}
                       onChange={(e) => {
@@ -110,6 +128,67 @@ export default function RegisterPage() {
                   <p className="text-xs text-zinc-500 mt-1">
                     Orders will be sent to this WhatsApp number (+91{formData.phone || 'XXXXXXXXXX'})
                   </p>
+                </div>
+              </div>
+
+              {/* Address Section */}
+              <div className="border-t border-zinc-200 pt-6">
+                <h3 className="text-lg font-semibold text-zinc-900 mb-4">Business Address *</h3>
+                <p className="text-sm text-zinc-600 mb-4">
+                  Complete address is required for local SEO and customer discovery
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="sm:col-span-2">
+                    <label className="form-label">Street Address *</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Street address, building name, floor, etc."
+                      value={formData.address.street}
+                      onChange={(e) => setFormData({ ...formData, address: { ...formData.address, street: e.target.value } })}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">City *</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="City"
+                      value={formData.address.city}
+                      onChange={(e) => setFormData({ ...formData, address: { ...formData.address, city: e.target.value } })}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">State *</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="State"
+                      value={formData.address.state}
+                      onChange={(e) => setFormData({ ...formData, address: { ...formData.address, state: e.target.value } })}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">Pincode *</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Pincode"
+                      value={formData.address.pincode}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                        setFormData({ ...formData, address: { ...formData.address, pincode: digits } });
+                      }}
+                      maxLength={6}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 

@@ -87,20 +87,53 @@ function generateHyperlocalKeywords(seller, productCategories = []) {
  * Generate hyperlocal meta title
  * @param {Object} seller - Seller object
  * @param {String} customTitle - Custom title if provided
- * @returns {String} SEO meta title
+ * @returns {String} SEO meta title (max 60 characters)
  */
 function generateHyperlocalMetaTitle(seller, customTitle = null) {
-  if (customTitle) return customTitle;
+  if (customTitle) {
+    // Ensure custom title is within limit
+    return customTitle.length > 60 ? customTitle.substring(0, 57) + '...' : customTitle;
+  }
   
   const { businessName, address, seoLocalArea } = seller;
   const city = address?.city || seoLocalArea || '';
   const business = businessName || 'Online Store';
   
+  let title;
   if (city) {
-    return `${business} - Best Products in ${city} | SellLocal Online`;
+    // Try full format first
+    title = `${business} - Best Products in ${city} | SellLocal`;
+    
+    // If too long, try shorter format
+    if (title.length > 60) {
+      title = `${business} - Products in ${city}`;
+    }
+    
+    // If still too long, truncate business name
+    if (title.length > 60) {
+      const maxBusinessLength = 60 - ` - Products in ${city}`.length;
+      const truncatedBusiness = business.length > maxBusinessLength 
+        ? business.substring(0, maxBusinessLength - 3) + '...'
+        : business;
+      title = `${truncatedBusiness} - Products in ${city}`;
+    }
+    
+    // Final safety check - truncate if still too long
+    if (title.length > 60) {
+      title = title.substring(0, 57) + '...';
+    }
+  } else {
+    title = `${business} - Online Store`;
+    if (title.length > 60) {
+      const maxBusinessLength = 60 - ' - Online Store'.length;
+      const truncatedBusiness = business.length > maxBusinessLength 
+        ? business.substring(0, maxBusinessLength - 3) + '...'
+        : business;
+      title = `${truncatedBusiness} - Online Store`;
+    }
   }
   
-  return `${business} - Online Store | SellLocal Online`;
+  return title;
 }
 
 /**

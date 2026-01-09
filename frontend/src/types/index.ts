@@ -34,6 +34,7 @@ export interface User {
   sellerVideo?: string;
   // Feature flags
   broadcastsEnabled?: boolean;
+  areaSpecialist?: boolean;
 }
 
 export type Theme = 'ocean' | 'sunset' | 'forest' | 'midnight' | 'rose' | 'minimal';
@@ -120,12 +121,14 @@ export interface Store {
   instagramHandle?: string;
   facebookHandle?: string;
   sellerVideo?: string;
+  trialEndsAt?: string | Date;
   address?: {
     street?: string;
     city?: string;
     state?: string;
     pincode?: string;
   };
+  areaSpecialist?: boolean;
 }
 
 export interface Pagination {

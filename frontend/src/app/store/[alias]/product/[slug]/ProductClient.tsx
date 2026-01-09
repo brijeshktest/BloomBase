@@ -842,15 +842,17 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
                     onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
                     required
                   />
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium z-10 pointer-events-none">+91</span>
+                  <div className="flex gap-2">
+                    <div className="flex items-center px-4 py-2 bg-zinc-100 border border-zinc-300 rounded-lg text-zinc-600 font-medium select-none">
+                      +91
+                    </div>
                     <input
                       type="tel"
-                      placeholder="XXXXXXXXXX"
-                      className="form-input pl-20"
+                      placeholder="10-digit mobile number"
+                      className="form-input flex-1"
                       value={authForm.phone.replace('+91', '')}
                       onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, '');
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                         if (digits.length <= 10) {
                           handlePhoneChange('+91' + digits);
                         }

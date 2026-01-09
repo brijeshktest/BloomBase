@@ -1,5 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="100" fill="#0d9488"/>
-  <text x="256" y="350" font-size="280" font-weight="900" text-anchor="middle" fill="white" font-family="Arial, sans-serif">B</text>
+  <defs>
+    <linearGradient id="grad5a" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+    <linearGradient id="grad5b" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="100" fill="#ffffff"/>
+  
+  <!-- Icon: Circular badge with house and network -->
+  <g transform="translate(256, 256)">
+    <!-- Outer Circle -->
+    <circle cx="0" cy="0" r="180" fill="none" stroke="url(#grad5a)" stroke-width="10"/>
+    
+    <!-- House in Center -->
+    <g transform="translate(0, -20)">
+      <path d="M-55 -55 L55 -55 L0 -100 Z" fill="url(#grad5a)"/>
+      <rect x="-55" y="-55" width="110" height="75" fill="#ffffff" rx="8"/>
+      <rect x="-32" y="-38" width="20" height="20" fill="url(#grad5b)" rx="4"/>
+      <rect x="12" y="-38" width="20" height="20" fill="url(#grad5b)" rx="4"/>
+      <rect x="-15" y="-8" width="30" height="45" fill="url(#grad5a)" rx="4"/>
+    </g>
+    
+    <!-- Network Nodes Around -->
+    <circle cx="0" cy="-170" r="18" fill="url(#grad5b)"/>
+    <circle cx="130" cy="-90" r="18" fill="url(#grad5b)"/>
+    <circle cx="130" cy="90" r="18" fill="url(#grad5b)"/>
+    <circle cx="0" cy="170" r="18" fill="url(#grad5b)"/>
+    <circle cx="-130" cy="90" r="18" fill="url(#grad5b)"/>
+    <circle cx="-130" cy="-90" r="18" fill="url(#grad5b)"/>
+    
+    <!-- Connection Lines -->
+    <g stroke="url(#grad5b)" stroke-width="5" fill="none" opacity="0.4">
+      <line x1="0" y1="-152" x2="0" y2="-80"/>
+      <line x1="112" y1="-72" x2="80" y2="-40"/>
+      <line x1="112" y1="72" x2="80" y2="40"/>
+      <line x1="0" y1="152" x2="0" y2="80"/>
+      <line x1="-112" y1="72" x2="-80" y2="40"/>
+      <line x1="-112" y1="-72" x2="-80" y2="-40"/>
+    </g>
+  </g>
 </svg>
-

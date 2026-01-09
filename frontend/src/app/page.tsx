@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Store, Smartphone, TrendingUp, Zap, Shield, Heart, Download, AppWindow, Search } from 'lucide-react';
+import { Store, Smartphone, TrendingUp, Zap, Shield, Heart, Download, AppWindow, Search, ShoppingCart } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -33,7 +33,7 @@ export default function Home() {
               </h1>
               
               <p className="mt-6 text-lg sm:text-xl text-zinc-700 max-w-2xl mx-auto animate-fade-in stagger-1">
-                For home-based retailers who buy items in bulk from wholesale markets. List your products and offer customers better prices than online e-commerce platforms. Cash on Delivery, WhatsApp checkout - start selling today!
+                Our platform enables small sellers to take their business online, appear in local searches, and reach nearby societies effortlessly. Attract new customers, boost local sales, and grow your business using SEO-powered discovery and digital promotion. Cash on Delivery, WhatsApp checkout - start selling today!
               </p>
               
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in stagger-2">
@@ -125,6 +125,12 @@ export default function Home() {
                   title: 'Built for Home Sellers',
                   description: 'Designed specifically for small home-based businesses. Simple and effective.',
                   color: 'bg-teal-500',
+                },
+                {
+                  icon: ShoppingCart,
+                  title: 'Google Shopping Integration',
+                  description: 'Get your products listed on Google Shopping for free! Automatic feed generation means your products appear when customers search on Google.',
+                  color: 'bg-blue-500',
                 },
               ].map((feature, index) => (
                 <div
@@ -321,6 +327,166 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Google Shopping Section */}
+        <section className="py-24 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-full mb-6">
+                <ShoppingCart className="w-5 h-5 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-900">Google Shopping</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-4">
+                Get Your Products on <span className="text-blue-600">Google Shopping</span> - Free!
+              </h2>
+              <p className="text-lg text-zinc-700 max-w-3xl mx-auto">
+                When customers search for products on Google, your listings can appear in Google Shopping results with images, prices, and direct links to your store. All automatically - no technical knowledge needed!
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mb-12">
+              {/* Left: Benefits */}
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-blue-100">
+                  <h3 className="text-xl font-bold text-zinc-900 mb-3 flex items-center gap-2">
+                    <span className="text-2xl">🛍️</span>
+                    What is Google Shopping?
+                  </h3>
+                  <p className="text-zinc-700 mb-4">
+                    Google Shopping shows product listings directly in search results. When someone searches for products like yours, your store can appear with product images, prices, and a direct link - making it easy for customers to find and buy from you.
+                  </p>
+                  <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                    <p className="text-sm text-blue-900 font-semibold mb-2">Example:</p>
+                    <p className="text-sm text-blue-800">
+                      If you sell toys and someone searches "toys online" or "buy toys", your products can appear in Google Shopping results with your prices and store link!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-indigo-100">
+                  <h3 className="text-xl font-bold text-zinc-900 mb-3 flex items-center gap-2">
+                    <span className="text-2xl">✨</span>
+                    Completely Automatic
+                  </h3>
+                  <p className="text-zinc-700 mb-4">
+                    We automatically generate a Google Merchant Center feed for your products. Just copy one URL and add it to your Google Merchant Center account - that's it! Your products sync daily automatically.
+                  </p>
+                  <ul className="space-y-2 text-zinc-700 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-1">✓</span>
+                      <span>Automatic feed generation - no manual work needed</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-1">✓</span>
+                      <span>Daily automatic sync with Google</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-1">✓</span>
+                      <span>Free to use - no additional costs</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-1">✓</span>
+                      <span>Your products appear when customers search on Google</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Right: How It Works */}
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-cyan-100">
+                  <h4 className="font-bold text-zinc-900 mb-3 flex items-center gap-2">
+                    <span className="text-xl">💡</span>
+                    How It Works
+                  </h4>
+                  <div className="space-y-4">
+                    {[
+                      { step: '1', title: 'We Generate Your Feed', description: 'Every seller gets a unique product feed URL automatically generated from their products.' },
+                      { step: '2', title: 'Add to Google Merchant Center', description: 'Copy your feed URL and add it to your Google Merchant Center account (free to create).' },
+                      { step: '3', title: 'Google Syncs Daily', description: 'Google automatically fetches your products daily and shows them in search results.' },
+                      { step: '4', title: 'Customers Find You', description: 'When customers search for products, your listings appear in Google Shopping with images and prices!' },
+                    ].map((item, idx) => (
+                      <div key={idx} className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-200">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                            {item.step}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-zinc-900 mb-1">
+                              {item.title}
+                            </p>
+                            <p className="text-xs text-zinc-600">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white">
+                  <h4 className="font-bold text-lg mb-3">🎯 What This Means for You</h4>
+                  <ul className="space-y-2 text-blue-50 text-sm">
+                    <li>• More customers discover your products when searching on Google</li>
+                    <li>• Your products appear alongside big online stores</li>
+                    <li>• Free visibility - no advertising costs</li>
+                    <li>• Automatic updates - when you add products, they sync automatically</li>
+                    <li>• Professional appearance with product images and prices</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-blue-200">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-black text-zinc-900 mb-2">
+                  Simple Setup - Just 3 Steps
+                </h3>
+                <p className="text-zinc-600">
+                  Get your products on Google Shopping in minutes
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  {
+                    step: '1',
+                    title: 'Get Your Feed URL',
+                    description: 'In your seller settings, you\'ll find your unique Google Merchant feed URL. Just copy it!',
+                    icon: '📋'
+                  },
+                  {
+                    step: '2',
+                    title: 'Add to Google Merchant Center',
+                    description: 'Go to merchants.google.com, create a free account, and add your feed URL as a "Scheduled fetch" feed.',
+                    icon: '🔗'
+                  },
+                  {
+                    step: '3',
+                    title: 'Start Appearing in Google Shopping',
+                    description: 'Google will sync your products daily. Within hours, your products start appearing in Google Shopping results!',
+                    icon: '🚀'
+                  },
+                ].map((item) => (
+                  <div key={item.step} className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                      {item.icon}
+                    </div>
+                    <div className="text-4xl font-black text-blue-200 mb-2">{item.step}</div>
+                    <h4 className="text-lg font-bold text-zinc-900 mb-2">{item.title}</h4>
+                    <p className="text-sm text-zinc-600">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 bg-blue-50 rounded-xl p-6 border border-blue-200">
+                <p className="text-sm text-blue-900 font-semibold mb-2">💡 Pro Tip:</p>
+                <p className="text-sm text-blue-800">
+                  Make sure your products have clear, high-quality images (HTTP/HTTPS URLs) and accurate prices. Products with stock available are automatically included in the feed. The feed updates automatically whenever you add or modify products!
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Local Discovery Section - Hyperlocal SEO */}
         <section className="py-24 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -483,6 +649,7 @@ export default function Home() {
                 <li><strong>No Technical Skills Required:</strong> You don't need coding knowledge or technical expertise. Our platform is designed for everyone, from beginners to experienced sellers.</li>
                 <li><strong>PWA - Mobile App Experience:</strong> Customers can add your microsite as a mobile app on their phone! It installs directly to their home screen and works like a native app with offline support - no app store needed!</li>
                 <li><strong>SEO Optimization with Step-by-Step Guidance:</strong> We help you optimize your microsite for search engines! In your store settings, you'll find SEO fields with helpful suggestions on what to input in each field. We guide you on how to fill meta titles, descriptions, keywords, and local area information so your store appears when customers search for products near your location. No technical knowledge needed - just follow our suggestions!</li>
+                <li><strong>Google Shopping Integration - Free!</strong> Get your products listed on Google Shopping automatically! We generate a Google Merchant Center feed for your products, and you can add it to Google Merchant Center with just one click. Your products will appear in Google Shopping results when customers search, giving you free visibility alongside big online stores. The feed updates automatically daily - no manual work needed!</li>
               </ul>
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 p-6 rounded-r-lg mt-6">
                 <h4 className="font-bold text-purple-900 mb-3 flex items-center gap-2">
@@ -554,35 +721,6 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-2xl p-8 text-white">
-              <h3 className="text-2xl font-black mb-4">Why Choose SellLocal Online for Your Home-Based Retail Business?</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-bold text-lg mb-2">💰 Better Prices Than Online Stores</h4>
-                  <p className="text-orange-50">
-                    Since you buy in bulk from wholesale markets, you can offer customers better prices than online e-commerce platforms. Showcase your competitive rates and attract price-conscious buyers.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-2">📦 Source from Wholesale Markets</h4>
-                  <p className="text-orange-50">
-                    Perfect for home-based retailers who buy items in bulk from wholesale markets. List your products and compete with big online platforms by offering better rates.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-2">🚚 Cash on Delivery (COD)</h4>
-                  <p className="text-orange-50">
-                    With WhatsApp checkout, you can handle cash on delivery orders directly. Customers checkout via WhatsApp and you can arrange COD delivery.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-2">📍 Perfect for Home-Based Retailers</h4>
-                  <p className="text-orange-50">
-                    If you're a home-based retailer buying from wholesale markets, SellLocal Online helps you create an online presence. Reach customers looking for better prices than online stores.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 

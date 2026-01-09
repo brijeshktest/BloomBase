@@ -7,6 +7,7 @@ const { protect, sellerOnly, checkTrial } = require('../middleware/auth');
 const { createUniqueSlug } = require('../utils/slugify');
 const upload = require('../utils/upload');
 const { validateImage } = require('../utils/imageValidator');
+const { processImagesForSEO } = require('../utils/imageSEO');
 const path = require('path');
 const fs = require('fs');
 
@@ -97,11 +98,13 @@ router.get('/store/:alias', async (req, res) => {
             businessDescription: seller.businessDescription,
             theme: seller.theme,
             logo: seller.businessLogo,
-            banner: seller.businessBanner,
             phone: seller.phone || null, // Explicitly include phone, even if null
             instagramHandle: seller.instagramHandle,
             facebookHandle: seller.facebookHandle,
-            sellerVideo: seller.sellerVideo
+            sellerVideo: seller.sellerVideo,
+            trialEndsAt: seller.trialEndsAt || null,
+            address: seller.address,
+            areaSpecialist: seller.areaSpecialist || false
           },
           activePromotions: [],
           upcomingPromotions: []
@@ -133,8 +136,10 @@ router.get('/store/:alias', async (req, res) => {
               businessDescription: seller.businessDescription,
               theme: seller.theme,
               logo: seller.businessLogo,
-              banner: seller.businessBanner,
-              phone: seller.phone || null // Explicitly include phone, even if null
+              phone: seller.phone || null, // Explicitly include phone, even if null
+              trialEndsAt: seller.trialEndsAt || null,
+              address: seller.address,
+              areaSpecialist: seller.areaSpecialist || false
             },
             activePromotions: promotions.map((p) => ({
               _id: p._id,
@@ -214,13 +219,14 @@ router.get('/store/:alias', async (req, res) => {
         businessDescription: seller.businessDescription,
         theme: seller.theme,
         logo: seller.businessLogo,
-        banner: seller.businessBanner,
         phone: seller.phone !== undefined ? seller.phone : null, // Explicitly include phone, even if empty string
+        trialEndsAt: seller.trialEndsAt || null,
         seoMetaTitle: seller.seoMetaTitle,
         seoMetaDescription: seller.seoMetaDescription,
         seoKeywords: seller.seoKeywords,
         seoLocalArea: seller.seoLocalArea,
         address: seller.address,
+        areaSpecialist: seller.areaSpecialist || false,
         instagramHandle: seller.instagramHandle,
         facebookHandle: seller.facebookHandle,
         sellerVideo: seller.sellerVideo
@@ -553,6 +559,7 @@ router.post('/', protect, sellerOnly, checkTrial, upload.fields([
     }
 
     // Handle images - either file uploads or image links
+    const newFileImages = [];
     if (req.files && req.files.images && req.files.images.length > 0) {
       const validImages = [];
       const errors = [];
@@ -692,6 +699,50 @@ router.post('/', protect, sellerOnly, checkTrial, upload.fields([
     // Ensure images array is initialized (even if empty)
     if (!productData.images) {
       productData.images = [];
+    }
+
+    // Process images with Lens Optimizer (Image SEO) - only for uploaded files
+    if (newFileImages.length > 0) {
+      try {
+        // Get seller location for context
+        const seller = await User.findById(req.user._id).select('address');
+        const sellerLocation = seller?.address?.city || seller?.address?.state || '';
+        
+        // Prepare product object for SEO processing
+        const productForSEO = {
+          ...productData,
+          sellerLocation
+        };
+        
+        // Process only uploaded file images (not URLs)
+        const imagePaths = newFileImages.map(img => path.join(__dirname, '..', img));
+        const imageMetadata = await processImagesForSEO(imagePaths, productForSEO);
+        
+        // Update image paths with compressed versions and store metadata
+        productData.imageMetadata = imageMetadata.map((meta, index) => ({
+          url: meta.url.replace(path.join(__dirname, '..'), ''), // Convert to relative path
+          altText: meta.altText,
+          context: meta.context,
+          compressed: meta.compressed,
+          originalSize: meta.originalSize,
+          compressedSize: meta.compressedSize
+        }));
+        
+        // Update images array with processed paths
+        const processedImagePaths = imageMetadata.map(meta => 
+          meta.url.replace(path.join(__dirname, '..'), '')
+        );
+        
+        // Replace uploaded file paths with processed paths
+        const urlImages = productData.images.filter(img => !newFileImages.includes(img));
+        productData.images = [...processedImagePaths, ...urlImages];
+        
+        console.log('Lens Optimizer: Processed', imageMetadata.length, 'images');
+        console.log('Compression savings:', imageMetadata.filter(m => m.compressed).map(m => `${m.savingsPercent}%`));
+      } catch (error) {
+        console.error('Image SEO processing error (non-fatal):', error);
+        // Continue without metadata if processing fails
+      }
     }
 
     const product = await Product.create(productData);
@@ -931,6 +982,57 @@ router.put('/:id', protect, sellerOnly, checkTrial, upload.fields([
         }
       }
       delete updates.videoLink;
+    }
+
+    // Process new uploaded images with Lens Optimizer (Image SEO)
+    if (newFileImages.length > 0) {
+      try {
+        // Get seller location for context
+        const seller = await User.findById(req.user._id).select('address');
+        const sellerLocation = seller?.address?.city || seller?.address?.state || '';
+        
+        // Prepare product object for SEO processing (merge existing with updates)
+        const productForSEO = {
+          ...product.toObject(),
+          ...updates,
+          sellerLocation
+        };
+        
+        // Process only newly uploaded file images
+        const imagePaths = newFileImages.map(img => path.join(__dirname, '..', img));
+        const imageMetadata = await processImagesForSEO(imagePaths, productForSEO);
+        
+        // Get existing metadata and add new metadata
+        const existingMetadata = product.imageMetadata || [];
+        const newMetadata = imageMetadata.map((meta, index) => ({
+          url: meta.url.replace(path.join(__dirname, '..'), ''), // Convert to relative path
+          altText: meta.altText,
+          context: meta.context,
+          compressed: meta.compressed,
+          originalSize: meta.originalSize,
+          compressedSize: meta.compressedSize
+        }));
+        
+        // Update images array with processed paths
+        const processedImagePaths = imageMetadata.map(meta => 
+          meta.url.replace(path.join(__dirname, '..'), '')
+        );
+        
+        // Replace uploaded file paths with processed paths in updates.images
+        if (updates.images) {
+          const urlImages = updates.images.filter(img => !newFileImages.includes(img));
+          updates.images = [...processedImagePaths, ...urlImages];
+        }
+        
+        // Merge metadata - keep existing, add new
+        updates.imageMetadata = [...existingMetadata, ...newMetadata];
+        
+        console.log('Lens Optimizer: Processed', imageMetadata.length, 'new images');
+        console.log('Compression savings:', imageMetadata.filter(m => m.compressed).map(m => `${m.savingsPercent}%`));
+      } catch (error) {
+        console.error('Image SEO processing error (non-fatal):', error);
+        // Continue without metadata if processing fails
+      }
     }
 
     // Handle $unset separately if present (for clearing fields)

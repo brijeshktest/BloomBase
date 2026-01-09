@@ -1,10 +1,12 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const Product = require('../models/Product');
 const generateToken = require('../utils/generateToken');
 const { createSlug } = require('../utils/slugify');
 const { protect } = require('../middleware/auth');
 const { normalizeIndianPhone } = require('../utils/phone');
+const { autoGenerateHyperlocalSEO } = require('../utils/hyperlocalSEO');
 
 const router = express.Router();
 
@@ -15,7 +17,11 @@ router.post('/register/seller', [
   body('name').trim().notEmpty(),
   body('phone').trim().notEmpty(),
   body('businessName').trim().notEmpty(),
-  body('theme').optional().isIn(['ocean', 'sunset', 'forest', 'midnight', 'rose', 'minimal'])
+  body('theme').optional().isIn(['ocean', 'sunset', 'forest', 'midnight', 'rose', 'minimal']),
+  body('address.street').trim().notEmpty().withMessage('Street address is required'),
+  body('address.city').trim().notEmpty().withMessage('City is required'),
+  body('address.state').trim().notEmpty().withMessage('State is required'),
+  body('address.pincode').trim().notEmpty().withMessage('Pincode is required')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -24,6 +30,13 @@ router.post('/register/seller', [
     }
 
     const { email, password, name, phone, businessName, theme, businessDescription, address } = req.body;
+    
+    // Validate address is provided
+    if (!address || !address.street || !address.city || !address.state || !address.pincode) {
+      return res.status(400).json({ 
+        message: 'Complete address is required (street, city, state, pincode)' 
+      });
+    }
     let normalizedPhone;
     try {
       normalizedPhone = normalizeIndianPhone(phone);
@@ -259,12 +272,17 @@ router.put('/profile', protect, async (req, res) => {
   try {
     const allowedUpdates = ['name', 'phone', 'businessDescription', 'address', 'theme', 
                            'seoMetaTitle', 'seoMetaDescription', 'seoKeywords', 'seoLocalArea',
-                           'instagramHandle', 'facebookHandle'];
+                           'instagramHandle', 'facebookHandle', 'sellerVideo', 'areaSpecialist'];
     const updates = {};
     
     allowedUpdates.forEach(field => {
       if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
+        // Handle empty strings for sellerVideo - convert to null to clear the field
+        if (field === 'sellerVideo' && req.body[field] === '') {
+          updates[field] = null;
+        } else {
+          updates[field] = req.body[field];
+        }
       }
     });
 
@@ -318,6 +336,39 @@ router.put('/profile', protect, async (req, res) => {
           title: updates.seoMetaTitle,
           keywordsCount: updates.seoKeywords?.length || 0
         });
+      }
+    }
+
+    // Validate address for sellers
+    if (req.user.role === 'seller') {
+      const currentUser = await User.findById(req.user._id);
+      
+      if (updates.address) {
+        // If address is being updated, merge with existing and validate
+        const mergedAddress = {
+          ...(currentUser.address || {}),
+          ...updates.address
+        };
+        
+        // Ensure all required fields are present
+        const addressFields = ['street', 'city', 'state', 'pincode'];
+        const missingFields = addressFields.filter(field => !mergedAddress[field] || String(mergedAddress[field]).trim() === '');
+        
+        if (missingFields.length > 0) {
+          return res.status(400).json({ 
+            message: `Complete address is required. Missing: ${missingFields.join(', ')}` 
+          });
+        }
+        
+        updates.address = mergedAddress;
+      } else {
+        // If address is not being updated, check if existing address is complete
+        if (!currentUser.address || !currentUser.address.street || !currentUser.address.city || 
+            !currentUser.address.state || !currentUser.address.pincode) {
+          return res.status(400).json({ 
+            message: 'Complete address is required (street, city, state, pincode). Please fill in all address fields.' 
+          });
+        }
       }
     }
 

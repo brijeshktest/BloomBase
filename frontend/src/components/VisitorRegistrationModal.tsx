@@ -201,35 +201,41 @@ export default function VisitorRegistrationModal({
             >
               Phone Number <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <span 
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-zinc-600 font-medium pointer-events-none z-10"
+            <div className="flex gap-2">
+              <div 
+                className="flex items-center px-4 py-3 bg-zinc-100 border-2 border-zinc-300 rounded-xl text-zinc-600 font-medium select-none"
+                style={{ 
+                  backgroundColor: theme.background || '#f3f4f6',
+                  borderColor: errors.phone ? '#ef4444' : '#d1d5db'
+                }}
               >
                 +91
-              </span>
-              <input
-                type="tel"
-                value={phone.startsWith('+91') ? phone.slice(3) : phone} // Remove +91 from displayed value
-                onChange={(e) => {
-                  const value = '+91' + e.target.value.replace(/\D/g, '').slice(0, 10);
-                  handlePhoneChange(value);
-                }}
-                className={`w-full pl-20 pr-4 py-3 rounded-xl border-2 focus:outline-none focus:ring-2 transition-all ${
-                  errors.phone 
-                    ? 'border-red-500 focus:ring-red-200' 
-                    : 'border-zinc-200 focus:border-cyan-500 focus:ring-cyan-200'
-                }`}
-                placeholder="Enter your phone number"
-                disabled={submitting}
-                maxLength={10}
-                style={{ 
-                  backgroundColor: theme.background || '#ffffff',
-                  color: theme.textPrimary || '#1f2937'
-                }}
-              />
-              {phone && phone.length === 13 && !errors.phone && (
-                <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500" size={20} />
-              )}
+              </div>
+              <div className="relative flex-1">
+                <input
+                  type="tel"
+                  value={phone.startsWith('+91') ? phone.slice(3) : phone} // Remove +91 from displayed value
+                  onChange={(e) => {
+                    const value = '+91' + e.target.value.replace(/\D/g, '').slice(0, 10);
+                    handlePhoneChange(value);
+                  }}
+                  className={`w-full pr-10 py-3 rounded-xl border-2 focus:outline-none focus:ring-2 transition-all ${
+                    errors.phone 
+                      ? 'border-red-500 focus:ring-red-200' 
+                      : 'border-zinc-200 focus:border-cyan-500 focus:ring-cyan-200'
+                  }`}
+                  placeholder="10-digit mobile number"
+                  disabled={submitting}
+                  maxLength={10}
+                  style={{ 
+                    backgroundColor: theme.background || '#ffffff',
+                    color: theme.textPrimary || '#1f2937'
+                  }}
+                />
+                {phone && phone.length === 13 && !errors.phone && (
+                  <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500" size={20} />
+                )}
+              </div>
             </div>
             {errors.phone && (
               <p className="text-red-500 text-xs mt-1 flex items-center gap-1">

@@ -271,6 +271,28 @@ router.patch('/sellers/:id/extend-validity', protect, adminOnly, async (req, res
   }
 });
 
+// Get admin contact information (public endpoint for sellers to contact admin)
+router.get('/contact-info', async (req, res) => {
+  try {
+    // Get admin phone from environment or find admin user
+    let adminPhone = process.env.ADMIN_PHONE;
+    
+    if (!adminPhone) {
+      // Fallback: get from admin user
+      const admin = await User.findOne({ role: 'admin' }).select('phone');
+      adminPhone = admin?.phone || null;
+    }
+    
+    res.json({
+      whatsapp: adminPhone,
+      email: process.env.ADMIN_EMAIL || 'admin@selllocalonline.com'
+    });
+  } catch (error) {
+    console.error('Error getting admin contact info:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // ============================================
 // Global Configuration Routes (MUST be before /sellers/:id to avoid route conflicts)
 // ============================================

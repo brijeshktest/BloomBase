@@ -179,6 +179,9 @@ export const adminApi = {
   
   setSellerBroadcastsEnabled: (sellerId: string, enabled: boolean) =>
     api.put(`/admin/sellers/${sellerId}/broadcasts-enabled`, { enabled }),
+  
+  getContactInfo: () =>
+    api.get('/admin/contact-info'),
 };
 
 // Upload APIs
@@ -189,11 +192,6 @@ export const uploadApi = {
     return api.post('/upload/logo', formData);
   },
   
-  uploadBanner: (file: File) => {
-    const formData = new FormData();
-    formData.append('banner', file);
-    return api.post('/upload/banner', formData);
-  },
   
   uploadSellerVideo: (file: File) => {
     const formData = new FormData();
@@ -287,6 +285,15 @@ export const broadcastApi = {
   
   deleteBroadcast: (id: string) =>
     api.delete(`/broadcasts/${id}`),
+};
+
+// Merchant Feed APIs
+export const merchantFeedApi = {
+  getFeedUrl: () =>
+    api.get('/merchant-feed/my-feed-url'),
+  
+  getFeedInfo: () =>
+    api.get('/merchant-feed/feed-info'),
 };
 
 export default api;

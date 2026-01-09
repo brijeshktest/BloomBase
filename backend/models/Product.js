@@ -54,6 +54,29 @@ const productSchema = new mongoose.Schema({
   images: [{
     type: String
   }],
+  imageMetadata: [{
+    url: {
+      type: String,
+      required: true
+    },
+    altText: {
+      type: String,
+      default: ''
+    },
+    context: {
+      object: String,
+      occasion: String,
+      location: String,
+      style: String,
+      color: String
+    },
+    compressed: {
+      type: Boolean,
+      default: false
+    },
+    originalSize: Number,
+    compressedSize: Number
+  }],
   video: {
     type: {
       type: String,

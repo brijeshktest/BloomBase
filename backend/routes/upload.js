@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/test', (req, res) => {
   res.json({ 
     message: 'Upload routes are working',
-    availableRoutes: ['/logo', '/banner', '/seller-video']
+    availableRoutes: ['/logo', '/seller-video']
   });
 });
 
@@ -71,78 +71,6 @@ router.post('/logo', protect, sellerOnly, checkTrial, (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-// Upload seller banner - handle multer errors properly
-const bannerUpload = upload.single('banner');
-router.post('/banner', protect, sellerOnly, checkTrial, (req, res, next) => {
-  bannerUpload(req, res, (err) => {
-    if (err) {
-      console.error('Multer error in banner upload:', err);
-      // Handle multer errors
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ 
-          message: 'File too large', 
-          error: 'Banner image must be less than 5MB. Recommended: 1920x400px' 
-        });
-      }
-      if (err.message && err.message.includes('Only image files')) {
-        return res.status(400).json({ 
-          message: 'Invalid file type', 
-          error: 'Only image files (JPEG, PNG, GIF, WebP) are allowed' 
-        });
-      }
-      return res.status(400).json({ message: 'Upload error', error: err.message || 'Unknown upload error' });
-    }
-    // No error, continue to handler
-    next();
-  });
-}, async (req, res) => {
-  try {
-    if (!req.file) {
-      console.error('No file in banner upload request');
-      return res.status(400).json({ message: 'No file uploaded. Please select a file.' });
-    }
-
-    console.log('Banner file received:', { 
-      filename: req.file.originalname, 
-      size: req.file.size, 
-      mimetype: req.file.mimetype 
-    });
-
-    // Validate image dimensions
-    const filePath = path.join(__dirname, '..', req.file.path);
-    const validation = await validateImage(filePath, 'banner');
-    
-    if (!validation.valid) {
-      // Delete invalid file
-      const fs = require('fs');
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-      return res.status(400).json({ 
-        message: 'Banner validation failed', 
-        error: validation.error,
-        requirements: 'Banner must be 1200x250 to 3840x800 pixels with aspect ratio between 4:1 and 6:1 (max 5MB). Recommended: 1920x400px'
-      });
-    }
-
-    const bannerPath = `/uploads/sellers/${req.file.filename}`;
-    
-    await User.findByIdAndUpdate(req.user._id, { businessBanner: bannerPath });
-
-    res.json({ 
-      message: 'Banner uploaded successfully',
-      path: bannerPath,
-      dimensions: {
-        width: validation.metadata.width,
-        height: validation.metadata.height
-      }
-    });
-  } catch (error) {
-    console.error('Banner upload error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

@@ -63,10 +63,26 @@ const userSchema = new mongoose.Schema({
   businessBanner: String,
   sellerVideo: String, // Video file path for seller's story/vision video
   address: {
-    street: String,
-    city: String,
-    state: String,
-    pincode: String
+    street: {
+      type: String,
+      required: function() { return this.role === 'seller'; },
+      trim: true
+    },
+    city: {
+      type: String,
+      required: function() { return this.role === 'seller'; },
+      trim: true
+    },
+    state: {
+      type: String,
+      required: function() { return this.role === 'seller'; },
+      trim: true
+    },
+    pincode: {
+      type: String,
+      required: function() { return this.role === 'seller'; },
+      trim: true
+    }
   },
   // SEO fields
   seoMetaTitle: {
@@ -125,6 +141,11 @@ const userSchema = new mongoose.Schema({
   broadcastsEnabled: {
     type: Boolean,
     default: true // Default enabled, admin can disable per seller
+  },
+  // Area Specialist - enables enhanced hyperlocal schema markup
+  areaSpecialist: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

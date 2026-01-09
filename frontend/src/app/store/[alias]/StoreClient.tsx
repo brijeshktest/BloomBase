@@ -14,6 +14,8 @@ import { getPriceForQuantity, getNextTierInfo } from '@/utils/pricing';
 import VisitorRegistrationModal from '@/components/VisitorRegistrationModal';
 import SharePlatformButton from '@/components/SharePlatformButton';
 import StoreStructuredData from '@/components/StoreStructuredData';
+import TrialExpiredNotification from '@/components/TrialExpiredNotification';
+import { adminApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 import {
   Search,
@@ -80,6 +82,7 @@ function StoreContent({ alias }: { alias: string }) {
   const [showVisitorModal, setShowVisitorModal] = useState(false);
   const [visitorRegistered, setVisitorRegistered] = useState(false);
   const [siteBlocked, setSiteBlocked] = useState(false); // Start unblocked, block when modal appears
+  const [adminWhatsApp, setAdminWhatsApp] = useState<string | undefined>(undefined);
 
   const handlePhoneChange = (value: string) => {
     // Remove all non-digit characters except +
@@ -130,7 +133,18 @@ function StoreContent({ alias }: { alias: string }) {
     if (alias && (visitorRegistered || !siteBlocked)) {
       trackEvent(alias, 'page_view', { page: 'store_home' });
     }
+    // Fetch admin contact info for trial expiry notification
+    fetchAdminContactInfo();
   }, [alias, search, category, sort, onSale, priceRange]);
+
+  const fetchAdminContactInfo = async () => {
+    try {
+      const response = await adminApi.getContactInfo();
+      setAdminWhatsApp(response.data.whatsapp);
+    } catch (error) {
+      console.error('Error fetching admin contact info:', error);
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated && user?.role === 'buyer') {
@@ -515,12 +529,25 @@ function StoreContent({ alias }: { alias: string }) {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1 min-w-0">
-              {store.logo && (
+              {store.logo ? (
                 <img
                   src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${store.logo}`}
                   alt={store.businessName}
                   className="h-12 w-auto rounded-xl object-contain flex-shrink-0"
                 />
+              ) : (
+                <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-orange-500 to-cyan-500 flex-shrink-0">
+                  <span className="text-lg font-bold text-white">
+                    {(() => {
+                      if (!store.businessName) return 'ST';
+                      const words = store.businessName.trim().split(/\s+/);
+                      if (words.length === 1) {
+                        return words[0].substring(0, 2).toUpperCase();
+                      }
+                      return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+                    })()}
+                  </span>
+                </div>
               )}
               <div className="flex flex-col min-w-0">
                 <h1 className="text-xl font-bold truncate" style={{ color: theme.textPrimary }}>{store.businessName}</h1>
@@ -716,6 +743,17 @@ function StoreContent({ alias }: { alias: string }) {
         </div>
       </header>
 
+      {/* Trial Expired Notification - Only show if seller is logged in */}
+      {isAuthenticated && user?.role === 'seller' && user?._id === store?.sellerId && (
+        <TrialExpiredNotification
+          trialEndsAt={store?.trialEndsAt}
+          businessName={store?.businessName}
+          sellerName={user?.name}
+          adminWhatsApp={adminWhatsApp}
+          variant="microsite"
+        />
+      )}
+
       {/* Upcoming Promotions Banner - Flashing */}
       {upcomingPromotions.length > 0 && (
         <div className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 py-3 px-4 sm:px-6 animate-pulse-flash">
@@ -749,18 +787,6 @@ function StoreContent({ alias }: { alias: string }) {
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Banner */}
-      {store.banner && (
-        <div className="relative w-full" style={{ aspectRatio: '4.8/1', maxHeight: '500px' }}>
-          <img
-            src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${store.banner}`}
-            alt={`${store.businessName} banner`}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
       )}
 
@@ -1234,15 +1260,17 @@ function StoreContent({ alias }: { alias: string }) {
                     onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
                     required
                   />
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium z-10 pointer-events-none">+91</span>
+                  <div className="flex gap-2">
+                    <div className="flex items-center px-4 py-2 bg-zinc-100 border border-zinc-300 rounded-lg text-zinc-600 font-medium select-none">
+                      +91
+                    </div>
                     <input
                       type="tel"
-                      placeholder="XXXXXXXXXX"
-                      className="form-input pl-20"
+                      placeholder="10-digit mobile number"
+                      className="form-input flex-1"
                       value={authForm.phone.replace('+91', '')}
                       onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, '');
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                         if (digits.length <= 10) {
                           handlePhoneChange('+91' + digits);
                         }
