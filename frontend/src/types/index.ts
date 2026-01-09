@@ -32,6 +32,8 @@ export interface User {
   facebookHandle?: string;
   // Seller video
   sellerVideo?: string;
+  // Feature flags
+  broadcastsEnabled?: boolean;
 }
 
 export type Theme = 'ocean' | 'sunset' | 'forest' | 'midnight' | 'rose' | 'minimal';

@@ -20,6 +20,7 @@ import {
   LogOut,
   Calendar,
   MessageCircle,
+  MessageSquare,
   ShieldCheck,
   Send,
   AlertTriangle,
@@ -51,6 +52,8 @@ export default function AdminPage() {
   const [showExtensionModal, setShowExtensionModal] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState<SellerWithStats | null>(null);
   const [extensionMonths, setExtensionMonths] = useState(1);
+  const [broadcastsEnabled, setBroadcastsEnabled] = useState(true);
+  const [loadingBroadcastSetting, setLoadingBroadcastSetting] = useState(false);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -63,12 +66,14 @@ export default function AdminPage() {
 
   const fetchData = async () => {
     try {
-      const [statsRes, sellersRes] = await Promise.all([
+      const [statsRes, sellersRes, broadcastsRes] = await Promise.all([
         adminApi.getStats(),
         adminApi.getSellers({ limit: '100' }),
+        adminApi.getBroadcastsEnabled().catch(() => ({ data: { enabled: true } })),
       ]);
       setStats(statsRes.data);
       setSellers(sellersRes.data.sellers);
+      setBroadcastsEnabled(broadcastsRes.data.enabled);
     } catch (error) {
       console.error(error);
       toast.error('Failed to load data');
@@ -220,6 +225,58 @@ export default function AdminPage() {
       </header>
 
       <main className="max-w-7xl mx-auto p-6 space-y-8">
+        {/* Global Broadcast Settings */}
+        <div className="bg-white rounded-2xl shadow-sm border border-zinc-100 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <MessageSquare size={20} className="text-cyan-600" />
+                WhatsApp Broadcasts Feature
+              </h2>
+              <p className="text-sm text-zinc-600 mt-1">
+                Control the broadcast feature globally. When disabled, all sellers cannot use broadcasts.
+              </p>
+            </div>
+            <button
+              onClick={async () => {
+                setLoadingBroadcastSetting(true);
+                try {
+                  const newValue = !broadcastsEnabled;
+                  console.log('Setting broadcasts enabled to:', newValue);
+                  const response = await adminApi.setBroadcastsEnabled(newValue);
+                  console.log('Response:', response.data);
+                  setBroadcastsEnabled(newValue);
+                  toast.success(response.data?.message || `Broadcasts ${newValue ? 'enabled' : 'disabled'} globally`);
+                } catch (error: any) {
+                  console.error('Error updating broadcast setting:', error);
+                  console.error('Error response:', error.response?.data);
+                  toast.error(error.response?.data?.message || error.response?.data?.error || 'Failed to update setting');
+                } finally {
+                  setLoadingBroadcastSetting(false);
+                }
+              }}
+              disabled={loadingBroadcastSetting}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition-colors ${
+                broadcastsEnabled
+                  ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+              } disabled:opacity-50`}
+            >
+              {broadcastsEnabled ? (
+                <>
+                  <ToggleRight size={20} className="text-emerald-600" />
+                  Enabled
+                </>
+              ) : (
+                <>
+                  <ToggleLeft size={20} className="text-zinc-400" />
+                  Disabled
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
           {[
@@ -291,6 +348,7 @@ export default function AdminPage() {
                     <th className="text-left px-6 py-3 font-medium hidden md:table-cell">Products</th>
                     <th className="text-left px-6 py-3 font-medium hidden lg:table-cell">Trial Ends</th>
                     <th className="text-left px-6 py-3 font-medium">Status</th>
+                    <th className="text-left px-6 py-3 font-medium hidden xl:table-cell">Broadcasts</th>
                     <th className="text-right px-6 py-3 font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -357,6 +415,46 @@ export default function AdminPage() {
                               </span>
                             </span>
                           </div>
+                        </td>
+                        <td className="px-6 py-4 hidden xl:table-cell">
+                          {broadcastsEnabled ? (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const newValue = !(seller.broadcastsEnabled !== false);
+                                  await adminApi.setSellerBroadcastsEnabled(seller._id || seller.id || '', newValue);
+                                  setSellers(sellers.map(s => 
+                                    s._id === seller._id || s.id === seller.id 
+                                      ? { ...s, broadcastsEnabled: newValue }
+                                      : s
+                                  ));
+                                  toast.success(`Broadcasts ${newValue ? 'enabled' : 'disabled'} for ${seller.businessName}`);
+                                } catch (error: any) {
+                                  toast.error(error.response?.data?.message || 'Failed to update setting');
+                                }
+                              }}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                                seller.broadcastsEnabled !== false
+                                  ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                              }`}
+                              title={seller.broadcastsEnabled !== false ? 'Disable broadcasts' : 'Enable broadcasts'}
+                            >
+                              {seller.broadcastsEnabled !== false ? (
+                                <>
+                                  <ToggleRight size={16} className="text-emerald-600" />
+                                  Enabled
+                                </>
+                              ) : (
+                                <>
+                                  <ToggleLeft size={16} className="text-zinc-400" />
+                                  Disabled
+                                </>
+                              )}
+                            </button>
+                          ) : (
+                            <span className="text-sm text-zinc-400">Disabled globally</span>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">

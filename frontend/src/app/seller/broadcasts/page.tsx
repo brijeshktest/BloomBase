@@ -47,6 +47,7 @@ export default function BroadcastsPage() {
   const [editingBroadcast, setEditingBroadcast] = useState<Broadcast | null>(null);
   const [sendingBroadcastId, setSendingBroadcastId] = useState<string | null>(null);
   const [subscriptionStats, setSubscriptionStats] = useState({ total: 0, subscribed: 0 });
+  const [featureEnabled, setFeatureEnabled] = useState(true);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -60,7 +61,20 @@ export default function BroadcastsPage() {
   useEffect(() => {
     fetchBroadcasts();
     fetchSubscriptionStats();
+    checkBroadcastsEnabled();
   }, []);
+
+  const checkBroadcastsEnabled = async () => {
+    try {
+      await broadcastApi.getBroadcasts({ limit: 1 });
+      setFeatureEnabled(true);
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        setFeatureEnabled(false);
+        toast.error(error.response?.data?.message || 'Broadcasts feature is disabled');
+      }
+    }
+  };
 
   const fetchBroadcasts = async () => {
     try {
@@ -210,6 +224,23 @@ export default function BroadcastsPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-zinc-600">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!featureEnabled) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-white rounded-2xl border border-zinc-200 p-12 text-center">
+          <AlertCircle className="mx-auto text-amber-500 mb-4" size={48} />
+          <h2 className="text-2xl font-bold text-zinc-900 mb-2">Broadcasts Feature Disabled</h2>
+          <p className="text-zinc-600 mb-4">
+            The WhatsApp broadcasts feature has been disabled for your account by the administrator.
+          </p>
+          <p className="text-sm text-zinc-500">
+            Please contact the administrator if you need this feature enabled.
+          </p>
+        </div>
       </div>
     );
   }

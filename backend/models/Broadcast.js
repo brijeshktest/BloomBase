@@ -66,8 +66,8 @@ const broadcastSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  // Error tracking
-  errors: [{
+  // Error tracking (using broadcastErrors to avoid reserved keyword conflict)
+  broadcastErrors: [{
     phone: String,
     error: String,
     timestamp: {

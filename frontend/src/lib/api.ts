@@ -169,6 +169,16 @@ export const adminApi = {
   
   extendValidity: (id: string, months: number) => 
     api.patch(`/admin/sellers/${id}/extend-validity`, { months }),
+  
+  // Broadcast settings
+  getBroadcastsEnabled: () =>
+    api.get('/admin/config/broadcasts-enabled'),
+  
+  setBroadcastsEnabled: (enabled: boolean) =>
+    api.put('/admin/config/broadcasts-enabled', { enabled }),
+  
+  setSellerBroadcastsEnabled: (sellerId: string, enabled: boolean) =>
+    api.put(`/admin/sellers/${sellerId}/broadcasts-enabled`, { enabled }),
 };
 
 // Upload APIs

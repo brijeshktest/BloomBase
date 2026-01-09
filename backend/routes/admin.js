@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
 const Product = require('../models/Product');
+const Config = require('../models/Config');
 const { protect, adminOnly } = require('../middleware/auth');
 const crypto = require('crypto');
 const { normalizeIndianPhone } = require('../utils/phone');
@@ -270,22 +271,124 @@ router.patch('/sellers/:id/extend-validity', protect, adminOnly, async (req, res
   }
 });
 
-// Get seller details
-router.get('/sellers/:id', protect, adminOnly, async (req, res) => {
+// ============================================
+// Global Configuration Routes (MUST be before /sellers/:id to avoid route conflicts)
+// ============================================
+
+// Get global broadcast setting
+router.get('/config/broadcasts-enabled', protect, adminOnly, async (req, res) => {
   try {
-    const seller = await User.findOne({ _id: req.params.id, role: 'seller' }).select('-password');
+    const enabled = await Config.getValue('broadcastsEnabled', true);
+    res.json({ enabled });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update global broadcast setting
+router.put('/config/broadcasts-enabled', protect, adminOnly, async (req, res) => {
+  try {
+    const { enabled } = req.body;
     
-    if (!seller) {
+    console.log('[Admin] Update broadcast setting request:', { 
+      enabled, 
+      type: typeof enabled, 
+      body: req.body,
+      userId: req.user._id 
+    });
+    
+    // Validate input
+    if (enabled === undefined || enabled === null) {
+      return res.status(400).json({ message: 'enabled field is required' });
+    }
+    
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({ 
+        message: 'enabled must be a boolean',
+        received: typeof enabled,
+        value: enabled
+      });
+    }
+    
+    // Update config - try static method first, fallback to direct update
+    try {
+      let result;
+      
+      // Try using the static method
+      if (typeof Config.setValue === 'function') {
+        result = await Config.setValue(
+          'broadcastsEnabled', 
+          enabled, 
+          'Global setting to enable/disable WhatsApp broadcasts feature', 
+          req.user._id
+        );
+      } else {
+        // Fallback: direct findOneAndUpdate
+        result = await Config.findOneAndUpdate(
+          { key: 'broadcastsEnabled' },
+          { 
+            key: 'broadcastsEnabled',
+            value: enabled,
+            description: 'Global setting to enable/disable WhatsApp broadcasts feature',
+            updatedBy: req.user._id,
+            updatedAt: new Date()
+          },
+          { upsert: true, new: true, runValidators: true }
+        );
+      }
+      
+      console.log('[Admin] Config updated successfully:', {
+        key: result?.key,
+        value: result?.value,
+        id: result?._id
+      });
+      
+      res.json({ 
+        message: `Broadcasts ${enabled ? 'enabled' : 'disabled'} globally`,
+        enabled: result?.value ?? enabled
+      });
+    } catch (dbError) {
+      console.error('[Admin] Database error updating config:', dbError);
+      console.error('[Admin] Error name:', dbError.name);
+      console.error('[Admin] Error code:', dbError.code);
+      throw dbError;
+    }
+  } catch (error) {
+    console.error('[Admin] Error updating broadcast setting:', error);
+    console.error('[Admin] Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Failed to update broadcast setting', 
+      error: error.message || error.toString()
+    });
+  }
+});
+
+// Toggle seller's broadcast feature
+router.put('/sellers/:id/broadcasts-enabled', protect, adminOnly, async (req, res) => {
+  try {
+    const { enabled } = req.body;
+    const seller = await User.findById(req.params.id);
+    
+    if (!seller || seller.role !== 'seller') {
       return res.status(404).json({ message: 'Seller not found' });
     }
-
-    const products = await Product.find({ seller: seller._id }).select('name basePrice isActive createdAt');
-    const buyerCount = await User.countDocuments({ registeredOnSeller: seller._id });
-
-    res.json({
-      seller,
-      products,
-      buyerCount
+    
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({ message: 'enabled must be a boolean' });
+    }
+    
+    seller.broadcastsEnabled = enabled;
+    await seller.save();
+    
+    res.json({ 
+      message: `Broadcasts ${enabled ? 'enabled' : 'disabled'} for seller`,
+      seller: {
+        _id: seller._id,
+        name: seller.name,
+        businessName: seller.businessName,
+        broadcastsEnabled: seller.broadcastsEnabled
+      }
     });
   } catch (error) {
     console.error(error);

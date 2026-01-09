@@ -7,11 +7,29 @@ const Product = require('../models/Product');
 const { protect, sellerOnly, checkTrial } = require('../middleware/auth');
 const { sendBroadcast, buildBroadcastMessage, generateToken, formatPhoneForWhatsApp } = require('../utils/whatsappBroadcast');
 const { normalizeIndianPhone } = require('../utils/phone');
+const { checkBroadcastsEnabled } = require('../utils/broadcastCheck');
 
 const router = express.Router();
 
+// Middleware to check if broadcasts are enabled
+const checkBroadcastsFeature = async (req, res, next) => {
+  try {
+    const check = await checkBroadcastsEnabled(req.user._id);
+    if (!check.enabled) {
+      return res.status(403).json({ 
+        message: check.reason || 'Broadcasts feature is disabled',
+        enabled: false
+      });
+    }
+    next();
+  } catch (error) {
+    console.error('Error checking broadcast feature:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // Get all subscriptions for a seller (with opt-in status)
-router.get('/subscriptions', protect, sellerOnly, checkTrial, async (req, res) => {
+router.get('/subscriptions', protect, sellerOnly, checkTrial, checkBroadcastsFeature, async (req, res) => {
   try {
     const { page = 1, limit = 50, status = 'all' } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -85,6 +103,15 @@ router.post('/subscriptions', async (req, res) => {
     
     if (!seller || seller.role !== 'seller') {
       return res.status(404).json({ message: 'Seller not found' });
+    }
+    
+    // Check if broadcasts are enabled for this seller
+    const check = await checkBroadcastsEnabled(seller);
+    if (!check.enabled) {
+      return res.status(403).json({ 
+        message: check.reason || 'Broadcasts feature is disabled for this seller',
+        enabled: false
+      });
     }
     
     // Check if subscription already exists
@@ -212,7 +239,7 @@ router.get('/subscriptions/:id/opt-out-link', protect, sellerOnly, async (req, r
 });
 
 // Get all broadcasts for a seller
-router.get('/', protect, sellerOnly, checkTrial, async (req, res) => {
+router.get('/', protect, sellerOnly, checkTrial, checkBroadcastsFeature, async (req, res) => {
   try {
     const { page = 1, limit = 20, status } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -268,7 +295,7 @@ router.get('/:id', protect, sellerOnly, checkTrial, async (req, res) => {
 });
 
 // Create broadcast
-router.post('/', protect, sellerOnly, checkTrial, [
+router.post('/', protect, sellerOnly, checkTrial, checkBroadcastsFeature, [
   body('title').trim().notEmpty().withMessage('Title is required').isLength({ max: 100 }),
   body('message').trim().notEmpty().withMessage('Message is required').isLength({ max: 1000 }),
   body('type').optional().isIn(['new_arrival', 'promotion', 'announcement', 'custom'])
@@ -353,7 +380,7 @@ router.put('/:id', protect, sellerOnly, checkTrial, [
 });
 
 // Send broadcast
-router.post('/:id/send', protect, sellerOnly, checkTrial, async (req, res) => {
+router.post('/:id/send', protect, sellerOnly, checkTrial, checkBroadcastsFeature, async (req, res) => {
   try {
     const broadcast = await Broadcast.findOne({
       _id: req.params.id,
@@ -404,7 +431,7 @@ router.post('/:id/send', protect, sellerOnly, checkTrial, async (req, res) => {
     const results = {
       sent: 0,
       failed: 0,
-      errors: []
+      broadcastErrors: []
     };
     
     for (const subscription of subscriptions) {
@@ -427,14 +454,14 @@ router.post('/:id/send', protect, sellerOnly, checkTrial, async (req, res) => {
           results.sent++;
         } else {
           results.failed++;
-          results.errors.push({
+          results.broadcastErrors.push({
             phone: subscription.phone,
             error: result.error
           });
         }
       } catch (error) {
         results.failed++;
-        results.errors.push({
+        results.broadcastErrors.push({
           phone: subscription.phone,
           error: error.message
         });
@@ -449,7 +476,7 @@ router.post('/:id/send', protect, sellerOnly, checkTrial, async (req, res) => {
     broadcast.sentAt = new Date();
     broadcast.sentCount = results.sent;
     broadcast.failedCount = results.failed;
-    broadcast.errors = results.errors;
+    broadcast.broadcastErrors = results.broadcastErrors;
     await broadcast.save();
     
     res.json({

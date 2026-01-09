@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
+import { broadcastApi } from '@/lib/api';
 import { 
   LayoutDashboard, 
   Package, 
@@ -18,13 +19,12 @@ import {
   Users,
   MessageSquare
 } from 'lucide-react';
-import { useState } from 'react';
 
-const navItems = [
+const baseNavItems = [
   { href: '/seller/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/seller/products', label: 'Products', icon: Package },
   { href: '/seller/promotions', label: 'Promotions', icon: Tag },
-  { href: '/seller/broadcasts', label: 'Broadcasts', icon: MessageSquare },
+  { href: '/seller/broadcasts', label: 'Broadcasts', icon: MessageSquare, requiresBroadcasts: true },
   { href: '/seller/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/seller/leads', label: 'Leads', icon: Users },
   { href: '/seller/settings', label: 'Settings', icon: Settings },
@@ -34,13 +34,36 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
   const { user, isAuthenticated, logout, hasHydrated } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [broadcastsEnabled, setBroadcastsEnabled] = useState(true);
 
   useEffect(() => {
     if (!hasHydrated) return;
     if (!isAuthenticated || user?.role !== 'seller') {
       router.push('/login');
+      return;
     }
+    // Check if broadcasts are enabled
+    checkBroadcastsEnabled();
   }, [hasHydrated, isAuthenticated, user, router]);
+
+  const checkBroadcastsEnabled = async () => {
+    try {
+      await broadcastApi.getBroadcasts({ limit: 1 });
+      setBroadcastsEnabled(true);
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        setBroadcastsEnabled(false);
+      }
+    }
+  };
+
+  // Filter nav items based on feature availability
+  const navItems = baseNavItems.filter(item => {
+    if (item.requiresBroadcasts && !broadcastsEnabled) {
+      return false;
+    }
+    return true;
+  });
 
   if (!hasHydrated) {
     return (

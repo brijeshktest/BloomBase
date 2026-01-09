@@ -120,6 +120,11 @@ const userSchema = new mongoose.Schema({
   registeredOnSeller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  // Feature flags - seller level
+  broadcastsEnabled: {
+    type: Boolean,
+    default: true // Default enabled, admin can disable per seller
   }
 }, {
   timestamps: true

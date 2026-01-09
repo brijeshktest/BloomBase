@@ -108,9 +108,12 @@ export default function VisitorRegistrationModal({
             name: name.trim(),
             sellerId
           });
-        } catch (error) {
+        } catch (error: any) {
           // Don't fail registration if subscription fails
-          console.error('Failed to subscribe to broadcasts:', error);
+          // Only log if it's not a "feature disabled" error
+          if (error.response?.status !== 403) {
+            console.error('Failed to subscribe to broadcasts:', error);
+          }
         }
       }
 
