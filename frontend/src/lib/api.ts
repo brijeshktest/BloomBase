@@ -232,5 +232,52 @@ export const analyticsApi = {
     api.get('/analytics/visitors', { params: { period, limit } }),
 };
 
+// Broadcast APIs
+export const broadcastApi = {
+  // Subscriptions
+  getSubscriptions: (params?: { page?: number; limit?: number; status?: string }) =>
+    api.get('/broadcasts/subscriptions', { params }),
+  
+  addSubscription: (data: { phone: string; name?: string; sellerId?: string }) =>
+    api.post('/broadcasts/subscriptions', data),
+  
+  unsubscribe: (data: { phone?: string; sellerId?: string; token?: string }) =>
+    api.post('/broadcasts/subscriptions/unsubscribe', data),
+  
+  getOptOutLink: (subscriptionId: string) =>
+    api.get(`/broadcasts/subscriptions/${subscriptionId}/opt-out-link`),
+  
+  // Broadcasts
+  getBroadcasts: (params?: { page?: number; limit?: number; status?: string }) =>
+    api.get('/broadcasts', { params }),
+  
+  getBroadcast: (id: string) =>
+    api.get(`/broadcasts/${id}`),
+  
+  createBroadcast: (data: {
+    title: string;
+    message: string;
+    type?: 'new_arrival' | 'promotion' | 'announcement' | 'custom';
+    productId?: string;
+    promotionId?: string;
+    scheduledAt?: string;
+  }) => api.post('/broadcasts', data),
+  
+  updateBroadcast: (id: string, data: {
+    title?: string;
+    message?: string;
+    type?: 'new_arrival' | 'promotion' | 'announcement' | 'custom';
+    productId?: string;
+    promotionId?: string;
+    scheduledAt?: string;
+  }) => api.put(`/broadcasts/${id}`, data),
+  
+  sendBroadcast: (id: string) =>
+    api.post(`/broadcasts/${id}/send`),
+  
+  deleteBroadcast: (id: string) =>
+    api.delete(`/broadcasts/${id}`),
+};
+
 export default api;
 

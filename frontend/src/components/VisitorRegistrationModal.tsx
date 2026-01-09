@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, User, Phone, AlertCircle, CheckCircle } from 'lucide-react';
-import { analyticsApi } from '@/lib/api';
+import { X, User, Phone, AlertCircle, CheckCircle, Bell } from 'lucide-react';
+import { analyticsApi, broadcastApi } from '@/lib/api';
 import { getSessionId } from '@/utils/analytics';
 import { saveVisitorInfo } from '@/utils/cookies';
 import toast from 'react-hot-toast';
 
 interface VisitorRegistrationModalProps {
   sellerAlias: string;
+  sellerId?: string;
   onComplete: () => void;
   theme: {
     primary: string;
@@ -19,12 +20,14 @@ interface VisitorRegistrationModalProps {
 }
 
 export default function VisitorRegistrationModal({ 
-  sellerAlias, 
+  sellerAlias,
+  sellerId,
   onComplete,
   theme 
 }: VisitorRegistrationModalProps) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+91');
+  const [optIn, setOptIn] = useState(true); // Default to opted in
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({ name: '', phone: '' });
 
@@ -96,6 +99,20 @@ export default function VisitorRegistrationModal({
 
       // Store in cookies (persists across sessions) and sessionStorage (for backward compatibility)
       saveVisitorInfo(name.trim(), phone.trim(), 30); // 30 days expiration
+
+      // Opt-in to broadcasts if checked and sellerId is available
+      if (optIn && sellerId) {
+        try {
+          await broadcastApi.addSubscription({
+            phone: phone.trim(),
+            name: name.trim(),
+            sellerId
+          });
+        } catch (error) {
+          // Don't fail registration if subscription fails
+          console.error('Failed to subscribe to broadcasts:', error);
+        }
+      }
 
       onComplete();
       toast.success('Welcome! You can now browse the store.');
@@ -218,6 +235,32 @@ export default function VisitorRegistrationModal({
               </p>
             )}
           </div>
+
+          {sellerId && (
+            <div className="flex items-start gap-3 p-4 rounded-xl border-2 border-zinc-200 bg-zinc-50">
+              <input
+                type="checkbox"
+                id="opt-in"
+                checked={optIn}
+                onChange={(e) => setOptIn(e.target.checked)}
+                className="mt-1 w-5 h-5 rounded border-zinc-300 text-cyan-600 focus:ring-cyan-500"
+                disabled={submitting}
+              />
+              <label 
+                htmlFor="opt-in" 
+                className="flex-1 cursor-pointer"
+                style={{ color: theme.textPrimary || '#1f2937' }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Bell size={16} className="text-cyan-600" />
+                  <span className="font-semibold text-sm">Receive Updates via WhatsApp</span>
+                </div>
+                <p className="text-xs" style={{ color: theme.textSecondary || '#6b7280' }}>
+                  Get notified about new arrivals, promotions, and special offers. You can unsubscribe anytime.
+                </p>
+              </label>
+            </div>
+          )}
 
           <button
             type="submit"

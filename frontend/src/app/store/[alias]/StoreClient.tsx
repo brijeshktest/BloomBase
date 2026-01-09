@@ -491,6 +491,7 @@ function StoreContent({ alias }: { alias: string }) {
       {showVisitorModal && (
         <VisitorRegistrationModal
           sellerAlias={alias}
+          sellerId={store?.sellerId}
           onComplete={handleVisitorRegistrationComplete}
           theme={theme}
         />

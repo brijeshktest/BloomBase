@@ -15,7 +15,8 @@ import {
   X,
   AlertCircle,
   BarChart3,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/seller/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/seller/products', label: 'Products', icon: Package },
   { href: '/seller/promotions', label: 'Promotions', icon: Tag },
+  { href: '/seller/broadcasts', label: 'Broadcasts', icon: MessageSquare },
   { href: '/seller/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/seller/leads', label: 'Leads', icon: Users },
   { href: '/seller/settings', label: 'Settings', icon: Settings },

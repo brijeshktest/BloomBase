@@ -13,6 +13,7 @@ const uploadRoutes = require('./routes/upload');
 const bulkUploadRoutes = require('./routes/bulk-upload');
 const availabilityRoutes = require('./routes/availability');
 const analyticsRoutes = require('./routes/analytics');
+const broadcastRoutes = require('./routes/broadcasts');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/bulk-upload', bulkUploadRoutes);
 app.use('/api/availability', availabilityRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/broadcasts', broadcastRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

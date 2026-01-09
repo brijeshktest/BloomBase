@@ -104,6 +104,7 @@ export interface Cart {
 
 export interface Store {
   alias?: string;
+  sellerId?: string;
   businessName: string;
   businessDescription?: string;
   theme: Theme;
