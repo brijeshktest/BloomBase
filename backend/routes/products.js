@@ -746,9 +746,9 @@ router.put('/:id', protect, sellerOnly, checkTrial, upload.fields([
     const updates = { ...req.body };
     
     // Debug: Log all received fields
-    console.log('Update request body keys:', Object.keys(req.body));
-    console.log('Update request videoLink:', req.body.videoLink, 'Type:', typeof req.body.videoLink);
-    console.log('Update request has videoLink:', req.body.hasOwnProperty('videoLink'));
+    console.log('Update request body keys:', Object.keys(req.body || {}));
+    console.log('Update request videoLink:', req.body?.videoLink, 'Type:', typeof req.body?.videoLink);
+    console.log('Update request has videoLink:', req.body ? ('videoLink' in req.body) : false);
     console.log('Product current video:', product.video);
 
     // Handle name change - update slug
@@ -891,7 +891,7 @@ router.put('/:id', protect, sellerOnly, checkTrial, upload.fields([
         type: 'file',
         url: `/uploads/products/videos/${req.files.video[0].filename}`
       };
-    } else if (updates.hasOwnProperty('videoLink') || req.body.videoLink !== undefined) {
+    } else if ('videoLink' in updates || req.body.videoLink !== undefined) {
       // videoLink is explicitly provided (even if empty string) - handle it
       // Note: FormData might send empty string, so check both hasOwnProperty and !== undefined
       const videoLinkValue = (updates.videoLink || req.body.videoLink || '').toString().trim();
