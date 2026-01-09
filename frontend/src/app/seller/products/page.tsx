@@ -53,6 +53,8 @@ function ProductsContent() {
     priceTiers: [] as { minQuantity: string; maxQuantity: string; price: string }[],
   });
   const [images, setImages] = useState<File[]>([]);
+  const [imageLinks, setImageLinks] = useState<string[]>(['']);
+  const [imageType, setImageType] = useState<'file' | 'link'>('file');
   const [video, setVideo] = useState<File | null>(null);
   const [videoType, setVideoType] = useState<'file' | 'link'>('link');
   const [saving, setSaving] = useState(false);
@@ -117,6 +119,8 @@ function ProductsContent() {
       priceTiers: [],
     });
     setImages([]);
+    setImageLinks(['']);
+    setImageType('file');
     setVideo(null);
     setShowModal(true);
   };
@@ -143,6 +147,15 @@ function ProductsContent() {
     });
     setVideoType(product.video?.type || 'link');
     setImages([]);
+    // Check if existing images are URLs or file paths
+    const existingImageLinks = product.images.filter(img => img.startsWith('http://') || img.startsWith('https://'));
+    if (existingImageLinks.length > 0) {
+      setImageType('link');
+      setImageLinks(existingImageLinks.length > 0 ? existingImageLinks : ['']);
+    } else {
+      setImageType('file');
+      setImageLinks(['']);
+    }
     setVideo(null);
     setShowModal(true);
   };
@@ -177,11 +190,25 @@ function ProductsContent() {
         data.append('priceTiers', JSON.stringify(tiers));
       }
 
-      if (videoType === 'link' && formData.videoLink) {
-        data.append('videoLink', formData.videoLink);
+      // Always send videoLink when in link mode (even if empty) to allow clearing
+      // Also send empty string if switching from link to file mode to clear existing video link
+      if (videoType === 'link') {
+        data.append('videoLink', formData.videoLink || '');
+      } else if (editingProduct && editingProduct.video?.type === 'link') {
+        // If switching from link mode to file mode, send empty videoLink to clear the existing link
+        data.append('videoLink', '');
       }
 
-      images.forEach(img => data.append('images', img));
+      // Handle images based on type
+      if (imageType === 'file') {
+        images.forEach(img => data.append('images', img));
+      } else {
+        // Filter out empty image links
+        const validImageLinks = imageLinks.filter(link => link.trim() !== '');
+        // Always send imageLinks when in link mode (even if empty array) so backend knows to replace images
+        data.append('imageLinks', JSON.stringify(validImageLinks));
+      }
+      
       if (video) data.append('video', video);
 
       if (editingProduct) {
@@ -345,11 +372,18 @@ function ProductsContent() {
           {products.map((product) => (
             <div key={product._id} className="bg-white rounded-xl shadow-sm border border-zinc-100 overflow-hidden card-hover">
               <div className="aspect-square bg-zinc-100 relative">
-                {product.images[0] ? (
+                {product.images && product.images.length > 0 && product.images[0] ? (
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`}
+                    src={
+                      product.images[0].startsWith('http://') || product.images[0].startsWith('https://')
+                        ? product.images[0]
+                        : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`
+                    }
                     alt={product.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f4f4f5" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23a1a1aa"%3EImage%3C/text%3E%3C/svg%3E';
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-zinc-300">
@@ -614,51 +648,144 @@ function ProductsContent() {
               {/* Images */}
               <div>
                 <label className="form-label">Product Images (Up to 10 images)</label>
-                <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center">
-                  <Upload className="mx-auto text-zinc-400 mb-2" size={32} />
-                  <p className="text-sm text-zinc-600 mb-2">Click or drag images here</p>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    className="w-full"
-                    onChange={(e) => setImages(Array.from(e.target.files || []))}
-                  />
-                  <p className="text-xs text-zinc-500 mt-3">
-                    Recommended: 1200×1200px, Square, Max 5MB per image
-                    <br />
-                    <span className="text-zinc-400">Accepted: 400×400 to 2400×2400px (near square)</span>
-                  </p>
+                <div className="flex gap-4 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setImageType('file')}
+                    className={`flex-1 py-2 px-4 rounded-xl border ${
+                      imageType === 'file' ? 'bg-cyan-50 border-cyan-500 text-cyan-700' : 'border-zinc-200'
+                    }`}
+                  >
+                    <Upload size={16} className="inline mr-2" />
+                    Upload Files
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageType('link')}
+                    className={`flex-1 py-2 px-4 rounded-xl border ${
+                      imageType === 'link' ? 'bg-cyan-50 border-cyan-500 text-cyan-700' : 'border-zinc-200'
+                    }`}
+                  >
+                    <LinkIcon size={16} className="inline mr-2" />
+                    Image URLs
+                  </button>
                 </div>
-                {images.length > 0 && (
-                  <div className="flex gap-2 mt-3 flex-wrap">
-                    {images.map((img, idx) => (
-                      <div key={idx} className="relative">
-                        <img
-                          src={URL.createObjectURL(img)}
-                          alt={`Preview ${idx + 1}`}
-                          className="w-20 h-20 rounded-lg object-cover border-2 border-zinc-200"
-                        />
-                        <span className="absolute -top-1 -right-1 bg-cyan-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                          {idx + 1}
-                        </span>
+                
+                {imageType === 'file' ? (
+                  <>
+                    <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center">
+                      <Upload className="mx-auto text-zinc-400 mb-2" size={32} />
+                      <p className="text-sm text-zinc-600 mb-2">Click or drag images here</p>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        className="w-full"
+                        onChange={(e) => setImages(Array.from(e.target.files || []))}
+                      />
+                      <p className="text-xs text-zinc-500 mt-3">
+                        Recommended: 1200×1200px, Square, Max 5MB per image
+                        <br />
+                        <span className="text-zinc-400">Accepted: 400×400 to 2400×2400px (near square)</span>
+                      </p>
+                    </div>
+                    {images.length > 0 && (
+                      <div className="flex gap-2 mt-3 flex-wrap">
+                        {images.map((img, idx) => (
+                          <div key={idx} className="relative">
+                            <img
+                              src={URL.createObjectURL(img)}
+                              alt={`Preview ${idx + 1}`}
+                              className="w-20 h-20 rounded-lg object-cover border-2 border-zinc-200"
+                            />
+                            <span className="absolute -top-1 -right-1 bg-cyan-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      {imageLinks.map((link, idx) => (
+                        <div key={idx} className="flex gap-2">
+                          <input
+                            type="url"
+                            className="form-input flex-1"
+                            placeholder="https://example.com/image.jpg"
+                            value={link}
+                            onChange={(e) => {
+                              const newLinks = [...imageLinks];
+                              newLinks[idx] = e.target.value;
+                              setImageLinks(newLinks);
+                            }}
+                          />
+                          {imageLinks.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newLinks = imageLinks.filter((_, i) => i !== idx);
+                                setImageLinks(newLinks.length > 0 ? newLinks : ['']);
+                              }}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-xl"
+                            >
+                              <X size={20} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      {imageLinks.length < 10 && (
+                        <button
+                          type="button"
+                          onClick={() => setImageLinks([...imageLinks, ''])}
+                          className="text-sm text-cyan-600 hover:text-cyan-700"
+                        >
+                          + Add Another Image URL
+                        </button>
+                      )}
+                    </div>
+                    {imageLinks.filter(l => l.trim() !== '').length > 0 && (
+                      <div className="flex gap-2 mt-3 flex-wrap">
+                        {imageLinks.filter(l => l.trim() !== '').map((link, idx) => (
+                          <div key={idx} className="relative">
+                            <img
+                              src={link}
+                              alt={`Preview ${idx + 1}`}
+                              className="w-20 h-20 rounded-lg object-cover border-2 border-zinc-200"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23f4f4f5" width="80" height="80"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23a1a1aa" font-size="10"%3EInvalid URL%3C/text%3E%3C/svg%3E';
+                              }}
+                            />
+                            <span className="absolute -top-1 -right-1 bg-cyan-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
-                {editingProduct && editingProduct.images.length > 0 && (
+                
+                {editingProduct && editingProduct.images.length > 0 && imageType === 'file' && (
                   <div className="mt-3">
                     <p className="text-xs text-zinc-500 mb-2">Existing Images:</p>
                     <div className="flex gap-2 flex-wrap">
-                      {editingProduct.images.map((img, idx) => (
-                        <div key={idx} className="relative">
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${img}`}
-                            alt={`Existing ${idx + 1}`}
-                            className="w-20 h-20 rounded-lg object-cover border-2 border-zinc-200"
-                          />
-                        </div>
-                      ))}
+                      {editingProduct.images.map((img, idx) => {
+                        const imgUrl = img.startsWith('http://') || img.startsWith('https://') 
+                          ? img 
+                          : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${img}`;
+                        return (
+                          <div key={idx} className="relative">
+                            <img
+                              src={imgUrl}
+                              alt={`Existing ${idx + 1}`}
+                              className="w-20 h-20 rounded-lg object-cover border-2 border-zinc-200"
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

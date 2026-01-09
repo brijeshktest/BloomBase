@@ -27,7 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           description: product.description?.substring(0, 160),
           images: product.images?.[0] ? [
             {
-              url: `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`,
+              url: product.images[0].startsWith('http://') || product.images[0].startsWith('https://')
+                ? product.images[0]
+                : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`,
             }
           ] : [],
         },

@@ -17,6 +17,10 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
+  // Remove Content-Type header for FormData - let axios set it automatically with boundary
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 
@@ -80,14 +84,10 @@ export const productApi = {
     api.get('/products/my-products', { params }),
   
   createProduct: (data: FormData) => 
-    api.post('/products', data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    api.post('/products', data),
   
   updateProduct: (id: string, data: FormData) => 
-    api.put(`/products/${id}`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    api.put(`/products/${id}`, data),
   
   toggleProduct: (id: string) => 
     api.patch(`/products/${id}/toggle`),
@@ -176,25 +176,19 @@ export const uploadApi = {
   uploadLogo: (file: File) => {
     const formData = new FormData();
     formData.append('logo', file);
-    return api.post('/upload/logo', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return api.post('/upload/logo', formData);
   },
   
   uploadBanner: (file: File) => {
     const formData = new FormData();
     formData.append('banner', file);
-    return api.post('/upload/banner', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return api.post('/upload/banner', formData);
   },
   
   uploadSellerVideo: (file: File) => {
     const formData = new FormData();
     formData.append('sellerVideo', file);
-    return api.post('/upload/seller-video', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return api.post('/upload/seller-video', formData);
   },
 };
 
@@ -210,9 +204,7 @@ export const bulkUploadApi = {
   uploadProducts: (file: File) => {
     const formData = new FormData();
     formData.append('excel', file);
-    return api.post('/bulk-upload/products', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return api.post('/bulk-upload/products', formData);
   },
 };
 

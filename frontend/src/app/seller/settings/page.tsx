@@ -33,9 +33,17 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user) {
+      // Extract 10-digit number from phone (remove +91 prefix if present)
+      let phoneNumber = user.phone || '';
+      if (phoneNumber.startsWith('+91')) {
+        phoneNumber = phoneNumber.slice(3);
+      } else if (phoneNumber.startsWith('91') && phoneNumber.length === 12) {
+        phoneNumber = phoneNumber.slice(2);
+      }
+      
       setFormData({
         name: user.name || '',
-        phone: user.phone || '',
+        phone: phoneNumber, // Store only 10 digits in form
         businessDescription: user.businessDescription || '',
         theme: (user.theme as ThemeKey) || 'minimal',
         address: {
@@ -377,13 +385,26 @@ export default function SettingsPage() {
 
             <div>
               <label className="form-label">Phone Number</label>
-              <input
-                type="tel"
-                className="form-input"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-              <p className="text-xs text-zinc-500 mt-1">Orders will be sent to this WhatsApp</p>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 font-medium">
+                  +91
+                </div>
+                <input
+                  type="tel"
+                  className="form-input pl-12"
+                  placeholder="10-digit mobile number"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    // Only allow digits and limit to 10 digits
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setFormData({ ...formData, phone: digits });
+                  }}
+                  maxLength={10}
+                />
+              </div>
+              <p className="text-xs text-zinc-500 mt-1">
+                Orders will be sent to this WhatsApp number (+91{formData.phone || 'XXXXXXXXXX'})
+              </p>
             </div>
 
             <div className="sm:col-span-2">

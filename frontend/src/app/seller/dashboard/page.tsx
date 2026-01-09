@@ -222,7 +222,11 @@ export default function SellerDashboard() {
                 <div className="w-16 h-16 bg-zinc-100 rounded-xl overflow-hidden flex-shrink-0">
                   {product.images[0] ? (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`}
+                      src={
+                        product.images[0].startsWith('http://') || product.images[0].startsWith('https://')
+                          ? product.images[0]
+                          : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`
+                      }
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />

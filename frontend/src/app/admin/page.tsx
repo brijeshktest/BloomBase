@@ -360,30 +360,30 @@ export default function AdminPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
+                            {/* Show verification button for all sellers with unverified phone */}
+                            {!seller.phoneVerified && (
+                              <button
+                                onClick={() => handleSendVerification(seller)}
+                                className="p-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200"
+                                title="Send WhatsApp verification link"
+                              >
+                                <Send size={18} />
+                              </button>
+                            )}
+                            
                             {!seller.isApproved && (
-                              <>
-                                {!seller.phoneVerified && (
-                                  <button
-                                    onClick={() => handleSendVerification(seller)}
-                                    className="p-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200"
-                                    title="Send WhatsApp verification link"
-                                  >
-                                    <Send size={18} />
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() => handleApprove(seller)}
-                                  disabled={!seller.phoneVerified}
-                                  className={`p-2 rounded-lg ${
-                                    seller.phoneVerified
-                                      ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                                      : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
-                                  }`}
-                                  title={seller.phoneVerified ? 'Approve' : 'Requires phone verification'}
-                                >
-                                  <CheckCircle size={18} />
-                                </button>
-                              </>
+                              <button
+                                onClick={() => handleApprove(seller)}
+                                disabled={!seller.phoneVerified}
+                                className={`p-2 rounded-lg ${
+                                  seller.phoneVerified
+                                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                    : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+                                }`}
+                                title={seller.phoneVerified ? 'Approve' : 'Requires phone verification'}
+                              >
+                                <CheckCircle size={18} />
+                              </button>
                             )}
                             {seller.isApproved && (
                               <>

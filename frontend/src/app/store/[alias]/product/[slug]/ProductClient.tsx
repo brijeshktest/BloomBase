@@ -409,7 +409,11 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
             <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg mb-4">
               {product.images[selectedImage] ? (
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[selectedImage]}`}
+                  src={
+                    product.images[selectedImage].startsWith('http://') || product.images[selectedImage].startsWith('https://')
+                      ? product.images[selectedImage]
+                      : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[selectedImage]}`
+                  }
                   alt={product.name}
                   className="w-full h-full object-contain"
                   loading="lazy"
@@ -434,12 +438,26 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
                     style={{ borderColor: selectedImage === idx ? theme.primary : 'transparent' }}
                   >
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${img}`}
+                      src={
+                        img.startsWith('http://') || img.startsWith('https://')
+                          ? img
+                          : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${img}`
+                      }
                       alt=""
                       className="w-full h-full object-cover"
                     />
                   </button>
                 ))}
+              </div>
+            )}
+            
+            {/* Image Disclaimer */}
+            {product.images.length > 0 && (
+              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <p className="text-xs text-amber-800 flex items-start gap-2">
+                  <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+                  <span>Please note: The actual product may slightly vary from how it's shown in the images due to lighting, display settings, or natural variations.</span>
+                </p>
               </div>
             )}
 
@@ -787,7 +805,11 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
                       <div className="w-20 h-20 bg-zinc-200 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product.images?.[0] && (
                           <img
-                            src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${item.product.images[0]}`}
+                            src={
+                              item.product.images[0].startsWith('http://') || item.product.images[0].startsWith('https://')
+                                ? item.product.images[0]
+                                : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${item.product.images[0]}`
+                            }
                             alt=""
                             className="w-full h-full object-cover"
                           />

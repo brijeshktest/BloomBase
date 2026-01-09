@@ -28,7 +28,9 @@ import {
   AlertCircle,
   Bell,
   Tag,
-  ArrowRight
+  ArrowRight,
+  Phone,
+  MessageCircle
 } from 'lucide-react';
 
 function StoreContent({ alias }: { alias: string }) {
@@ -231,6 +233,15 @@ function StoreContent({ alias }: { alias: string }) {
       setStore(response.data.store);
       setActivePromotions(response.data.activePromotions || []);
       setUpcomingPromotions(response.data.upcomingPromotions || []);
+      
+      // Debug: Log store data to check phone number
+      if (response.data.store) {
+        console.log('Store data received:', {
+          businessName: response.data.store.businessName,
+          phone: response.data.store.phone,
+          hasPhone: !!response.data.store.phone
+        });
+      }
     } catch (error: unknown) {
       console.error(error);
       const err = error as { response?: { status?: number; data?: { message?: string } } };
@@ -506,7 +517,24 @@ function StoreContent({ alias }: { alias: string }) {
                   className="h-12 w-auto rounded-xl object-contain flex-shrink-0"
                 />
               )}
-              <h1 className="text-xl font-bold truncate" style={{ color: theme.textPrimary }}>{store.businessName}</h1>
+              <div className="flex flex-col min-w-0">
+                <h1 className="text-xl font-bold truncate" style={{ color: theme.textPrimary }}>{store.businessName}</h1>
+                {/* Phone Number - Mobile */}
+                {store.phone && store.phone.trim() && (
+                  <div className="flex items-center gap-2 mt-1 md:hidden">
+                    <span className="text-sm" style={{ color: theme.textSecondary }}>{store.phone}</span>
+                    <a
+                      href={`https://wa.me/${store.phone.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                      onClick={() => trackEvent(alias, 'phone_click', { type: 'whatsapp' })}
+                    >
+                      <MessageCircle size={16} className="text-green-500" />
+                    </a>
+                  </div>
+                )}
+              </div>
               
               {/* Mobile Social Media Icons */}
               {(store.instagramHandle || store.facebookHandle) && (
@@ -561,6 +589,34 @@ function StoreContent({ alias }: { alias: string }) {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Phone Number - Desktop */}
+              {store.phone && store.phone.trim() && (
+                <div className="hidden md:flex items-center gap-3 px-3 py-2 rounded-lg transition-colors" style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: theme.textSecondary }}>
+                  <span className="text-sm font-medium">{store.phone}</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`https://wa.me/${store.phone.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                      onClick={() => trackEvent(alias, 'phone_click', { type: 'whatsapp' })}
+                      title="Chat on WhatsApp"
+                    >
+                      <MessageCircle size={18} className="text-green-500" />
+                    </a>
+                    <span className="text-xs opacity-60">|</span>
+                    <a
+                      href={`tel:${store.phone.replace(/[^0-9+]/g, '')}`}
+                      className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                      onClick={() => trackEvent(alias, 'phone_click', { type: 'call' })}
+                      title="Call"
+                    >
+                      <Phone size={16} />
+                    </a>
+                  </div>
+                </div>
+              )}
+              
               {/* Social Media Icons */}
               {(store.instagramHandle || store.facebookHandle) && (
                 <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg transition-colors" style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: theme.textSecondary }}>
@@ -890,12 +946,20 @@ function StoreContent({ alias }: { alias: string }) {
                   }}
                 >
                   <div className="aspect-square relative bg-zinc-100">
-                    {product.images[0] ? (
+                    {product.images && product.images.length > 0 && product.images[0] ? (
                       <img
-                        src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`}
+                        src={
+                          product.images[0].startsWith('http://') || product.images[0].startsWith('https://')
+                            ? product.images[0]
+                            : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`
+                        }
                         alt={product.name}
                         className={`w-full h-full object-contain bg-white ${(product.stock || 0) === 0 ? 'opacity-50' : ''}`}
                         loading="lazy"
+                        onError={(e) => {
+                          console.error('Image failed to load:', product.images[0]);
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f4f4f5" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23a1a1aa"%3EImage%3C/text%3E%3C/svg%3E';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -1254,7 +1318,11 @@ function StoreContent({ alias }: { alias: string }) {
                       <div className="w-20 h-20 bg-zinc-200 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product.images?.[0] && (
                           <img
-                            src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${item.product.images[0]}`}
+                            src={
+                              item.product.images[0].startsWith('http://') || item.product.images[0].startsWith('https://')
+                                ? item.product.images[0]
+                                : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${item.product.images[0]}`
+                            }
                             alt=""
                             className="w-full h-full object-cover"
                           />
