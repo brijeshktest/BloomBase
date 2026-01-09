@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,14 +31,38 @@ export default function RegisterPage() {
     },
   });
 
+  // Check if all required fields are filled
+  const isFormValid = () => {
+    return (
+      formData.name.trim() !== '' &&
+      formData.email.trim() !== '' &&
+      formData.password.length >= 6 &&
+      formData.phone.length === 10 &&
+      formData.businessName.trim() !== '' &&
+      formData.address.street.trim() !== '' &&
+      formData.address.city.trim() !== '' &&
+      formData.address.state.trim() !== '' &&
+      formData.address.pincode.length === 6 &&
+      acceptedTerms
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Validate terms acceptance
+      if (!acceptedTerms) {
+        toast.error('Please accept the Terms and Conditions to continue');
+        setLoading(false);
+        return;
+      }
+
       // Validate address before submission
       if (!formData.address.street || !formData.address.city || !formData.address.state || !formData.address.pincode) {
         toast.error('Please fill in all address fields');
+        setLoading(false);
         return;
       }
       
@@ -278,10 +303,46 @@ export default function RegisterPage() {
                 </p>
               </div>
 
+              {/* Terms and Conditions */}
+              <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-1 w-5 h-5 text-cyan-600 border-zinc-300 rounded focus:ring-cyan-500 focus:ring-2 cursor-pointer"
+                    required
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm text-zinc-900 font-medium">
+                      I accept the{' '}
+                      <span className="text-cyan-600 group-hover:text-cyan-700 underline">
+                        Terms and Conditions
+                      </span>
+                    </span>
+                    <div className="mt-2 text-xs text-zinc-700 leading-relaxed">
+                      <p className="mb-2">
+                        By registering, I agree to use SellLocal Online platform in compliance with all applicable laws and regulations. I understand that:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1 ml-2">
+                        <li>I will not engage in any unsolicited activities, including but not limited to spam messaging, unauthorized marketing, or harassment of customers.</li>
+                        <li>I will not use the platform to send unsolicited communications to customers who have not explicitly opted in to receive messages from me.</li>
+                        <li>Any unsolicited activities conducted by me will be at my own risk and responsibility.</li>
+                        <li>SellLocal Online reserves the right to suspend or terminate my account if I engage in unsolicited activities or violate platform policies.</li>
+                        <li>I am solely responsible for all content I post, products I list, and communications I send through the platform.</li>
+                      </ul>
+                      <p className="mt-2 font-semibold text-zinc-900">
+                        I acknowledge that engaging in unsolicited activities may result in account suspension, legal action, or other consequences, and I accept full responsibility for my actions.
+                      </p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full btn btn-primary py-4 text-lg disabled:opacity-50"
+                disabled={loading || !isFormValid()}
+                className="w-full btn btn-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
