@@ -12,14 +12,25 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://selllocalonline.com'),
   title: {
-    default: 'SellLocal Online - Online Platform to List Products & Connect with Buyers on WhatsApp',
+    default: 'Free Platform to List Products & Reach Neighbourhood Customers - SellLocal Online',
     template: '%s | SellLocal Online'
   },
-  description: 'SellLocal Online - Best wholesale marketplace for home-based retailers across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at cheapest rates. Bulk supply, cash on delivery (COD), best rates. Create your free online store and connect with buyers via WhatsApp.',
+  description: 'Free platform to list products for selling and reach neighbourhood customers. SellLocal Online helps home-based retailers list products online for free and connect with local buyers via WhatsApp. Reach nearby customers, boost local sales - start selling today!',
   keywords: [
-    // Primary keywords
+    // Primary keywords - Target search query
+    'platform to list products for selling and reach the neighbourhood customers for free',
+    'free platform to list products',
+    'list products online reach neighbourhood customers',
+    'platform to list products for selling',
+    'reach neighbourhood customers for free',
+    'free platform to reach local customers',
+    'list products online free',
     'online platform to list products',
     'list products online connect buyers whatsapp',
+    'free product listing platform',
+    'reach local customers online',
+    'neighbourhood customer platform',
+    'free online selling platform',
     'wholesale toy market',
     'wholesale',
     'cheapest rate',
@@ -86,8 +97,8 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: '/',
     siteName: 'SellLocal Online',
-    title: 'SellLocal Online - Wholesale Marketplace | Best Rates, Bulk Supply, Cash on Delivery',
-    description: 'Wholesale marketplace for toys, gift items, school supplies, home decor, kitchen items, beddings. Best rates, bulk supply, COD available. Perfect for home-based retailers and businesses across India.',
+    title: 'Free Platform to List Products & Reach Neighbourhood Customers - SellLocal Online',
+    description: 'Free platform to list products for selling and reach neighbourhood customers. List your products online for free and connect with local buyers via WhatsApp. Perfect for home-based retailers to reach nearby customers.',
     images: [
       {
         url: '/logo-full.svg',

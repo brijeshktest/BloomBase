@@ -154,6 +154,9 @@ mkdir -p $PROJECT_DIR
 mkdir -p $BACKEND_DIR
 mkdir -p $FRONTEND_DIR
 mkdir -p $BACKEND_DIR/uploads
+mkdir -p $BACKEND_DIR/uploads/products/images
+mkdir -p $BACKEND_DIR/uploads/sellers
+mkdir -p $BACKEND_DIR/uploads/sellers/videos
 
 # If code is in current directory, copy it
 if [ -d "backend" ] && [ -d "frontend" ]; then
@@ -189,17 +192,50 @@ FRONTEND_URL=http://$DOMAIN_NAME
 ADMIN_EMAIL=$ADMIN_EMAIL
 ADMIN_PASSWORD=$ADMIN_PASSWORD
 ADMIN_PHONE=$ADMIN_PHONE
+ADMIN_WHATSAPP=$ADMIN_PHONE
+
+# Image Processing (Sharp)
+# Sharp will use system libraries automatically
 EOF
 
 ################################################################################
-# Step 8: Install backend dependencies
+# Step 8: Install system dependencies for image processing (Sharp)
+################################################################################
+print_status "Installing system dependencies for Sharp (image processing)..."
+apt-get install -y \
+    libvips-dev \
+    libvips-tools \
+    build-essential \
+    python3 \
+    || {
+    print_warning "Could not install all Sharp dependencies, continuing anyway..."
+    print_warning "Sharp may need to be rebuilt: cd $BACKEND_DIR && npm rebuild sharp"
+}
+
+################################################################################
+# Step 9: Install backend dependencies
 ################################################################################
 print_status "Installing backend dependencies..."
 cd $BACKEND_DIR
-npm install --production
+
+# Install all dependencies
+npm install --production || {
+    print_error "Failed to install backend dependencies"
+    print_warning "Trying with --legacy-peer-deps..."
+    npm install --production --legacy-peer-deps || {
+        print_error "Backend dependency installation failed"
+        exit 1
+    }
+}
+
+# Rebuild sharp if needed (for native bindings)
+print_status "Verifying Sharp installation..."
+npm rebuild sharp 2>/dev/null || {
+    print_warning "Sharp rebuild failed, but continuing..."
+}
 
 ################################################################################
-# Step 9: Create frontend .env file
+# Step 10: Create frontend .env file
 ################################################################################
 print_status "Creating frontend environment file..."
 cat > $FRONTEND_DIR/.env.production << EOF
@@ -208,7 +244,7 @@ NODE_ENV=production
 EOF
 
 ################################################################################
-# Step 10: Install frontend dependencies and build
+# Step 11: Install frontend dependencies and build
 ################################################################################
 print_status "Installing frontend dependencies..."
 cd $FRONTEND_DIR
@@ -218,107 +254,70 @@ print_status "Building frontend..."
 npm run build
 
 ################################################################################
-# Step 11: Update seed.js with provided credentials
+# Step 11: Update migration script with provided credentials
 ################################################################################
-print_status "Updating seed script with admin credentials..."
-# Create a temporary seed script with environment variables
-cat > $BACKEND_DIR/seed.js.tmp << 'SEEDEOF'
-const mongoose = require('mongoose');
-const User = require('./models/User');
-require('dotenv').config();
-
-const seedAdmin = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/selllocalonline');
-    console.log('Connected to MongoDB');
-
-    const desiredEmail = process.env.ADMIN_EMAIL || 'admin@selllocalonline.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Bloxham1!';
-    const adminPhone = process.env.ADMIN_PHONE || '+917838055426';
-
-    const existingAdmin =
-      (await User.findOne({ email: desiredEmail })) ||
-      (await User.findOne({ email: 'admin@selllocalonline' })) ||
-      (await User.findOne({ role: 'admin' }));
+print_status "Updating migration script with admin credentials..."
+# Update the migration script to use environment variables
+if [ -f "$BACKEND_DIR/migrations/001-initial-setup.js" ]; then
+    # Backup original
+    cp $BACKEND_DIR/migrations/001-initial-setup.js $BACKEND_DIR/migrations/001-initial-setup.js.bak
     
-    if (existingAdmin) {
-      if (existingAdmin.email !== desiredEmail) {
-        existingAdmin.email = desiredEmail;
-      }
-      existingAdmin.password = adminPassword;
-      existingAdmin.name = existingAdmin.name || 'SellLocal Online Admin';
-      existingAdmin.role = 'admin';
-      existingAdmin.phone = adminPhone;
-      existingAdmin.isApproved = true;
-      existingAdmin.isActive = true;
-      existingAdmin.phoneVerified = true;
-
-      await existingAdmin.save();
-
-      console.log('✅ Admin user updated successfully');
-      console.log(`   Email: ${desiredEmail}`);
-      console.log(`   Password: ${adminPassword}`);
-    } else {
-      const admin = await User.create({
-        email: desiredEmail,
-        password: adminPassword,
-        name: 'SellLocal Online Admin',
-        role: 'admin',
-        phone: adminPhone,
-        isApproved: true,
-        isActive: true,
-        phoneVerified: true
-      });
-
-      console.log('✅ Admin user created successfully');
-      console.log(`   Email: ${desiredEmail}`);
-      console.log(`   Password: ${adminPassword}`);
-    }
-
-    await mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
-    process.exit(0);
-  } catch (error) {
-    console.error('Error seeding admin:', error);
-    process.exit(1);
-  }
-};
-
-seedAdmin();
-SEEDEOF
-
-mv $BACKEND_DIR/seed.js.tmp $BACKEND_DIR/seed.js
+    # Update admin email and password in migration script
+    sed -i "s|const desiredEmail = 'admin@selllocalonline.com';|const desiredEmail = process.env.ADMIN_EMAIL || 'admin@selllocalonline.com';|g" $BACKEND_DIR/migrations/001-initial-setup.js
+    sed -i "s|const plainPassword = 'Bloxham1!';|const plainPassword = process.env.ADMIN_PASSWORD || 'Bloxham1!';|g" $BACKEND_DIR/migrations/001-initial-setup.js
+    
+    # Add admin phone from environment
+    if ! grep -q "ADMIN_PHONE" $BACKEND_DIR/migrations/001-initial-setup.js; then
+        sed -i "/const plainPassword/a\\    const adminPhone = process.env.ADMIN_PHONE || '+917838055426';" $BACKEND_DIR/migrations/001-initial-setup.js
+        # Update phone assignment in the script
+        sed -i "s|existingAdmin.phone = existingAdmin.phone |||existingAdmin.phone = adminPhone;|g" $BACKEND_DIR/migrations/001-initial-setup.js 2>/dev/null || true
+        sed -i "s|phone: existingAdmin.phone |||phone: adminPhone,|g" $BACKEND_DIR/migrations/001-initial-setup.js 2>/dev/null || true
+    fi
+    
+    print_status "Migration script updated with environment variables"
+else
+    print_warning "Migration script not found, will use seed.js instead"
+fi
 
 ################################################################################
-# Step 12: Seed database with admin user
+# Step 12: Run database migrations
 ################################################################################
-print_status "Seeding database with admin user..."
+print_status "Running database migrations..."
 cd $BACKEND_DIR
-NODE_ENV=production node seed.js || {
-    print_error "Failed to seed database"
-    exit 1
-}
+if [ -f "migrations/001-initial-setup.js" ]; then
+    NODE_ENV=production ADMIN_EMAIL=$ADMIN_EMAIL ADMIN_PASSWORD=$ADMIN_PASSWORD ADMIN_PHONE=$ADMIN_PHONE node migrations/001-initial-setup.js || {
+        print_warning "Migration failed or already run, trying seed.js..."
+        NODE_ENV=production node seed.js || {
+            print_warning "Seed script also failed, admin may already exist"
+        }
+    }
+else
+    print_warning "Migration script not found, using seed.js..."
+    NODE_ENV=production node seed.js || {
+        print_warning "Seed script failed, admin may already exist"
+    }
+fi
 
 ################################################################################
-# Step 13: Configure PM2 for backend
+# Step 14: Configure PM2 for backend
 ################################################################################
 print_status "Configuring PM2 for backend..."
 cd $BACKEND_DIR
 pm2 delete selllocalonline-backend 2>/dev/null || true
-pm2 start server.js --name selllocalonline-backend --env production
+pm2 start server.js --name selllocalonline-backend --env production --max-memory-restart 500M
 pm2 save
 
 ################################################################################
-# Step 14: Configure PM2 for frontend
+# Step 15: Configure PM2 for frontend
 ################################################################################
 print_status "Configuring PM2 for frontend..."
 cd $FRONTEND_DIR
 pm2 delete selllocalonline-frontend 2>/dev/null || true
-pm2 start npm --name selllocalonline-frontend -- start
+pm2 start npm --name selllocalonline-frontend -- start --max-memory-restart 1G
 pm2 save
 
 ################################################################################
-# Step 15: Configure Nginx reverse proxy
+# Step 16: Configure Nginx reverse proxy
 ################################################################################
 print_status "Configuring Nginx..."
 cat > /etc/nginx/sites-available/selllocalonline << EOF
@@ -361,6 +360,12 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
+
+    # Increase timeouts for large file uploads
+    proxy_connect_timeout 300;
+    proxy_send_timeout 300;
+    proxy_read_timeout 300;
+    send_timeout 300;
 }
 EOF
 
@@ -375,7 +380,7 @@ nginx -t && systemctl reload nginx || {
 }
 
 ################################################################################
-# Step 16: Configure firewall (UFW)
+# Step 17: Configure firewall (UFW)
 ################################################################################
 print_status "Configuring firewall..."
 if command -v ufw &> /dev/null; then
@@ -386,12 +391,14 @@ if command -v ufw &> /dev/null; then
 fi
 
 ################################################################################
-# Step 17: Set proper permissions
+# Step 18: Set proper permissions
 ################################################################################
 print_status "Setting file permissions..."
 chown -R $SUDO_USER:$SUDO_USER $PROJECT_DIR
 chmod -R 755 $PROJECT_DIR
 chmod -R 755 $BACKEND_DIR/uploads
+chmod -R 755 $BACKEND_DIR/uploads/products
+chmod -R 755 $BACKEND_DIR/uploads/sellers
 
 ################################################################################
 # Deployment Complete
@@ -416,3 +423,11 @@ echo -e "  View nginx logs: tail -f /var/log/nginx/error.log"
 echo -e "  View MongoDB logs: tail -f /var/log/mongodb/mongod.log"
 
 echo -e "\n${GREEN}Deployment successful! 🚀${NC}\n"
+
+echo -e "${YELLOW}Next Steps:${NC}"
+echo -e "  1. Access your application at: http://$DOMAIN_NAME"
+echo -e "  2. Login with admin credentials"
+echo -e "  3. Set up SSL/HTTPS: sudo certbot --nginx -d $DOMAIN_NAME"
+echo -e "  4. Change admin password after first login"
+echo -e "  5. Configure MongoDB backups"
+echo -e "\n${GREEN}All features are now deployed and ready to use!${NC}\n"

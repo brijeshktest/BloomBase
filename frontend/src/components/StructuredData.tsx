@@ -7,7 +7,7 @@ export default function StructuredData() {
     name: 'SellLocal Online',
     url: baseUrl,
     logo: `${baseUrl}/logo-full.svg`,
-    description: 'SellLocal Online is an online platform that empowers home-based sellers to list their products and connect with buyers via WhatsApp. Create your free online store in minutes.',
+    description: 'SellLocal Online is a free platform to list products for selling and reach the neighbourhood customers. List your products online for free, connect with local buyers via WhatsApp, and reach nearby customers effortlessly.',
     sameAs: [],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -29,7 +29,7 @@ export default function StructuredData() {
       availability: 'https://schema.org/InStock',
       description: 'Free 1-month trial',
     },
-    description: 'Online platform to list products and connect with buyers on WhatsApp. Create your microsite, add products, and start selling with WhatsApp checkout.',
+    description: 'Free platform to list products for selling and reach the neighbourhood customers. List products online for free, connect with local buyers via WhatsApp, and reach nearby customers.',
     featureList: [
       'Create personalized microsite',
       'List products with images and videos',
@@ -114,10 +114,18 @@ export default function StructuredData() {
     mainEntity: [
       {
         '@type': 'Question',
+        name: 'Is there a free platform to list products for selling and reach the neighbourhood customers?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes! SellLocal Online is a completely free platform to list products for selling and reach the neighbourhood customers. You can list your products online for free, connect with local buyers via WhatsApp, and reach nearby customers without any upfront costs. We offer a 1-month free trial with no credit card required.',
+        },
+      },
+      {
+        '@type': 'Question',
         name: 'How do I list my products online with SellLocal Online?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'SellLocal Online is an online platform that allows you to create a free microsite, list your products with images and descriptions, and connect with buyers directly via WhatsApp. Simply register, add your products, and share your store link with customers.',
+          text: 'SellLocal Online is a free platform to list products for selling and reach the neighbourhood customers. Simply register for free, create your microsite, add your products with images and descriptions, and start reaching local customers. Your store automatically appears when neighbourhood customers search for products in your area.',
         },
       },
       {
@@ -174,6 +182,22 @@ export default function StructuredData() {
         acceptedAnswer: {
           '@type': 'Answer',
           text: 'SellLocal Online stores are SEO optimized. When customers search for terms like "sadar bazar delhi wholesale toy market", "wholesale beddings cheapest rate", "bulk supply kitchen items", or similar keywords, your store can appear in search results based on your location and product categories.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How can I reach neighbourhood customers for free?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'SellLocal Online is a free platform to list products for selling and reach the neighbourhood customers. When you add your location (city, area) to your store, our platform automatically optimizes your store for local searches. When neighbourhood customers search for products in your area, your store appears in search results. This helps you reach nearby customers without any advertising costs.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What is the best free platform to list products and reach local customers?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'SellLocal Online is the best free platform to list products for selling and reach the neighbourhood customers. We offer free product listing, automatic local SEO optimization, WhatsApp integration, and a mobile-friendly microsite - all for free. Start with a 1-month free trial, no credit card required.',
         },
       },
     ],

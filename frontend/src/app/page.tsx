@@ -26,14 +26,14 @@ export default function Home() {
                 />
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-tight animate-fade-in">
-                Platform for
+                Free Platform to List Products & 
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-teal-600">
-                  Home-Based Retailers
+                  Reach Neighbourhood Customers
                 </span>
               </h1>
               
               <p className="mt-6 text-lg sm:text-xl text-zinc-700 max-w-2xl mx-auto animate-fade-in stagger-1">
-                Our platform enables small sellers to take their business online, appear in local searches, and reach nearby societies effortlessly. Attract new customers, boost local sales, and grow your business using SEO-powered discovery and digital promotion. Cash on Delivery, WhatsApp checkout - start selling today!
+                <strong>SellLocal Online</strong> is the <strong>free platform to list products for selling and reach the neighbourhood customers</strong>. List your products online for free, connect with local buyers via WhatsApp, and reach nearby customers effortlessly. No credit card required - start selling today!
               </p>
               
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in stagger-2">
@@ -629,18 +629,40 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SEO Content Section */}
+        {/* SEO Content Section - Target Keywords */}
         <section className="py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="prose prose-lg max-w-none">
               <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-6">
-                The Best Online Platform to List Your Products and Connect with Buyers on WhatsApp
+                Free Platform to List Products for Selling and Reach the Neighbourhood Customers
               </h2>
               <p className="text-lg text-zinc-700 mb-6">
-                Looking for an online platform to list your products and connect with buyers on WhatsApp? SellLocal Online is the perfect solution for home-based sellers, small business owners, and entrepreneurs who want to take their business online quickly and easily.
+                Looking for a <strong>free platform to list products for selling and reach the neighbourhood customers</strong>? <strong>SellLocal Online</strong> is the perfect solution! Our <strong>free platform to list products</strong> helps you <strong>reach neighbourhood customers</strong> without any upfront costs. List your products online for free, connect with local buyers via WhatsApp, and start reaching nearby customers today.
+              </p>
+              
+              <div className="bg-gradient-to-r from-orange-50 to-teal-50 border-l-4 border-orange-500 p-6 rounded-r-lg mb-8">
+                <h3 className="text-2xl font-bold text-zinc-900 mb-4">
+                  Why Choose SellLocal Online - The Free Platform to Reach Neighbourhood Customers?
+                </h3>
+                <p className="text-zinc-700 mb-4">
+                  <strong>SellLocal Online</strong> is the only <strong>free platform to list products for selling and reach the neighbourhood customers</strong> that combines product listing, local SEO, and WhatsApp integration - all for free! Here's why thousands of home-based sellers choose us:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-zinc-700">
+                  <li><strong>100% Free to Start:</strong> No credit card required. Get a 1-month free trial to list products and reach neighbourhood customers.</li>
+                  <li><strong>Reach Local Customers:</strong> Our platform helps you reach neighbourhood customers through local SEO and location-based discovery.</li>
+                  <li><strong>Easy Product Listing:</strong> List products online in minutes - upload images, set prices, and organize your inventory effortlessly.</li>
+                  <li><strong>Connect with Buyers:</strong> Customers can find your products and contact you directly via WhatsApp - no payment gateway needed.</li>
+                </ul>
+              </div>
+              
+              <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
+                How to Use Our Free Platform to List Products and Reach Neighbourhood Customers
+              </h3>
+              <p className="text-lg text-zinc-700 mb-6">
+                Using our <strong>free platform to list products for selling and reach the neighbourhood customers</strong> is simple:
               </p>
               <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
-                Why Choose SellLocal Online as Your Online Product Listing Platform?
+                The Best Free Platform to List Products and Reach Neighbourhood Customers
               </h3>
               <ul className="list-disc list-inside space-y-3 text-zinc-700 mb-6">
                 <li><strong>Easy Product Listing:</strong> List your products online in minutes with our simple interface. Upload product images, add descriptions, set prices, and organize your inventory effortlessly.</li>
@@ -668,18 +690,36 @@ export default function Home() {
                 How to Start Listing Products and Connecting with Buyers
               </h3>
               <ol className="list-decimal list-inside space-y-3 text-zinc-700 mb-6">
-                <li><strong>Register for Free:</strong> Sign up with your business details and get started with a 1-month free trial.</li>
-                <li><strong>Create Your Store:</strong> Set up your microsite by choosing a theme and adding your business information.</li>
-                <li><strong>List Your Products:</strong> Add products with images, descriptions, prices, and inventory details. You can also bulk upload products using Excel.</li>
-                <li><strong>Connect WhatsApp:</strong> Your WhatsApp number is automatically integrated. Customers can checkout via WhatsApp directly from your store.</li>
-                <li><strong>Share and Sell:</strong> Share your store link with customers. Start receiving orders and growing your business!</li>
+                <li><strong>Register for Free:</strong> Sign up on our <strong>free platform to list products</strong> with your business details. No credit card required - get started with a 1-month free trial.</li>
+                <li><strong>Create Your Store:</strong> Set up your microsite by choosing a theme and adding your business information and location. This helps you <strong>reach neighbourhood customers</strong> in your area.</li>
+                <li><strong>List Your Products:</strong> Use our <strong>free platform to list products for selling</strong> - add products with images, descriptions, prices, and inventory details. You can also bulk upload products using Excel.</li>
+                <li><strong>Reach Neighbourhood Customers:</strong> Our platform automatically optimizes your store for local searches. When customers in your neighbourhood search for products, your store appears in results.</li>
+                <li><strong>Connect with Buyers:</strong> Your WhatsApp number is automatically integrated. Customers can find your products and contact you directly via WhatsApp - no payment gateway needed.</li>
+                <li><strong>Start Selling:</strong> Share your store link with customers. Start receiving orders and growing your business by reaching neighbourhood customers!</li>
               </ol>
               <div className="bg-orange-50 border-l-4 border-orange-500 p-6 rounded-r-lg mt-8">
                 <p className="text-zinc-800 font-semibold mb-2">Perfect For:</p>
-                <p className="text-zinc-700">
-                  Home-based sellers, handmade craft businesses, local food vendors, small manufacturers, online resellers, and anyone who wants to list products online and connect with buyers through WhatsApp. If you're searching for an online platform to showcase your products and communicate with customers via WhatsApp, SellLocal Online is your answer.
+                <p className="text-zinc-700 mb-4">
+                  Home-based sellers, handmade craft businesses, local food vendors, small manufacturers, online resellers, and anyone looking for a <strong>free platform to list products for selling and reach the neighbourhood customers</strong>. If you're searching for a <strong>free platform to list products</strong> and <strong>reach neighbourhood customers</strong>, SellLocal Online is your answer.
+                </p>
+                <p className="text-zinc-700 font-semibold">
+                  🎯 Start using our free platform today and begin reaching neighbourhood customers in your area!
                 </p>
               </div>
+              
+              <h3 className="text-2xl font-bold text-zinc-900 mt-8 mb-4">
+                Reach Neighbourhood Customers for Free - No Hidden Costs
+              </h3>
+              <p className="text-lg text-zinc-700 mb-4">
+                Our <strong>free platform to list products for selling and reach the neighbourhood customers</strong> is designed to help you grow your local business without breaking the bank. Here's what makes us the best choice:
+              </p>
+              <ul className="list-disc list-inside space-y-3 text-zinc-700 mb-6">
+                <li><strong>Completely Free to Start:</strong> No setup fees, no monthly charges for the first month. Start listing products and reaching neighbourhood customers immediately.</li>
+                <li><strong>Local Customer Discovery:</strong> Our platform helps you reach neighbourhood customers through automatic local SEO. When customers search for products in your area, your store appears.</li>
+                <li><strong>WhatsApp Integration:</strong> Connect directly with neighbourhood customers via WhatsApp. No need for expensive payment gateways or complex checkout processes.</li>
+                <li><strong>Mobile-Friendly:</strong> Your store works perfectly on mobile phones, making it easy for neighbourhood customers to browse and order from you.</li>
+                <li><strong>PWA Support:</strong> Customers can add your store as an app on their phone, making it easier for them to return and order again.</li>
+              </ul>
             </div>
           </div>
         </section>

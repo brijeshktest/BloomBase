@@ -1,6 +1,7 @@
 'use client';
 
 import { Toaster } from 'react-hot-toast';
+import WhatsAppChatButton from './WhatsAppChatButton';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -29,6 +30,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           },
         }}
       />
+      <WhatsAppChatButton />
     </>
   );
 }
