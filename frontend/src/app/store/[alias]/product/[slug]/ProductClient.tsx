@@ -360,10 +360,10 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
           <div className="flex items-center justify-between">
             <Link
               href={`/store/${alias}`}
-              className="flex items-center gap-2 hover:opacity-80"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
               <ArrowLeft size={20} />
-              <span className="hidden sm:inline">{store.businessName}</span>
+              <span className="font-medium">{store.businessName}</span>
             </Link>
 
             <div className="flex items-center gap-3">
@@ -470,6 +470,19 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
 
           {/* Details */}
           <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8 h-fit">
+            {/* Back to Store Button */}
+            <Link
+              href={`/store/${alias}`}
+              className="inline-flex items-center gap-2 px-4 py-2 mb-4 rounded-lg transition-colors hover:opacity-80"
+              style={{ 
+                backgroundColor: 'rgba(0,0,0,0.05)', 
+                color: theme.textPrimary 
+              }}
+            >
+              <ArrowLeft size={18} />
+              <span className="text-sm font-medium">Back to Store</span>
+            </Link>
+
             {product.hasPromotion && (
               <span
                 className="inline-block px-3 py-1 text-sm font-bold text-white rounded-full mb-4"
