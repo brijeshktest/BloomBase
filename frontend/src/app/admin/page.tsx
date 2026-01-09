@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { adminApi } from '@/lib/api';
+import { adminApi, issueApi } from '@/lib/api';
 import { User } from '@/types';
 import toast from 'react-hot-toast';
 import {
@@ -24,7 +24,9 @@ import {
   ShieldCheck,
   Send,
   AlertTriangle,
-  X
+  X,
+  Bug,
+  Image as ImageIcon
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -54,6 +56,12 @@ export default function AdminPage() {
   const [extensionMonths, setExtensionMonths] = useState(1);
   const [broadcastsEnabled, setBroadcastsEnabled] = useState(true);
   const [loadingBroadcastSetting, setLoadingBroadcastSetting] = useState(false);
+  const [activeTab, setActiveTab] = useState<'sellers' | 'issues'>('sellers');
+  const [issues, setIssues] = useState<any[]>([]);
+  const [issueStats, setIssueStats] = useState({ total: 0, pending: 0, byStatus: {} as Record<string, number> });
+  const [issueStatusFilter, setIssueStatusFilter] = useState('');
+  const [selectedIssue, setSelectedIssue] = useState<any | null>(null);
+  const [showIssueModal, setShowIssueModal] = useState(false);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -66,19 +74,46 @@ export default function AdminPage() {
 
   const fetchData = async () => {
     try {
-      const [statsRes, sellersRes, broadcastsRes] = await Promise.all([
+      const [statsRes, sellersRes, broadcastsRes, issuesRes, issueStatsRes] = await Promise.all([
         adminApi.getStats(),
         adminApi.getSellers({ limit: '100' }),
         adminApi.getBroadcastsEnabled().catch(() => ({ data: { enabled: true } })),
+        issueApi.getAllIssues({ status: issueStatusFilter || undefined }).catch(() => ({ data: { issues: [] } })),
+        issueApi.getIssueStats().catch(() => ({ data: { total: 0, pending: 0, byStatus: {} } })),
       ]);
       setStats(statsRes.data);
       setSellers(sellersRes.data.sellers);
       setBroadcastsEnabled(broadcastsRes.data.enabled);
+      setIssues(issuesRes.data.issues || []);
+      setIssueStats(issueStatsRes.data);
     } catch (error) {
       console.error(error);
       toast.error('Failed to load data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchIssues = async () => {
+    try {
+      const response = await issueApi.getAllIssues({ status: issueStatusFilter || undefined });
+      setIssues(response.data.issues || []);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to load issues');
+    }
+  };
+
+  const updateIssueStatus = async (issueId: string, status: string, adminNotes?: string) => {
+    try {
+      await issueApi.updateIssueStatus(issueId, { status, adminNotes });
+      toast.success('Issue status updated');
+      fetchIssues();
+      fetchData(); // Refresh stats
+      setShowIssueModal(false);
+      setSelectedIssue(null);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update issue status');
     }
   };
 
@@ -298,7 +333,151 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Sellers */}
+        {/* Tabs */}
+        <div className="bg-white rounded-2xl shadow-sm border border-zinc-100 p-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('sellers')}
+              className={`flex-1 px-4 py-2 rounded-xl font-semibold transition-colors ${
+                activeTab === 'sellers'
+                  ? 'bg-cyan-600 text-white'
+                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Users size={18} />
+                Sellers
+              </div>
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('issues');
+                fetchIssues();
+              }}
+              className={`flex-1 px-4 py-2 rounded-xl font-semibold transition-colors relative ${
+                activeTab === 'issues'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Bug size={18} />
+                Issue Reports
+                {issueStats.pending > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {issueStats.pending}
+                  </span>
+                )}
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Issue Reports Tab */}
+        {activeTab === 'issues' && (
+          <div className="bg-white rounded-2xl shadow-sm border border-zinc-100">
+            <div className="p-6 border-b border-zinc-100">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Bug size={20} className="text-red-600" />
+                  Issue Reports
+                </h2>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-zinc-600">Total:</span>
+                    <span className="font-bold text-zinc-900">{issueStats.total}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-600">Pending:</span>
+                    <span className="font-bold text-amber-600">{issueStats.pending}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Issue Filters */}
+            <div className="p-4 border-b border-zinc-100">
+              <select
+                value={issueStatusFilter}
+                onChange={(e) => {
+                  setIssueStatusFilter(e.target.value);
+                  fetchIssues();
+                }}
+                className="form-input max-w-xs"
+              >
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+
+            {/* Issues List */}
+            <div className="divide-y divide-zinc-100">
+              {issues.length === 0 ? (
+                <div className="p-12 text-center text-zinc-500">No issues reported</div>
+              ) : (
+                issues.map((issue) => (
+                  <div
+                    key={issue._id || issue.id}
+                    className="p-6 hover:bg-zinc-50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setSelectedIssue(issue);
+                      setShowIssueModal(true);
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold text-zinc-900">{issue.title}</h3>
+                          <span className={`badge ${
+                            issue.status === 'pending' ? 'badge-warning' :
+                            issue.status === 'in_progress' ? 'badge-info' :
+                            issue.status === 'resolved' ? 'badge-success' :
+                            'badge-danger'
+                          }`}>
+                            {issue.status.replace('_', ' ')}
+                          </span>
+                          <span className="badge badge-info">{issue.issueType}</span>
+                        </div>
+                        <p className="text-sm text-zinc-600 mb-2 line-clamp-2">{issue.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-zinc-500">
+                          <span>By: {issue.reporterName} ({issue.reporterRole})</span>
+                          <span>•</span>
+                          <span>{new Date(issue.createdAt).toLocaleDateString()}</span>
+                          <span>•</span>
+                          <a
+                            href={issue.pageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-cyan-600 hover:text-cyan-700 flex items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink size={12} />
+                            View Page
+                          </a>
+                        </div>
+                      </div>
+                      {issue.screenshot && (
+                        <div className="w-24 h-24 rounded-lg border border-zinc-200 overflow-hidden bg-zinc-100 flex-shrink-0">
+                          <img
+                            src={issue.screenshot}
+                            alt="Screenshot"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Sellers Tab */}
+        {activeTab === 'sellers' && (
         <div className="bg-white rounded-2xl shadow-sm border border-zinc-100">
           <div className="p-6 border-b border-zinc-100">
             <h2 className="text-lg font-semibold flex items-center gap-2">

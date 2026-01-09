@@ -184,6 +184,33 @@ export const adminApi = {
     api.get('/admin/contact-info'),
 };
 
+// Issue Report APIs
+export const issueApi = {
+  reportIssue: (data: {
+    title: string;
+    description: string;
+    pageUrl: string;
+    screenshot: string;
+    browserInfo?: {
+      userAgent?: string;
+      platform?: string;
+      screenResolution?: string;
+      viewportSize?: string;
+    };
+    issueType?: 'bug' | 'ui_issue' | 'feature_request' | 'other';
+  }) => api.post('/issues/report', data),
+  
+  getMyIssues: () => api.get('/issues/my-issues'),
+  
+  getAllIssues: (params?: { status?: string; page?: number; limit?: number }) =>
+    api.get('/issues', { params }),
+  
+  getIssueStats: () => api.get('/issues/stats'),
+  
+  updateIssueStatus: (id: string, data: { status: string; adminNotes?: string }) =>
+    api.patch(`/issues/${id}/status`, data),
+};
+
 // Upload APIs
 export const uploadApi = {
   uploadLogo: (file: File) => {

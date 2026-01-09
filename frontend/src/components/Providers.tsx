@@ -2,6 +2,7 @@
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppChatButton from './WhatsAppChatButton';
+import ReportIssueButton from './ReportIssueButton';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -31,6 +32,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         }}
       />
       <WhatsAppChatButton />
+      <ReportIssueButton />
     </>
   );
 }
