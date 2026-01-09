@@ -67,7 +67,7 @@ export default function StructuredData() {
     '@type': 'LocalBusiness',
     '@id': `${baseUrl}#business`,
     name: 'SellLocal Online - Wholesale Marketplace',
-    description: 'Wholesale marketplace platform for sellers in Sadar Bazar Delhi and across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at best rates. Bulk supply, cash on delivery available.',
+    description: 'Wholesale marketplace platform for home-based retailers across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at best rates. Bulk supply, cash on delivery available.',
     url: baseUrl,
     address: {
       '@type': 'PostalAddress',

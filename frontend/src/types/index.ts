@@ -103,6 +103,7 @@ export interface Cart {
 }
 
 export interface Store {
+  alias?: string;
   businessName: string;
   businessDescription?: string;
   theme: Theme;

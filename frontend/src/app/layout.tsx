@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: 'SellLocal Online - Online Platform to List Products & Connect with Buyers on WhatsApp',
     template: '%s | SellLocal Online'
   },
-  description: 'SellLocal Online - Best wholesale marketplace for sellers in Sadar Bazar Delhi and across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at cheapest rates. Bulk supply, cash on delivery (COD), best rates. Create your free online store and connect with buyers via WhatsApp.',
+  description: 'SellLocal Online - Best wholesale marketplace for home-based retailers across India. List toys, gift items, school supplies, home decor, kitchen items, beddings at cheapest rates. Bulk supply, cash on delivery (COD), best rates. Create your free online store and connect with buyers via WhatsApp.',
   keywords: [
     // Primary keywords
     'online platform to list products',
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     url: '/',
     siteName: 'SellLocal Online',
     title: 'SellLocal Online - Wholesale Marketplace | Best Rates, Bulk Supply, Cash on Delivery',
-    description: 'Wholesale marketplace for toys, gift items, school supplies, home decor, kitchen items, beddings. Best rates, bulk supply, COD available. Perfect for Sadar Bazar Delhi sellers and businesses across India.',
+    description: 'Wholesale marketplace for toys, gift items, school supplies, home decor, kitchen items, beddings. Best rates, bulk supply, COD available. Perfect for home-based retailers and businesses across India.',
     images: [
       {
         url: '/logo-full.svg',

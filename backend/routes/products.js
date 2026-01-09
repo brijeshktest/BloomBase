@@ -208,6 +208,7 @@ router.get('/store/:alias', async (req, res) => {
       },
       categories,
       store: {
+        alias: seller.alias,
         businessName: seller.businessName,
         businessDescription: seller.businessDescription,
         theme: seller.theme,

@@ -13,6 +13,7 @@ import { isVisitorRegistered } from '@/utils/cookies';
 import { getPriceForQuantity, getNextTierInfo } from '@/utils/pricing';
 import VisitorRegistrationModal from '@/components/VisitorRegistrationModal';
 import SharePlatformButton from '@/components/SharePlatformButton';
+import StoreStructuredData from '@/components/StoreStructuredData';
 import toast from 'react-hot-toast';
 import {
   Search,
@@ -483,6 +484,9 @@ function StoreContent({ alias }: { alias: string }) {
 
   return (
     <div className="min-h-screen" style={{ background: theme.background }}>
+      {/* Structured Data for SEO */}
+      {store && <StoreStructuredData store={store} categories={categories} />}
+      
       {/* Visitor Registration Modal */}
       {showVisitorModal && (
         <VisitorRegistrationModal

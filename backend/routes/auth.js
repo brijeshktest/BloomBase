@@ -275,6 +275,52 @@ router.put('/profile', protect, async (req, res) => {
       updates.seoKeywords = updates.seoKeywords.split(',').map(k => k.trim()).filter(k => k);
     }
 
+    // Auto-generate hyperlocal SEO if location changes and seller hasn't set custom SEO
+    if (req.user.role === 'seller' && (updates.address || updates.seoLocalArea)) {
+      // Only auto-generate if seller hasn't manually set SEO fields
+      const currentUser = await User.findById(req.user._id);
+      const hasCustomSEO = currentUser.seoMetaTitle || currentUser.seoMetaDescription || 
+                           (currentUser.seoKeywords && currentUser.seoKeywords.length > 0);
+      
+      if (!hasCustomSEO) {
+        // Get seller's product categories for better SEO
+        const categories = await Product.distinct('category', { 
+          seller: req.user._id, 
+          isActive: true 
+        });
+        
+        // Merge address updates with current address
+        const mergedAddress = {
+          ...(currentUser.address || {}),
+          ...(updates.address || {})
+        };
+        
+        const sellerData = {
+          ...currentUser.toObject(),
+          address: mergedAddress,
+          seoLocalArea: updates.seoLocalArea || currentUser.seoLocalArea
+        };
+        
+        // Auto-generate hyperlocal SEO
+        const autoSEO = autoGenerateHyperlocalSEO(sellerData, categories);
+        
+        // Only update if not explicitly provided
+        if (!updates.seoMetaTitle) updates.seoMetaTitle = autoSEO.seoMetaTitle;
+        if (!updates.seoMetaDescription) updates.seoMetaDescription = autoSEO.seoMetaDescription;
+        if (!updates.seoKeywords || updates.seoKeywords.length === 0) {
+          updates.seoKeywords = autoSEO.seoKeywords;
+        }
+        if (!updates.seoLocalArea && autoSEO.seoLocalArea) {
+          updates.seoLocalArea = autoSEO.seoLocalArea;
+        }
+        
+        console.log('Auto-generated hyperlocal SEO:', {
+          title: updates.seoMetaTitle,
+          keywordsCount: updates.seoKeywords?.length || 0
+        });
+      }
+    }
+
     // If seller changes phone, require re-verification
     if (req.user.role === 'seller' && updates.phone && updates.phone !== req.user.phone) {
       try {

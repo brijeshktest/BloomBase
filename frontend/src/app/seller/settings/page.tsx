@@ -533,6 +533,10 @@ export default function SettingsPage() {
                   These settings help your store appear in search results when customers search for products in your area. 
                   For example, if someone searches for "toys in Delhi" or "gift items near [your pincode]", your store can appear in the results.
                 </p>
+                <p className="text-purple-800 mb-2">
+                  <strong>✨ Auto-Generation:</strong> When you set your address (city, state) or local area, we automatically generate location-based SEO keywords 
+                  like "home bakers near me", "handmade gifts in [City]", etc. You can customize these or leave them as-is for optimal local search visibility.
+                </p>
                 <p className="text-purple-800">
                   <strong>Pro Tip:</strong> Always include your location (city, pincode, or local area name) and main product categories in your keywords. 
                   This helps local customers find you easily!
