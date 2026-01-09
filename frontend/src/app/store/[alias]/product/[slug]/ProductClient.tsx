@@ -33,6 +33,63 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [store, setStore] = useState<StoreType | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isVideoSelected, setIsVideoSelected] = useState(false);
+  
+  // Helper function to get YouTube/Vimeo embed URL
+  const getVideoEmbedUrl = (url: string): string | null => {
+    // YouTube Shorts
+    const youtubeShortsRegex = /(?:youtube\.com\/shorts\/)([^"&?\/\s]{11})/;
+    const youtubeShortsMatch = url.match(youtubeShortsRegex);
+    if (youtubeShortsMatch) {
+      return `https://www.youtube.com/embed/${youtubeShortsMatch[1]}`;
+    }
+    
+    // YouTube regular videos
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const youtubeMatch = url.match(youtubeRegex);
+    if (youtubeMatch) {
+      return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    }
+    
+    // Vimeo
+    const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/;
+    const vimeoMatch = url.match(vimeoRegex);
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    }
+    
+    return null;
+  };
+  
+  // Helper function to get YouTube video ID for thumbnail
+  const getYouTubeVideoId = (url: string): string | null => {
+    // YouTube Shorts
+    const youtubeShortsRegex = /(?:youtube\.com\/shorts\/)([^"&?\/\s]{11})/;
+    const youtubeShortsMatch = url.match(youtubeShortsRegex);
+    if (youtubeShortsMatch) {
+      return youtubeShortsMatch[1];
+    }
+    
+    // YouTube regular videos
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const youtubeMatch = url.match(youtubeRegex);
+    if (youtubeMatch) {
+      return youtubeMatch[1];
+    }
+    
+    return null;
+  };
+  
+  // Get all media items (images + video if exists)
+  const getMediaItems = () => {
+    const items = [...product.images];
+    if (product.video) {
+      items.push('__VIDEO__'); // Placeholder for video
+    }
+    return items;
+  };
+  
+  const mediaItems = product ? getMediaItems() : [];
   const [quantity, setQuantity] = useState(1);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -407,10 +464,55 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
           {/* Images */}
           <div>
             <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg mb-4">
-              {product.images[selectedImage] ? (
+              {isVideoSelected && product.video ? (
+                // Show video player
+                product.video.type === 'link' ? (
+                  (() => {
+                    const embedUrl = getVideoEmbedUrl(product.video.url);
+                    if (embedUrl) {
+                      // YouTube or Vimeo - use iframe
+                      // For YouTube Shorts, we need to add some parameters
+                      const isShorts = product.video.url.includes('/shorts/');
+                      const finalEmbedUrl = isShorts 
+                        ? `${embedUrl}?playsinline=1`
+                        : embedUrl;
+                      
+                      return (
+                        <iframe
+                          src={finalEmbedUrl}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      );
+                    } else {
+                      // Other video link - try to embed or show as video element
+                      return (
+                        <video
+                          src={product.video.url}
+                          controls
+                          className="w-full h-full object-contain"
+                        >
+                          Your browser does not support the video tag.
+                        </video>
+                      );
+                    }
+                  })()
+                ) : (
+                  // File video
+                  <video
+                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.video.url}`}
+                    controls
+                    className="w-full h-full object-contain"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                )
+              ) : product.images[selectedImage] ? (
                 <img
                   src={
-                    product.images[selectedImage].startsWith('http://') || product.images[selectedImage].startsWith('https://')
+                    product.images[selectedImage].startsWith('http://') || product.images[selectedImage].startsWith('https://') || product.images[selectedImage].startsWith('data:image/')
                       ? product.images[selectedImage]
                       : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[selectedImage]}`
                   }
@@ -425,21 +527,25 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
               )}
             </div>
             
-            {/* Thumbnails */}
-            {product.images.length > 1 && (
+            {/* Thumbnails (Images + Video) */}
+            {(product.images.length > 1 || product.video) && (
               <div className="flex gap-3 overflow-x-auto pb-2">
+                {/* Image thumbnails */}
                 {product.images.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setSelectedImage(idx)}
+                    onClick={() => {
+                      setSelectedImage(idx);
+                      setIsVideoSelected(false);
+                    }}
                     className={`w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${
-                      selectedImage === idx ? 'border-current opacity-100' : 'border-transparent opacity-60'
+                      selectedImage === idx && !isVideoSelected ? 'border-current opacity-100' : 'border-transparent opacity-60'
                     }`}
-                    style={{ borderColor: selectedImage === idx ? theme.primary : 'transparent' }}
+                    style={{ borderColor: selectedImage === idx && !isVideoSelected ? theme.primary : 'transparent' }}
                   >
                     <img
                       src={
-                        img.startsWith('http://') || img.startsWith('https://')
+                        img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:image/')
                           ? img
                           : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${img}`
                       }
@@ -448,6 +554,49 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
                     />
                   </button>
                 ))}
+                
+                {/* Video thumbnail */}
+                {product.video && (() => {
+                  const videoId = product.video.type === 'link' ? getYouTubeVideoId(product.video.url) : null;
+                  const thumbnailUrl = videoId 
+                    ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+                    : null;
+                  
+                  return (
+                    <button
+                      onClick={() => {
+                        setIsVideoSelected(true);
+                        setSelectedImage(-1);
+                      }}
+                      className={`w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all flex items-center justify-center relative ${
+                        isVideoSelected ? 'border-current opacity-100' : 'border-transparent opacity-60'
+                      }`}
+                      style={{ 
+                        borderColor: isVideoSelected ? theme.primary : 'transparent',
+                        backgroundColor: thumbnailUrl ? 'transparent' : 'rgba(0,0,0,0.05)'
+                      }}
+                    >
+                      {thumbnailUrl ? (
+                        <>
+                          <img
+                            src={thumbnailUrl}
+                            alt="Video thumbnail"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to play icon if thumbnail fails to load
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <Play size={24} className="text-white" fill="white" />
+                          </div>
+                        </>
+                      ) : (
+                        <Play size={24} style={{ color: theme.primary }} />
+                      )}
+                    </button>
+                  );
+                })()}
               </div>
             )}
             
@@ -461,29 +610,6 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
               </div>
             )}
 
-            {/* Video */}
-            {product.video && (
-              <div className="mt-4">
-                {product.video.type === 'link' ? (
-                  <a
-                    href={product.video.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-white rounded-xl shadow"
-                    style={{ color: theme.primary }}
-                  >
-                    <Play size={20} />
-                    Watch Product Video
-                  </a>
-                ) : (
-                  <video
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.video.url}`}
-                    controls
-                    className="w-full rounded-xl"
-                  />
-                )}
-              </div>
-            )}
           </div>
 
           {/* Details */}
@@ -491,14 +617,14 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
             {/* Back to Store Button */}
             <Link
               href={`/store/${alias}`}
-              className="inline-flex items-center gap-2 px-4 py-2 mb-4 rounded-lg transition-colors hover:opacity-80"
+              className="inline-flex items-center gap-3 px-6 py-3 mb-6 rounded-xl transition-all hover:scale-105 shadow-md font-semibold"
               style={{ 
-                backgroundColor: 'rgba(0,0,0,0.05)', 
-                color: theme.textPrimary 
+                backgroundColor: theme.primary, 
+                color: '#ffffff'
               }}
             >
-              <ArrowLeft size={18} />
-              <span className="text-sm font-medium">Back to Store</span>
+              <ArrowLeft size={20} />
+              <span className="text-base">Back to Store</span>
             </Link>
 
             {product.hasPromotion && (
@@ -806,7 +932,7 @@ function ProductContent({ alias, slug }: { alias: string; slug: string }) {
                         {item.product.images?.[0] && (
                           <img
                             src={
-                              item.product.images[0].startsWith('http://') || item.product.images[0].startsWith('https://')
+                              item.product.images[0].startsWith('http://') || item.product.images[0].startsWith('https://') || item.product.images[0].startsWith('data:image/')
                                 ? item.product.images[0]
                                 : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${item.product.images[0]}`
                             }

@@ -949,7 +949,7 @@ function StoreContent({ alias }: { alias: string }) {
                     {product.images && product.images.length > 0 && product.images[0] ? (
                       <img
                         src={
-                          product.images[0].startsWith('http://') || product.images[0].startsWith('https://')
+                          product.images[0].startsWith('http://') || product.images[0].startsWith('https://') || product.images[0].startsWith('data:image/')
                             ? product.images[0]
                             : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`
                         }
@@ -1319,7 +1319,7 @@ function StoreContent({ alias }: { alias: string }) {
                         {item.product.images?.[0] && (
                           <img
                             src={
-                              item.product.images[0].startsWith('http://') || item.product.images[0].startsWith('https://')
+                              item.product.images[0].startsWith('http://') || item.product.images[0].startsWith('https://') || item.product.images[0].startsWith('data:image/')
                                 ? item.product.images[0]
                                 : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${item.product.images[0]}`
                             }

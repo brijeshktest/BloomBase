@@ -147,8 +147,10 @@ function ProductsContent() {
     });
     setVideoType(product.video?.type || 'link');
     setImages([]);
-    // Check if existing images are URLs or file paths
-    const existingImageLinks = product.images.filter(img => img.startsWith('http://') || img.startsWith('https://'));
+    // Check if existing images are URLs or file paths (including base64 data URLs)
+    const existingImageLinks = product.images.filter(img => 
+      img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:image/')
+    );
     if (existingImageLinks.length > 0) {
       setImageType('link');
       setImageLinks(existingImageLinks.length > 0 ? existingImageLinks : ['']);
@@ -375,7 +377,7 @@ function ProductsContent() {
                 {product.images && product.images.length > 0 && product.images[0] ? (
                   <img
                     src={
-                      product.images[0].startsWith('http://') || product.images[0].startsWith('https://')
+                      product.images[0].startsWith('http://') || product.images[0].startsWith('https://') || product.images[0].startsWith('data:image/')
                         ? product.images[0]
                         : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.images[0]}`
                     }
