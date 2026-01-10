@@ -342,6 +342,40 @@ function StoreContent({ alias }: { alias: string }) {
       return;
     }
 
+    // If quantity is explicitly provided, add directly to cart (bypass quantity selector)
+    if (quantity !== undefined) {
+      const qty = Math.max(quantity, product.minimumOrderQuantity);
+      
+      // Validate quantity
+      if (qty > (product.stock || 0)) {
+        toast.error(`Only ${product.stock} items available`);
+        return;
+      }
+
+      try {
+        await cartApi.add({
+          productId: product._id,
+          quantity: qty,
+          sellerAlias: alias,
+        });
+        
+        // Track add to cart event
+        trackEvent(alias, 'add_to_cart', {
+          productId: product._id,
+          buyerId: user?._id || user?.id,
+          metadata: { quantity: qty, productName: product.name }
+        });
+        
+        toast.success(`Added ${qty} to cart`);
+        fetchCart();
+        return;
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || 'Failed to add to cart');
+        return;
+      }
+    }
+
     // If quantity selector is not shown, show it first
     if (!showQuantitySelector[product._id]) {
       setShowQuantitySelector({ ...showQuantitySelector, [product._id]: true });
@@ -349,7 +383,7 @@ function StoreContent({ alias }: { alias: string }) {
       return;
     }
 
-    const qty = quantity || productQuantities[product._id] || product.minimumOrderQuantity;
+    const qty = productQuantities[product._id] || product.minimumOrderQuantity;
     
     // Validate quantity
     if (qty < product.minimumOrderQuantity) {
@@ -1081,9 +1115,10 @@ function StoreContent({ alias }: { alias: string }) {
                           </div>
                           {!showQuantitySelector[product._id] && (
                             <button
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                handleAddToCart(product);
+                                // Directly add 1 item to cart
+                                await handleAddToCart(product, 1);
                               }}
                               className="p-1.5 rounded-lg text-white transition-opacity hover:opacity-90"
                               style={{ backgroundColor: theme.buttonBg }}
