@@ -168,6 +168,73 @@ router.patch('/sellers/:id/approve', protect, adminOnly, async (req, res) => {
   }
 });
 
+// Disapprove seller (reject pending approval)
+router.patch('/sellers/:id/disapprove', protect, adminOnly, async (req, res) => {
+  console.log(`[DISAPPROVE] Request received - ID: ${req.params.id}, User: ${req.user?._id}`);
+  try {
+    // Use findOneAndUpdate to atomically update - this ensures the update happens
+    const updateResult = await User.findOneAndUpdate(
+      { _id: req.params.id, role: 'seller' },
+      { 
+        $set: { 
+          isApproved: false,
+          isActive: false
+        }
+      },
+      { 
+        new: true, // Return the updated document
+        runValidators: false // Skip validators to ensure update succeeds
+      }
+    );
+    
+    console.log(`[DISAPPROVE] Update result:`, updateResult ? `Found seller ${updateResult._id}` : 'No seller found');
+    
+    if (!updateResult) {
+      console.log(`[DISAPPROVE] Seller not found with ID: ${req.params.id}`);
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+
+    const seller = updateResult;
+    console.log(`[DISAPPROVE] Seller ${seller._id} (${seller.name}) disapproved successfully - isApproved: ${seller.isApproved}, isActive: ${seller.isActive}`);
+    
+    // Verify the update actually happened by querying again
+    const verifySeller = await User.findById(seller._id);
+    console.log(`[DISAPPROVE] Verification - isApproved: ${verifySeller?.isApproved}, isActive: ${verifySeller?.isActive}`);
+
+    // Generate WhatsApp notification URL (non-critical - don't let this block disapproval)
+    let whatsappUrl = null;
+    try {
+      if (seller.phone && typeof seller.phone === 'string') {
+        const sellerPhone = seller.phone.replace(/\+/g, '').replace(/\s/g, '');
+        if (sellerPhone.length > 0) {
+          const message = encodeURIComponent(`ℹ️ Registration Update\n\nHi ${seller.name},\n\nYour SellLocal Online seller account registration for "${seller.businessName}" has been reviewed and could not be approved at this time.\n\nIf you have any questions, please contact our support team.\n\nThank you for your interest.`);
+          whatsappUrl = `https://wa.me/${sellerPhone}?text=${message}`;
+        }
+      }
+    } catch (notifError) {
+      // Log notification error but don't fail the disapproval
+      console.warn('Failed to generate WhatsApp notification URL (seller still disapproved):', notifError.message);
+    }
+
+    // Always return success - seller is already updated in database
+    res.json({ 
+      message: 'Seller disapproved successfully',
+      seller: {
+        id: seller._id,
+        name: seller.name,
+        businessName: seller.businessName,
+        email: seller.email,
+        isApproved: seller.isApproved,
+        isActive: seller.isActive
+      },
+      notificationUrl: whatsappUrl
+    });
+  } catch (error) {
+    console.error('Error in disapprove seller endpoint:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Send WhatsApp phone verification link to seller
 router.post('/sellers/:id/send-phone-verification', protect, adminOnly, async (req, res) => {
   try {

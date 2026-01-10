@@ -675,17 +675,27 @@ function ProductsContent() {
                 
                 {imageType === 'file' ? (
                   <>
-                    <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center">
-                      <Upload className="mx-auto text-zinc-400 mb-2" size={32} />
-                      <p className="text-sm text-zinc-600 mb-2">Click or drag images here</p>
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/png,image/jpeg,image/jpg,image/webp"
-                        className="w-full"
-                        onChange={(e) => setImages(Array.from(e.target.files || []))}
-                      />
-                      <p className="text-xs text-zinc-500 mt-3">
+                    <div className="space-y-3">
+                      <label className="block">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
+                          className="hidden"
+                          onChange={(e) => setImages(Array.from(e.target.files || []))}
+                          id="image-upload-input"
+                        />
+                        <span className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl cursor-pointer transition-colors">
+                          <Upload size={20} />
+                          Choose Images
+                        </span>
+                      </label>
+                      {images.length > 0 && (
+                        <p className="text-sm text-zinc-600">
+                          {images.length} image{images.length > 1 ? 's' : ''} selected
+                        </p>
+                      )}
+                      <p className="text-xs text-zinc-500">
                         Recommended: 1200×1200px, Square, Max 5MB per image
                         <br />
                         <span className="text-zinc-400">Accepted: 400×400 to 2400×2400px (near square)</span>
@@ -827,12 +837,19 @@ function ProductsContent() {
                     onChange={(e) => setFormData({ ...formData, videoLink: e.target.value })}
                   />
                 ) : (
-                  <input
-                    type="file"
-                    accept="video/*"
-                    className="form-input"
-                    onChange={(e) => setVideo(e.target.files?.[0] || null)}
-                  />
+                  <label className="block">
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={(e) => setVideo(e.target.files?.[0] || null)}
+                      id="video-upload-input"
+                    />
+                    <span className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl cursor-pointer transition-colors">
+                      <Upload size={20} />
+                      {video ? video.name : 'Choose Video File'}
+                    </span>
+                  </label>
                 )}
               </div>
 
@@ -961,18 +978,21 @@ function ProductsContent() {
               {/* Upload File */}
               <div>
                 <label className="form-label">Upload Excel File</label>
-                <div className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center">
-                  <Upload className="mx-auto text-zinc-400 mb-2" size={32} />
-                  <p className="text-sm text-zinc-600 mb-2">
-                    {excelFile ? excelFile.name : 'Click or drag Excel file here'}
-                  </p>
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    className="w-full"
-                    onChange={(e) => setExcelFile(e.target.files?.[0] || null)}
-                  />
-                  <p className="text-xs text-zinc-500 mt-2">
+                <div className="space-y-3">
+                  <label className="block">
+                    <input
+                      type="file"
+                      accept=".xlsx,.xls"
+                      className="hidden"
+                      onChange={(e) => setExcelFile(e.target.files?.[0] || null)}
+                      id="excel-upload-input"
+                    />
+                    <span className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl cursor-pointer transition-colors">
+                      <FileSpreadsheet size={20} />
+                      {excelFile ? excelFile.name : 'Choose Excel File'}
+                    </span>
+                  </label>
+                  <p className="text-xs text-zinc-500">
                     Supported formats: .xlsx, .xls (Max 10MB)
                   </p>
                 </div>

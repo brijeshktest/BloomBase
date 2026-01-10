@@ -161,6 +161,9 @@ export const adminApi = {
   approveSeller: (id: string) => 
     api.patch(`/admin/sellers/${id}/approve`),
 
+  disapproveSeller: (id: string) => 
+    api.patch(`/admin/sellers/${id}/disapprove`),
+
   sendPhoneVerification: (id: string) =>
     api.post(`/admin/sellers/${id}/send-phone-verification`),
   

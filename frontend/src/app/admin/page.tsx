@@ -82,7 +82,15 @@ export default function AdminPage() {
         issueApi.getIssueStats().catch(() => ({ data: { total: 0, pending: 0, byStatus: {} } })),
       ]);
       setStats(statsRes.data);
-      setSellers(sellersRes.data.sellers);
+      // Filter out disapproved sellers (isApproved: false AND isActive: false) from the list
+      const filteredSellers = sellersRes.data.sellers.filter(seller => {
+        // If both isApproved and isActive are false, seller was explicitly disapproved - exclude them
+        if (!seller.isApproved && !seller.isActive) {
+          return false; // Exclude disapproved sellers
+        }
+        return true;
+      });
+      setSellers(filteredSellers);
       setBroadcastsEnabled(broadcastsRes.data.enabled);
       setIssues(issuesRes.data.issues || []);
       setIssueStats(issueStatsRes.data);
@@ -124,7 +132,15 @@ export default function AdminPage() {
       if (statusFilter) params.status = statusFilter;
       
       const response = await adminApi.getSellers(params);
-      setSellers(response.data.sellers);
+      // Filter out disapproved sellers (isApproved: false AND isActive: false)
+      const filteredSellers = response.data.sellers.filter(seller => {
+        // If both isApproved and isActive are false, seller was explicitly disapproved - exclude them
+        if (!seller.isApproved && !seller.isActive) {
+          return false; // Exclude disapproved sellers
+        }
+        return true;
+      });
+      setSellers(filteredSellers);
     } catch (error) {
       console.error(error);
     }
@@ -150,6 +166,65 @@ export default function AdminPage() {
     } catch (error) {
       console.error(error);
       toast.error('Failed to approve seller');
+    }
+  };
+
+  const handleDisapprove = async (seller: SellerWithStats) => {
+    if (!confirm(`Are you sure you want to disapprove ${seller.name} (${seller.businessName})? This will reject their registration and prevent them from being approved.`)) {
+      return;
+    }
+
+    const sellerId = seller._id || seller.id;
+    console.log('[Frontend] Attempting to disapprove seller:', sellerId, seller);
+    
+    try {
+      const response = await adminApi.disapproveSeller(sellerId);
+      console.log('[Frontend] Disapprove response:', response.data);
+      
+      if (response.data?.seller) {
+        console.log('[Frontend] Seller after disapproval:', response.data.seller);
+        console.log('[Frontend] isApproved:', response.data.seller.isApproved, 'isActive:', response.data.seller.isActive);
+      }
+      
+      toast.success('Seller registration disapproved');
+      
+      // Remove seller from list immediately (disapproved sellers should not be shown)
+      setSellers(prevSellers => {
+        const filtered = prevSellers.filter(s => {
+          // Remove the disapproved seller from the list
+          if (s._id === sellerId || s.id === sellerId) {
+            console.log('[Frontend] Removing disapproved seller from list:', s.name);
+            return false; // Remove this seller
+          }
+          return true;
+        });
+        return filtered;
+      });
+      
+      // Also update stats immediately
+      setStats(prevStats => ({
+        ...prevStats,
+        pendingSellers: Math.max(0, (prevStats.pendingSellers || 0) - 1)
+      }));
+      
+      if (response.data.notificationUrl) {
+        window.open(response.data.notificationUrl, '_blank');
+      }
+      
+      // Refresh data after a short delay to ensure backend changes are reflected
+      setTimeout(async () => {
+        try {
+          await fetchData();
+          console.log('[Frontend] Data refreshed after disapproval');
+        } catch (fetchError) {
+          console.error('[Frontend] Error refreshing data:', fetchError);
+        }
+      }, 500);
+    } catch (error: any) {
+      console.error('[Frontend] Disapprove error:', error);
+      console.error('[Frontend] Error response:', error.response?.data);
+      console.error('[Frontend] Error status:', error.response?.status);
+      toast.error(error.response?.data?.message || 'Failed to disapprove seller');
     }
   };
 
@@ -214,6 +289,11 @@ export default function AdminPage() {
       month: 'short',
       year: 'numeric',
     });
+  };
+
+  const cleanPhoneForWhatsApp = (phone?: string) => {
+    if (!phone) return '';
+    return phone.split('+').join('');
   };
 
   const handleLogout = () => {
@@ -537,14 +617,15 @@ export default function AdminPage() {
                     return (
                       <tr 
                         key={seller._id || seller.id} 
-                        className={`hover:bg-zinc-50 ${isSuspended ? 'bg-red-50/50 border-l-4 border-red-500' : ''}`}
+                        className={isSuspended ? 'hover:bg-zinc-50 bg-red-50 border-l-4 border-red-500' : 'hover:bg-zinc-50'}
+                        style={isSuspended ? { backgroundColor: 'rgba(254, 242, 242, 0.5)' } : undefined}
                       >
                         <td className="px-6 py-4">
                           <div>
                             <p className="font-medium text-zinc-900">{seller.name}</p>
                             <p className="text-sm text-zinc-500">{seller.email}</p>
                             <a
-                              href={`https://wa.me/${seller.phone?.replace(/\+/g, '')}`}
+                              href={'https://wa.me/' + cleanPhoneForWhatsApp(seller.phone)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-sm text-emerald-600 hover:underline flex items-center gap-1"
@@ -559,7 +640,7 @@ export default function AdminPage() {
                             <p className="font-medium text-zinc-900">{seller.businessName}</p>
                             {seller.alias && (
                               <Link
-                                href={`/store/${seller.alias}`}
+                                href={'/store/' + seller.alias}
                                 target="_blank"
                                 className="text-sm text-cyan-600 hover:underline flex items-center gap-1"
                               >
@@ -649,18 +730,27 @@ export default function AdminPage() {
                             )}
                             
                             {!seller.isApproved && (
-                              <button
-                                onClick={() => handleApprove(seller)}
-                                disabled={!seller.phoneVerified}
-                                className={`p-2 rounded-lg ${
-                                  seller.phoneVerified
-                                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                                    : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
-                                }`}
-                                title={seller.phoneVerified ? 'Approve' : 'Requires phone verification'}
-                              >
-                                <CheckCircle size={18} />
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleApprove(seller)}
+                                  disabled={!seller.phoneVerified}
+                                  className={`p-2 rounded-lg ${
+                                    seller.phoneVerified
+                                      ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                      : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+                                  }`}
+                                  title={seller.phoneVerified ? 'Approve' : 'Requires phone verification'}
+                                >
+                                  <CheckCircle size={18} />
+                                </button>
+                                <button
+                                  onClick={() => handleDisapprove(seller)}
+                                  className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+                                  title="Disapprove Seller"
+                                >
+                                  <XCircle size={18} />
+                                </button>
+                              </>
                             )}
                             {seller.isApproved && (
                               <>
@@ -706,11 +796,12 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+        )}
       </main>
 
       {/* Extension Modal */}
       {showExtensionModal && selectedSeller && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
             <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
               <h2 className="text-xl font-bold">Extend Seller Validity</h2>
